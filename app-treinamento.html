@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Projeto 12:00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1a0f">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>Projeto 12:00 — Atleta Híbrido TACF</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#080b0d;--bg2:#0d1117;--bg3:#161b22;--panel:#101820;
+--border:#21262d;--border2:#30363d;--text:#f0f6fc;--muted:#8b949e;--dim:#484f58;
+--green:#39d353;--lime:#b5ff47;--orange:#ff6b35;--amber:#ffab00;--blue:#58a6ff;
+--red:#f85149;--purple:#d2a8ff;--cyan:#79c0ff;color-scheme:dark}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{display:flex;flex-direction:column}
+button,input,select{font:inherit}
+.topbar{flex-shrink:0;background:linear-gradient(180deg,#0d1117 0%,#080b0d 100%);border-bottom:1px solid #b5ff4730;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar-title{font-size:16px;font-weight:850;letter-spacing:0;background:linear-gradient(135deg,#f0f6fc,#b5ff47);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);background:#161b22}
+.pill.green{border-color:#39d35355;color:var(--green);background:#39d35312}
+.pill.amber{border-color:#ffab0055;color:var(--amber);background:#ffab0012}
+.pill.red{border-color:#f8514955;color:var(--red);background:#f8514912}
+.page{display:none;flex:1;overflow:hidden;flex-direction:column}
+.page.active{display:flex}
+.scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.hero{padding:14px 16px;border-bottom:1px solid var(--border);background:#0b1015}
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;min-width:0}
+.metric-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.metric-val{font-size:18px;font-weight:850;margin-top:3px;color:var(--lime)}
+.metric-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.datebar{display:flex;gap:7px;overflow-x:auto;padding:12px 16px;scrollbar-width:none}
+.datebar::-webkit-scrollbar{display:none}
+.day-chip{flex:0 0 auto;width:66px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer}
+.day-chip.active{border-color:var(--lime);color:var(--lime);background:#b5ff4712}
+.day-chip.today{border-color:var(--amber)}
+.day-name{font-size:10px;font-weight:900;text-transform:uppercase}
+.day-date{font-size:12px;margin-top:2px}
+.section-title{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;padding:14px 16px 8px;font-weight:800}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin:0 16px 10px;overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:850}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.45}
+.card-body{padding:12px 14px}
+.coach{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.28)}
+.coach .card-title{color:var(--blue)}
+.warn{background:rgba(255,171,0,.08);border-color:rgba(255,171,0,.25)}
+.warn .card-title{color:var(--amber)}
+.block{background:#0d1117;border:1px solid var(--border);border-radius:8px;margin:0 16px 8px;overflow:hidden}
+.block-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.block-name{font-size:13px;font-weight:850}
+.block-meta{font-size:10px;color:var(--dim);white-space:nowrap}
+.ex{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(48,54,61,.6);cursor:pointer}
+.ex:last-child{border-bottom:none}
+.chk{width:19px;height:19px;border-radius:5px;border:1px solid var(--border2);flex:0 0 auto;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#080b0d;transition:.15s}
+.chk.done{background:var(--lime);border-color:var(--lime);box-shadow:0 0 7px #b5ff4760}
+.ex-text{font-size:13px;line-height:1.45;flex:1}
+.ex.done .ex-text{text-decoration:line-through;color:var(--dim)}
+.rest .ex-text{color:var(--purple);font-size:12px;font-style:italic}
+.info-line{cursor:default;background:#0b1015}
+.info-line .ex-text{color:var(--muted);font-size:12px}
+.info-line .chk{visibility:hidden}
+.anchor-tag{font-size:9px;font-weight:900;color:#080b0d;background:var(--lime);border-radius:5px;padding:2px 6px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.progress-wrap{padding:0 16px 12px}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-weight:800;margin-bottom:6px}
+.progress{height:5px;border-radius:8px;background:var(--bg3);overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--lime));transition:width .25s ease}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 12px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:10px;font-size:14px}
+.primary{width:calc(100% - 32px);margin:0 16px 10px;border:0;border-radius:8px;padding:13px;background:linear-gradient(135deg,var(--lime),var(--green));color:#071008;font-size:13px;font-weight:950;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+.ghost{border:1px solid var(--border2);background:transparent;color:var(--muted);border-radius:8px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(48,54,61,.55);font-size:13px}
+.row:last-child{border-bottom:none}
+.row span:last-child{text-align:right;color:var(--lime);font-weight:800}
+.week-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin:0 16px 10px;overflow:hidden}
+.week-head{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.week-title{font-size:13px;font-weight:900}
+.week-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.week-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.mini-badge{display:inline-flex;align-items:center;border:1px solid var(--border2);border-radius:999px;padding:3px 7px;font-size:9px;font-weight:900;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.mini-badge.run{border-color:#58a6ff55;color:var(--blue);background:#58a6ff12}
+.mini-badge.sim{border-color:#ffab0055;color:var(--amber);background:#ffab0012}
+.mini-badge.taper{border-color:#d2a8ff55;color:var(--purple);background:#d2a8ff12}
+.mini-badge.trans{border-color:#79c0ff55;color:var(--cyan);background:#79c0ff12}
+.mini-badge.deload{border-color:#39d35355;color:var(--green);background:#39d35312}
+.mini-badge.race{border-color:#f8514955;color:var(--red);background:#f8514912}
+.week-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:10px}
+.cal-day{min-height:66px;border:1px solid var(--border);background:#080b0d;border-radius:8px;padding:7px 5px;text-align:left;color:var(--text);cursor:pointer}
+.cal-day.selected{border-color:var(--lime);background:#b5ff4712}
+.cal-day.empty{opacity:.35;cursor:default}
+.cal-day-name{font-size:9px;color:var(--dim);font-weight:900;text-transform:uppercase}
+.cal-day-date{font-size:12px;font-weight:900;margin-top:2px}
+.cal-day-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.dot-tag{width:7px;height:7px;border-radius:50%;background:var(--border2)}
+.dot-tag.run{background:var(--blue)}
+.dot-tag.sim{background:var(--amber)}
+.dot-tag.taper{background:var(--purple)}
+.dot-tag.trans{background:var(--cyan)}
+.dot-tag.deload{background:var(--green)}
+.dot-tag.race{background:var(--red)}
+.memory-item{padding:11px 14px;border-bottom:1px solid rgba(48,54,61,.55);font-size:12px;color:var(--muted);line-height:1.45}
+.memory-item:last-child{border-bottom:none}
+.bottomnav{flex-shrink:0;background:#0d1117;border-top:1px solid #b5ff4720;display:flex;padding:8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border:0;background:transparent;color:var(--dim);font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.2px;cursor:pointer}
+.nav-item.active{color:var(--lime)}
+.nav-icon{font-size:17px}
+.empty{padding:28px 18px;text-align:center;color:var(--dim);font-size:13px;line-height:1.45}
+@media (min-width:760px){
+  body{max-width:520px;margin:0 auto;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+<section id="page-treino" class="page active">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Projeto 12:00 — Atleta Híbrido TACF</div>
+      <div class="topbar-sub" id="phase-sub">Calendário fechado + check-in + memória</div>
+    </div>
+    <span class="pill green" id="ready-pill">Base</span>
+  </div>
+  <div class="scroll">
+    <div class="hero">
+      <div class="card-sub" id="today-summary">Carregando treino do dia...</div>
+      <div class="hero-grid">
+        <div class="metric"><div class="metric-label">TACF</div><div class="metric-val" id="days-left">--</div><div class="metric-sub">dias</div></div>
+        <div class="metric"><div class="metric-label">Meta 3 km</div><div class="metric-val">12:00</div><div class="metric-sub">sub 4:00/km</div></div>
+        <div class="metric"><div class="metric-label">Readiness</div><div class="metric-val" id="ready-score">--</div><div class="metric-sub" id="ready-state">sem check-in</div></div>
+      </div>
+    </div>
+    <div class="datebar" id="datebar"></div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progresso do dia</span><span id="progress-label">0%</span></div>
+      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div id="coach-card"></div>
+    <div id="missed-card"></div>
+    <div class="section-title">Treino-base</div>
+    <div id="workout-blocks"></div>
+  </div>
+</section>
+
+<section id="page-calendario" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Calendário</div>
+      <div class="topbar-sub">Mapa semanal até a prova</div>
+    </div>
+    <span class="pill green" id="cal-count-pill">108 dias</span>
+  </div>
+  <div class="scroll">
+    <div class="hero">
+      <div class="card-sub" id="cal-summary">Calendário fechado de 15/06/2026 a 01/10/2026.</div>
+      <div class="hero-grid">
+        <div class="metric"><div class="metric-label">Semanas</div><div class="metric-val" id="cal-weeks">--</div><div class="metric-sub">planejadas</div></div>
+        <div class="metric"><div class="metric-label">Corridas</div><div class="metric-val" id="cal-runs">--</div><div class="metric-sub">sessões</div></div>
+        <div class="metric"><div class="metric-label">Simulações</div><div class="metric-val" id="cal-sims">--</div><div class="metric-sub">3 km</div></div>
+      </div>
+    </div>
+    <div class="section-title">Semanas</div>
+    <div id="calendar-weeks"></div>
+  </div>
+</section>
+
+<section id="page-checkin" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Check-in Diário</div>
+      <div class="topbar-sub">Ajusta o treino-base sem inventar outro plano</div>
+    </div>
+    <span class="pill" id="checkin-date-pill">Hoje</span>
+  </div>
+  <div class="scroll">
+    <div class="section-title">Prontidão</div>
+    <div class="form">
+      <div class="field"><label>Horas de sono</label><input id="ci-sleepHours" type="number" step="0.5" min="0" max="12" value="7"></div>
+      <div class="field"><label>Qualidade do sono</label><input id="ci-sleepQuality" type="number" min="1" max="5" value="3"></div>
+      <div class="field"><label>Energia</label><input id="ci-energy" type="number" min="1" max="5" value="3"></div>
+      <div class="field"><label>FC repouso hoje</label><input id="ci-restingHr" type="number" min="35" max="120" value="57"></div>
+      <div class="field"><label>Dor joelho</label><input id="ci-kneePain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>Dor ombro</label><input id="ci-shoulderPain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>Dor adutor</label><input id="ci-adductorPain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>Dor lombar</label><input id="ci-backPain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>PSE anterior</label><input id="ci-prevRpe" type="number" min="1" max="10" value="6"></div>
+      <div class="field"><label>Tempo disponível</label><input id="ci-availableMinutes" type="number" min="15" max="180" value="60"></div>
+      <div class="field full"><label>Local</label><select id="ci-location"><option>academia</option><option>casa</option><option>rua</option><option>box</option><option>viagem</option></select></div>
+    </div>
+    <button class="primary" onclick="saveCheckin()">Salvar check-in e ajustar</button>
+    <div id="checkin-result"></div>
+  </div>
+</section>
+
+<section id="page-registro" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Registro Pós-Treino</div>
+      <div class="topbar-sub">O que realmente aconteceu hoje</div>
+    </div>
+    <span class="pill" id="log-date-pill">Hoje</span>
+  </div>
+  <div class="scroll">
+    <div class="section-title">Sessão</div>
+    <div class="form">
+      <div class="field full"><label>Status</label><select id="log-status"><option value="completo">Completo</option><option value="parcial">Parcial</option><option value="recuperacao">Trocado por recuperação</option><option value="nao_feito">Não feito</option></select></div>
+      <div class="field"><label>PSE do treino</label><input id="log-rpe" type="number" min="1" max="10" value="7"></div>
+      <div class="field"><label>Duração (min)</label><input id="log-duration" type="number" min="0" max="240" value="60"></div>
+      <div class="field"><label>Dor joelho pós</label><input id="log-kneePain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>Dor ombro pós</label><input id="log-shoulderPain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>Dor adutor pós</label><input id="log-adductorPain" type="number" min="0" max="10" value="0"></div>
+      <div class="field"><label>Dor lombar pós</label><input id="log-backPain" type="number" min="0" max="10" value="0"></div>
+    </div>
+    <div class="section-title">Corrida / TACF</div>
+    <div class="form">
+      <div class="field"><label>Distância (km)</label><input id="log-runDistance" type="number" step="0.01" min="0" value="0"></div>
+      <div class="field"><label>Tempo</label><input id="log-runTime" type="text" placeholder="ex: 12:08"></div>
+      <div class="field"><label>FC média</label><input id="log-avgHr" type="number" min="0" value="0"></div>
+      <div class="field"><label>FC máxima</label><input id="log-maxHr" type="number" min="0" value="0"></div>
+      <div class="field"><label>Flexões total</label><input id="log-pushups" type="number" min="0" value="0"></div>
+      <div class="field"><label>Melhor série</label><input id="log-bestPushupSet" type="number" min="0" value="0"></div>
+      <div class="field"><label>Abdominais 1min</label><input id="log-situps" type="number" min="0" value="0"></div>
+      <div class="field"><label>Pace calculado</label><input id="log-pace" type="text" placeholder="auto/manual"></div>
+    </div>
+    <div class="section-title">Força e observações</div>
+    <div class="form">
+      <div class="field full"><label>Observação livre</label><input id="log-notes" type="text" placeholder="ex: joelho ok, tiro 5 pesou, subir carga no supino"></div>
+    </div>
+    <div class="section-title">Âncoras do dia</div>
+    <div id="anchor-log-fields"></div>
+    <div id="anchor-suggestions"></div>
+    <button class="primary" onclick="saveWorkoutLog()">Salvar registro</button>
+    <div id="log-result"></div>
+  </div>
+</section>
+
+<section id="page-tacf" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">TACF</div>
+      <div class="topbar-sub">3 km abaixo de 12:00 como prioridade 1</div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="hero">
+      <div class="hero-grid">
+        <div class="metric"><div class="metric-label">Próx. corrida</div><div class="metric-val" id="tacf-next-run-days">--</div><div class="metric-sub" id="tacf-next-run-type">dias</div></div>
+        <div class="metric"><div class="metric-label">Melhor 3 km</div><div class="metric-val" id="tacf-best-3k">--</div><div class="metric-sub">meta sub 12</div></div>
+        <div class="metric"><div class="metric-label">Flexões</div><div class="metric-val" id="tacf-best-pushups">--</div><div class="metric-sub">meta 70</div></div>
+      </div>
+    </div>
+    <div class="section-title">Painel TACF</div>
+    <div id="tacf-dashboard"></div>
+    <div class="section-title">Histórico recente</div>
+    <div class="card"><div id="tacf-run-history"></div></div>
+    <div class="section-title">Alertas</div>
+    <div id="tacf-alerts"></div>
+    <div class="section-title">Próximas corridas</div>
+    <div id="next-runs"></div>
+    <div class="section-title">Zonas HR Reserve</div>
+    <div class="card"><div class="card-body" id="zones-list"></div></div>
+  </div>
+</section>
+
+<section id="page-hipertrofia" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Hipertrofia</div>
+      <div class="topbar-sub">Volume semanal por grupo muscular</div>
+    </div>
+    <span class="pill green" id="hy-week-pill">Semana</span>
+  </div>
+  <div class="scroll">
+    <div class="hero">
+      <div class="card-sub" id="hy-summary">Calculando volume da semana...</div>
+      <div class="hero-grid">
+        <div class="metric"><div class="metric-label">Prioridade</div><div class="metric-val" id="hy-priority-ok">--</div><div class="metric-sub">grupos ok</div></div>
+        <div class="metric"><div class="metric-label">Core</div><div class="metric-val" id="hy-core-days">--</div><div class="metric-sub">sessões</div></div>
+        <div class="metric"><div class="metric-label">Âncoras</div><div class="metric-val" id="hy-anchor-count">--</div><div class="metric-sub">na semana</div></div>
+      </div>
+    </div>
+    <div class="section-title">Volume da semana</div>
+    <div id="hy-volume-list"></div>
+    <div class="section-title">Alertas</div>
+    <div id="hy-alerts"></div>
+    <div class="section-title">Âncoras da semana</div>
+    <div class="card"><div class="card-body" id="hy-anchors"></div></div>
+  </div>
+</section>
+
+<section id="page-nutricao" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Nutrição</div>
+      <div class="topbar-sub">Recomposição sem cortar performance</div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div id="nutrition-card"></div>
+    <div class="section-title">Alertas do calendário</div>
+    <div id="nutrition-alerts"></div>
+    <div class="section-title">Pré e pós-treino</div>
+    <div id="nutrition-timing"></div>
+    <div class="section-title">Cardápio do dia</div>
+    <div id="meal-plan-list"></div>
+    <div class="section-title">Checklist do dia</div>
+    <div class="card"><div class="card-body" id="nutrition-checklist"></div></div>
+    <div class="section-title">Modelos práticos</div>
+    <div class="card"><div class="card-body">
+      <div class="row"><span>Café</span><span>Ovos + pão/tapioca + fruta</span></div>
+      <div class="row"><span>Pré-corrida</span><span>Banana + mel ou tapioca</span></div>
+      <div class="row"><span>Pós-treino</span><span>Proteína + carboidrato</span></div>
+      <div class="row"><span>Jantar</span><span>Carbo ajustado ao tipo do dia</span></div>
+    </div></div>
+    <div class="card warn"><div class="card-body">
+      <div class="card-title">Sem promessa falsa</div>
+      <div class="card-sub">Não existe queima localizada de gordura nos flancos. A redução vem de consistência, controle calórico leve, musculação, corrida, sono e medidas.</div>
+    </div></div>
+  </div>
+</section>
+
+<section id="page-corpo" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Medidas</div>
+      <div class="topbar-sub">Recomposição corporal e flancos</div>
+    </div>
+    <span class="pill green" id="body-count-pill">0</span>
+  </div>
+  <div class="scroll">
+    <div id="body-current"></div>
+    <div class="section-title">Novo registro</div>
+    <div class="form">
+      <div class="field"><label>Peso (kg)</label><input id="body-weight" type="number" step="0.1" value="88"></div>
+      <div class="field"><label>Cintura (cm)</label><input id="body-waist" type="number" step="0.1" value="0"></div>
+      <div class="field"><label>Abdômen umbigo</label><input id="body-abdomen" type="number" step="0.1" value="0"></div>
+      <div class="field"><label>Quadril</label><input id="body-hip" type="number" step="0.1" value="0"></div>
+      <div class="field"><label>Braço relaxado</label><input id="body-armRelaxed" type="number" step="0.1" value="0"></div>
+      <div class="field"><label>Braço contraído</label><input id="body-armFlexed" type="number" step="0.1" value="0"></div>
+      <div class="field"><label>Coxa</label><input id="body-thigh" type="number" step="0.1" value="0"></div>
+      <div class="field"><label>Panturrilha</label><input id="body-calf" type="number" step="0.1" value="0"></div>
+      <div class="field full"><label>Percepção dos flancos (1-5)</label><input id="body-flanks" type="number" min="1" max="5" value="3"></div>
+    </div>
+    <button class="primary" onclick="saveBodyMeasurement()">Salvar medidas</button>
+    <div class="section-title">Histórico</div>
+    <div class="card"><div id="body-history"></div></div>
+    <div class="card warn"><div class="card-body">
+      <div class="card-title">Sem queima localizada</div>
+      <div class="card-sub">A redução dos flancos depende de consistência, controle calórico leve, musculação, corrida, sono e tendência das medidas.</div>
+    </div></div>
+  </div>
+</section>
+
+<section id="page-progressao" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Progressão</div>
+      <div class="topbar-sub">Âncoras: subir, manter ou reduzir</div>
+    </div>
+    <span class="pill green" id="prog-anchor-pill">Âncoras</span>
+  </div>
+  <div class="scroll">
+    <div class="hero">
+      <div class="card-sub" id="prog-summary">Comparando execuções registradas.</div>
+      <div class="hero-grid">
+        <div class="metric"><div class="metric-label">Com histórico</div><div class="metric-val" id="prog-history-count">--</div><div class="metric-sub">âncoras</div></div>
+        <div class="metric"><div class="metric-label">Subir</div><div class="metric-val" id="prog-up-count">--</div><div class="metric-sub">sugestões</div></div>
+        <div class="metric"><div class="metric-label">Atenção</div><div class="metric-val" id="prog-warn-count">--</div><div class="metric-sub">âncoras</div></div>
+      </div>
+    </div>
+    <div class="section-title">Sugestões</div>
+    <div id="progression-list"></div>
+  </div>
+</section>
+
+<section id="page-memoria" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Memória</div>
+      <div class="topbar-sub">O que o app já sabe sobre os seus dias</div>
+    </div>
+    <button class="ghost" onclick="clearMemory()">Limpar</button>
+  </div>
+  <div class="scroll">
+    <div class="section-title">Check-ins salvos</div>
+    <div class="card"><div id="memory-list"></div></div>
+    <div class="section-title">Registros pós-treino</div>
+    <div class="card"><div id="workout-log-list"></div></div>
+    <div class="section-title">Âncoras registradas</div>
+    <div class="card"><div id="anchor-log-list"></div></div>
+    <div class="section-title">Medidas</div>
+    <div class="card"><div id="memory-body-list"></div></div>
+    <div class="section-title">Treinos perdidos</div>
+    <div class="card"><div id="missed-log-list"></div></div>
+    <div class="section-title">Alertas de memória</div>
+    <div id="memory-alerts"></div>
+    <div class="section-title">Próximo passo técnico</div>
+    <div class="card coach"><div class="card-body">
+      <div class="card-title">Daqui nasce o bot</div>
+      <div class="card-sub">Quando este motor estiver sólido, o Telegram só precisa chamar as mesmas funções: treino do dia, check-in, readiness, ajuste e histórico.</div>
+    </div></div>
+  </div>
+</section>
+
+<section id="page-config" class="page">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Configurações</div>
+      <div class="topbar-sub">Projeto 12:00 — MVP local</div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="section-title">Perfil</div>
+    <div class="card"><div class="card-body" id="profile-card"></div></div>
+    <div class="section-title">Critérios do MVP</div>
+    <div class="card"><div class="card-body">
+      <div class="row"><span>Calendário estruturado</span><span>15/jun–01/out</span></div>
+      <div class="row"><span>Check-in</span><span>localStorage</span></div>
+      <div class="row"><span>Ajuste</span><span>regras explícitas</span></div>
+      <div class="row"><span>Módulos locais</span><span>treino, log, TACF, corpo</span></div>
+    </div></div>
+    <div class="section-title">Dados locais</div>
+    <button class="primary" onclick="exportAppData()">Exportar dados JSON</button>
+    <button class="primary" onclick="syncFromSupabase()">Baixar dados do Supabase</button>
+    <button class="primary" onclick="syncToSupabase()">Enviar dados para Supabase</button>
+    <div class="card"><div class="card-body" id="export-result">
+      <div class="card-sub">Exporta check-ins, logs, âncoras e medidas salvos neste navegador.</div>
+    </div></div>
+    <div class="card"><div class="card-body" id="sync-status">
+      <div class="card-title">Supabase</div>
+      <div class="card-sub">Sincronização manual disponível. O app continua funcionando offline.</div>
+    </div></div>
+  </div>
+</section>
+
+<nav class="bottomnav">
+  <button class="nav-item active" onclick="showPage('treino',this)"><div class="nav-icon">🏋</div><span>Treino</span></button>
+  <button class="nav-item" onclick="showPage('calendario',this)"><div class="nav-icon">▦</div><span>Cal</span></button>
+  <button class="nav-item" onclick="showPage('checkin',this)"><div class="nav-icon">✓</div><span>Check</span></button>
+  <button class="nav-item" onclick="showPage('registro',this)"><div class="nav-icon">＋</div><span>Log</span></button>
+  <button class="nav-item" onclick="showPage('tacf',this)"><div class="nav-icon">⏱</div><span>TACF</span></button>
+  <button class="nav-item" onclick="showPage('hipertrofia',this)"><div class="nav-icon">◆</div><span>Hiper</span></button>
+  <button class="nav-item" onclick="showPage('nutricao',this)"><div class="nav-icon">🍽</div><span>Nutri</span></button>
+  <button class="nav-item" onclick="showPage('corpo',this)"><div class="nav-icon">◎</div><span>Corpo</span></button>
+  <button class="nav-item" onclick="showPage('progressao',this)"><div class="nav-icon">↗</div><span>Prog</span></button>
+  <button class="nav-item" onclick="showPage('memoria',this)"><div class="nav-icon">↻</div><span>Memória</span></button>
+  <button class="nav-item" onclick="showPage('config',this)"><div class="nav-icon">⚙</div><span>Config</span></button>
+</nav>
+
+<script>
+const USER_PROFILE = {
+  name: "Atleta",
+  sex: "Homem",
+  age: 39,
+  heightCm: 185,
+  weightKg: 88,
+  restingHr: 57,
+  maxHr: 183,
+  hrr: 126,
+  tacfDate: "2026-10-01",
+  goal: "3 km abaixo de 12:00",
+  targetPace: "3:58-4:00/km"
+};
+
+const SUPABASE_CONFIG = {
+  restUrl: "https://tcuojcksurhtaodgiqfy.supabase.co/rest/v1",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjdW9qY2tzdXJodGFvZGdpcWZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzODUwMTYsImV4cCI6MjA5Njk2MTAxNn0.i36WrfYhwYsEl5HQhnrSJ3hBuyqHiXJVSuOzbOR6TSw",
+  userId: "00000000-0000-4000-8000-000000000001"
+};
+
+const HR_ZONES = [
+  ["Zona 1", "50-60% HRR", "120-132 bpm", "Recuperação"],
+  ["Zona 2", "60-70% HRR", "132-145 bpm", "Longo Z2"],
+  ["Zona 3", "70-80% HRR", "145-158 bpm", "Aeróbio forte"],
+  ["Zona 4", "80-90% HRR", "158-170 bpm", "Tempo run"],
+  ["Zona 5", "90-100% HRR", "170-183 bpm", "Tiros/intervalados"]
+];
+
+const PHASES = [
+  {start:"2026-06-15", end:"2026-08-01", name:"Fase 2 — Velocidade + Limiar"},
+  {start:"2026-08-02", end:"2026-08-03", name:"Transição — recuperação ativa"},
+  {start:"2026-08-04", end:"2026-09-19", name:"Fase 3 — Afiação"},
+  {start:"2026-09-20", end:"2026-09-21", name:"Transição — preparação para tapering"},
+  {start:"2026-09-22", end:"2026-10-01", name:"Tapering — chegar descansado"}
+];
+
+const SIMULATION_DATES = ["2026-07-28","2026-08-13","2026-08-25","2026-09-03","2026-09-15"];
+
+const RUNNING_PLAN = {
+  "2026-06-16": run("Intervalados 6x2min","10min aquecimento → 6x [2min forte + 90s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-06-18": run("Tempo Run 15min","10min aquecimento Z2 → 15min contínuo → 10min desaquecimento Z2","Pace 5:00/km. Z4 158-170 bpm."),
+  "2026-06-20": run("Longo Z2 60min","5min aquecimento → 50min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-06-23": run("Intervalados 6x2min","10min aquecimento → 6x [2min forte + 90s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-06-25": run("Tempo Run 18min","10min aquecimento Z2 → 18min contínuo → 10min desaquecimento Z2","Pace 4:55/km. Z4 158-170 bpm."),
+  "2026-06-27": run("Longo Z2 60min","5min aquecimento → 50min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-06-30": run("Intervalados 8x2min","10min aquecimento → 8x [2min forte + 90s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-07-02": run("Tempo Run 20min","10min aquecimento Z2 → 20min contínuo → 10min desaquecimento Z2","Pace 4:50/km. Z4 158-170 bpm."),
+  "2026-07-04": run("Longo Z2 65min","5min aquecimento → 55min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-07-07": run("Intervalados 8x2min","10min aquecimento → 8x [2min forte + 90s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-07-09": run("Tempo Run 20min","10min aquecimento Z2 → 20min contínuo → 10min desaquecimento Z2","Pace 4:45/km. Z4 158-170 bpm."),
+  "2026-07-11": run("Longo Z2 65min","5min aquecimento → 55min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-07-14": run("Intervalados 10x2min","10min aquecimento → 10x [2min forte + 90s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-07-16": run("Tempo Run 22min","10min aquecimento Z2 → 22min contínuo → 10min desaquecimento Z2","Pace 4:40/km. Z4 158-170 bpm."),
+  "2026-07-18": run("Longo Z2 70min","5min aquecimento → 60min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-07-21": run("Intervalados 10x2min","10min aquecimento → 10x [2min forte + 90s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-07-23": run("Tempo Run 25min","10min aquecimento Z2 → 25min contínuo → 10min desaquecimento Z2","Pace 4:35/km. Z4 158-170 bpm."),
+  "2026-07-25": run("Longo Z2 70min","5min aquecimento → 60min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-07-28": run("Simulação 3 km","10min aquecimento Z2 → 3 km → 10min desaquecimento Z2","Prioridade: pace 4:10/km. FC não manda na simulação."),
+  "2026-07-30": run("Z2 45min","5min aquecimento → 35min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-08-01": run("Longo Z2 70min","5min aquecimento → 60min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-08-04": run("Repetições 8x1min","10min aquecimento → 8x [1min forte + 60s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-08-06": run("Tempo Run 25min","10min aquecimento Z2 → 25min contínuo → 10min desaquecimento Z2","Pace 4:30/km. Z4 158-170 bpm."),
+  "2026-08-08": run("Longo Z2 65min","5min aquecimento → 55min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-08-11": run("Repetições 10x1min","10min aquecimento → 10x [1min forte + 60s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-08-13": run("Simulação 3 km","10min aquecimento Z2 → 3 km → 10min desaquecimento Z2","Prioridade: pace 4:05/km. FC não manda na simulação."),
+  "2026-08-15": run("Longo Z2 65min","5min aquecimento → 55min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-08-18": run("Repetições 10x1min","10min aquecimento → 10x [1min forte + 60s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-08-20": run("Tempo Run 25min","10min aquecimento Z2 → 25min contínuo → 10min desaquecimento Z2","Pace 4:25/km. Z4 158-170 bpm."),
+  "2026-08-22": run("Longo Z2 60min","5min aquecimento → 50min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-08-25": run("Simulação 3 km","10min aquecimento Z2 → 3 km → 10min desaquecimento Z2","Prioridade: pace 4:02/km. FC não manda na simulação."),
+  "2026-08-27": run("Z2 40min","5min aquecimento → 30min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-08-29": run("Longo Z2 60min","5min aquecimento → 50min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-09-01": run("Repetições 8x1min","10min aquecimento → 8x [1min forte + 60s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-09-03": run("Simulação 3 km","10min aquecimento Z2 → 3 km → 10min desaquecimento Z2","Prioridade: pace 4:00/km. FC não manda na simulação."),
+  "2026-09-05": run("Longo Z2 55min","5min aquecimento → 45min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-09-08": run("Repetições 6x1min","10min aquecimento → 6x [1min forte + 60s recuperação] → 10min desaquecimento","Tiros Z5 170-183 bpm ou RPE 8-9. Recuperação Z1 120-132 bpm."),
+  "2026-09-10": run("Tempo Run 20min","10min aquecimento Z2 → 20min contínuo → 10min desaquecimento Z2","Pace 4:20/km. Z4 158-170 bpm."),
+  "2026-09-12": run("Longo Z2 55min","5min aquecimento → 45min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-09-15": run("Simulação 3 km","10min aquecimento Z2 → 3 km → 10min desaquecimento Z2","Prioridade: pace 4:00/km. FC não manda na simulação."),
+  "2026-09-17": run("Z2 35min","5min aquecimento → 25min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-09-19": run("Longo Z2 50min","5min aquecimento → 40min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-09-22": run("Ativação 30min","10min aquecimento → 4x [1min forte + 60s recuperação] → 10min desaquecimento","Tiros Z4 158-170 bpm. Recuperação Z1 120-132 bpm."),
+  "2026-09-24": run("Z2 30min","5min aquecimento → 20min corrida → 5min desaquecimento","Z2 132-145 bpm."),
+  "2026-09-26": run("Ativação leve 25min","5min aquecimento → 15min Z2 → 4 strides de 20s → 5min desaquecimento","Z2 + strides livres."),
+  "2026-09-29": run("Ativação final 20min","10min Z2 → 4 strides de 20s → 5min desaquecimento","Z2 + strides livres."),
+  "2026-10-01": run("PROVA 3 km","10min aquecimento Z2 → 3 km all out → 5min desaquecimento","Meta abaixo de 12:00. Pace 3:58/km.")
+};
+
+const NUTRITION_TEMPLATES = {
+  corrida_forte: {name:"Dia forte de corrida", kcal:"2850-3100 kcal", protein:"180 g", carbs:"330-420 g", fats:"65-80 g", note:"Sustentar intervalado, tempo run ou longo. Não cortar carboidrato."},
+  musculacao: {name:"Musculação principal", kcal:"2650-2850 kcal", protein:"180 g", carbs:"240-320 g", fats:"75-90 g", note:"Hipertrofia e recuperação com controle calórico leve."},
+  recuperacao: {name:"Recuperação", kcal:"2350-2600 kcal", protein:"180 g", carbs:"160-230 g", fats:"80-95 g", note:"Manter proteína, controlar carboidrato e recuperar bem."}
+};
+
+const CARDAPIO_SEMANAL = {
+  segunda: {
+    foco:"Musculação Superior A",
+    pre:"Café da manhã com carbo moderado e proteína antes do treino. Se treinar em jejum por horário, usar whey + banana.",
+    pos:"Pós-treino com proteína completa e carboidrato para recuperar empurrar/flexões.",
+    refeicoes:[
+      meal("04:35","Pré-treino rápido","Energia leve sem pesar","Banana + whey ou iogurte proteico","1 banana + 25-30g whey","Tapioca pequena com queijo; café se tolerado","Usar se acordar sem fome."),
+      meal("06:15","Pós-treino / café","Recuperar superior e bater proteína","Ovos + pão/tapioca + fruta","3 ovos + 2 fatias pão ou 1 tapioca + fruta","Iogurte + aveia + whey","Não cortar carbo após treino de força."),
+      meal("12:30","Almoço","Base de recomposição","Arroz, feijão, frango/carne/peixe, legumes, salada","150-200g arroz + 1 concha feijão + 180-220g proteína","Batata/mandioca no lugar do arroz","Azeite controlado."),
+      meal("16:30","Lanche","Proteína e energia estável","Iogurte + aveia + banana","1 pote iogurte + 30-50g aveia + 1 banana","Whey + fruta + castanhas","Boa refeição para evitar fome à noite."),
+      meal("20:00","Jantar","Recuperação sem excesso","Proteína + carbo moderado + legumes","180-220g proteína + 100-150g carbo + legumes","Omelete + arroz; peixe + batata","Carbo moderado porque terça tem intervalado.")
+    ]
+  },
+  terca: {
+    foco:"Inferior A + Intervalado",
+    pre:"Antes da corrida, priorizar carboidrato simples e pouca gordura.",
+    pos:"Pós-corrida precisa de carboidrato + proteína. Dia não é para restrição agressiva.",
+    refeicoes:[
+      meal("04:30","Pré-musculação","Acordar e treinar sem pesar","Banana + café + whey opcional","1 banana + café; 20-25g whey se necessário","Mel + banana; iogurte leve","Manter leve para Inferior A controlado."),
+      meal("06:15","Pós-musculação","Repor energia antes do intervalado","Cuscuz/tapioca + ovos + fruta","1 porção cuscuz/tapioca + 2-3 ovos + fruta","Pão + queijo + ovos","Não exagerar gordura."),
+      meal("08:00","Pré-corrida","Combustível rápido","Banana + mel ou pão/tapioca com geleia","1 banana + 1 colher mel ou 1 pão/tapioca","Aveia + banana se tolerar","Ideal 30-60min antes."),
+      meal("10:00","Pós-corrida","Recuperar tiros","Whey + banana + aveia ou refeição completa","30g whey + banana + 40g aveia","Arroz, feijão e carne se for horário de almoço","Carbo aqui protege performance."),
+      meal("12:30","Almoço","Repor glicogênio","Arroz, feijão, proteína, legumes","200g arroz + feijão + 180-220g proteína","Macarrão simples + carne; batata + frango","Dia alto em carbo."),
+      meal("20:00","Jantar","Fechar proteína","Proteína + carbo moderado/alto + salada","180-220g proteína + 150-200g carbo","Omelete + arroz; peixe + batata","Amanhã é superior, recuperar pernas.")
+    ]
+  },
+  quarta: {
+    foco:"Musculação Superior B",
+    pre:"Carbo moderado e proteína antes de puxar/carries.",
+    pos:"Pós com proteína para costas, bíceps e trapézio.",
+    refeicoes:[
+      meal("04:35","Pré-treino","Energia para puxar","Banana + whey ou café + fruta","1 banana + 25g whey","Iogurte proteico; pão pequeno","Leve e prático."),
+      meal("06:15","Pós-treino","Recuperar costas e braços","Ovos + pão + fruta","3 ovos + 2 fatias pão + fruta","Whey + aveia + banana","Boa hora para carbo moderado."),
+      meal("12:30","Almoço","Manter hipertrofia","Arroz, feijão, proteína e legumes","150-200g arroz + feijão + 180-220g proteína","Carne moída + arroz; frango + batata","Priorizar proteína."),
+      meal("16:30","Lanche","Evitar queda de energia","Whey + fruta + aveia","30g whey + fruta + 30-40g aveia","Iogurte + granola","Ajustar carbo pela fome."),
+      meal("20:00","Jantar","Preparar quinta corrida","Proteína + carbo moderado + legumes","180-220g proteína + 150g carbo","Ovos + tapioca; peixe + arroz","Não cortar carbo porque quinta tem qualidade.")
+    ]
+  },
+  quinta: {
+    foco:"Posterior leve + Corrida de qualidade",
+    pre:"Pré-corrida deve ser simples, com carbo fácil e pouca fibra/gordura.",
+    pos:"Pós-corrida com carbo + proteína para chegar bem na sexta.",
+    refeicoes:[
+      meal("04:30","Pré-ativação","Ativar sem pesar","Café + banana ou whey leve","1 banana; 20g whey se necessário","Iogurte pequeno","Treino de posterior é leve."),
+      meal("06:15","Café / pós-ativação","Repor sem estufar","Tapioca/pão + ovos + fruta","1 tapioca + 2 ovos + fruta","Cuscuz + queijo + ovos","Gordura baixa a moderada."),
+      meal("08:00","Pré-corrida","Sustentar tempo/simulação","Banana + mel ou pão com geleia","1 banana + mel ou 1 pão","Aveia + banana se tolerar","Não testar alimento novo."),
+      meal("10:00","Pós-corrida","Recuperação da qualidade","Whey + banana + aveia","30g whey + banana + 40g aveia","Almoço antecipado completo","Se foi simulação, caprichar no carbo."),
+      meal("12:30","Almoço","Repor glicogênio","Arroz, feijão, proteína, legumes","200g arroz + feijão + 180-220g proteína","Macarrão + carne; batata + frango","Dia de carbo alto."),
+      meal("20:00","Jantar","Recuperar para sexta","Proteína + carbo moderado","180-220g proteína + 120-180g carbo","Omelete + arroz; peixe + batata","Evitar jantar restritivo.")
+    ]
+  },
+  sexta: {
+    foco:"Hipertrofia estética à tarde",
+    pre:"Distribuir proteína e chegar com energia no treino da tarde.",
+    pos:"Pós-treino com proteína e carbo moderado, sem destruir o longo de sábado.",
+    refeicoes:[
+      meal("07:00","Café","Base proteica","Ovos + pão/tapioca + fruta","3 ovos + pão/tapioca + fruta","Iogurte + whey + aveia","Sem pressa pela manhã."),
+      meal("12:30","Almoço","Energia para treino da tarde","Arroz, feijão, proteína, legumes","180-220g arroz + feijão + 180-220g proteína","Batata + carne; macarrão + frango","Carbo moderado/alto."),
+      meal("15:30","Pré-treino","Pump e performance","Banana + aveia + whey ou pão com geleia","Banana + 30g aveia + 25g whey","Tapioca com queijo magro","60-90min antes se possível."),
+      meal("18:30","Pós-treino","Recuperar hipertrofia","Whey + fruta ou jantar antecipado","30g whey + fruta","Arroz, feijão e proteína","Evitar finisher virar desculpa para comer pouco."),
+      meal("20:30","Jantar","Preparar longo Z2","Proteína + carbo moderado/alto","180-220g proteína + 150-220g carbo","Peixe + arroz; frango + batata","Sábado tem longo: não cortar carbo.")
+    ]
+  },
+  sabado: {
+    foco:"Longo Z2",
+    pre:"Longo precisa de combustível leve. FC e respiração mandam.",
+    pos:"Repor líquidos, eletrólitos, carboidrato e proteína.",
+    refeicoes:[
+      meal("05:15","Pré-longo","Energia digestiva","Banana + mel + café","1 banana + 1 colher mel","Pão com geleia; bebida esportiva","Pouca gordura e pouca fibra."),
+      meal("07:30","Pós-longo","Repor glicogênio","Whey + banana + aveia","30g whey + banana + 50g aveia","Café completo com ovos + pão","Hidratar logo após."),
+      meal("12:30","Almoço","Recuperação principal","Arroz, feijão, proteína, legumes, sal","200g arroz + feijão + 200g proteína","Macarrão + carne; batata + frango","Eletrólitos se muito suor."),
+      meal("16:30","Lanche","Manter proteína","Iogurte proteico + fruta","1 iogurte + fruta + granola","Whey + aveia","Ajustar carbo pela fome."),
+      meal("20:00","Jantar","Fechar recuperação","Proteína + carbo moderado + salada","180-220g proteína + 120-180g carbo","Omelete + arroz; peixe + batata","Domingo é recuperação.")
+    ]
+  },
+  domingo: {
+    foco:"Recuperação ativa",
+    pre:"Dia de controle calórico leve, sem cortar proteína.",
+    pos:"Refeições simples, hidratação e preparação da semana.",
+    refeicoes:[
+      meal("08:00","Café","Proteína e saciedade","Ovos + fruta + café","3 ovos + 1 fruta","Iogurte + whey + aveia pequena","Carbo menor que dias de corrida."),
+      meal("12:30","Almoço","Base limpa","Arroz menor, feijão, proteína, salada, legumes","100-150g arroz + feijão + 200g proteína","Batata doce + frango; peixe + legumes","Azeite controlado."),
+      meal("16:30","Lanche","Evitar fome à noite","Whey ou iogurte + fruta","25-30g whey ou iogurte + fruta","Ovos; cottage; queijo","Proteína primeiro."),
+      meal("20:00","Jantar","Recuperar sem exagero","Proteína + legumes + carbo ajustado","180-220g proteína + legumes + 80-140g carbo","Omelete grande; peixe + salada","Preparar alimentos da semana."),
+      meal("21:30","Ceia opcional","Sono e proteína","Iogurte/cottage/whey","1 porção proteica","Ovos; queijo cottage","Só se houver fome.")
+    ]
+  }
+};
+
+const MUSCLE_VOLUME_TARGETS = {
+  ombro: {label:"Ombro lateral/posterior", min:14, max:20, priority:true},
+  biceps: {label:"Bíceps", min:8, max:14, priority:true},
+  triceps: {label:"Tríceps", min:8, max:14, priority:true},
+  trapezio: {label:"Trapézio", min:8, max:12, priority:true},
+  peito: {label:"Peito", min:8, max:12, priority:false},
+  costas: {label:"Costas", min:10, max:16, priority:false},
+  quadriceps: {label:"Quadríceps", min:6, max:10, priority:false},
+  posterior: {label:"Posterior/glúteos", min:8, max:12, priority:false},
+  panturrilha: {label:"Panturrilha", min:8, max:12, priority:false},
+  core: {label:"Core", min:6, max:7, priority:true, unit:"sessões"}
+};
+
+const STRENGTH_TEMPLATES = {
+  segunda: {
+    title:"Superior A — força de empurrar + hipertrofia + flexão TACF + Core A",
+    priority:"Peitoral superior, ombros, tríceps, trapézio e flexão TACF",
+    blocks:[
+      block("Aquecimento", "ombro", ["Mobilidade torácica: 2x8", "Rotação externa com elástico: 2x15", "Face pull leve: 2x15", "Flexão escapular: 2x10"]),
+      block("Âncora de força: empurrar horizontal", "forca", ["Supino inclinado com halteres ou barra: 4x6-8 [Âncora]", "⏱ Descanso: 120s", "Progressão: 4x8 com RPE <= 8 → aumentar carga na próxima semana"]),
+      block("Empurrar vertical", "forca", ["Desenvolvimento com halteres pegada neutra: 3x6-10 [Âncora]", "⏱ Descanso: 90s"]),
+      block("Hipertrofia estética", "hiper", ["Elevação lateral: 5x12-20", "Tríceps corda/francês/testa: 4x10-15", "Encolhimento para trapézio: 4x10-15", "⏱ Descanso: 45-75s"]),
+      block("Flexão TACF", "tacf", ["Flexões submáximas: 5 séries, parar com 2 reps na reserva [Âncora]", "Registrar total", "⏱ Descanso: 90s"]),
+      block("Core A anti-extensão", "core", ["Dead bug: 3x10 cada lado", "Hollow hold: 4x20-30s", "Prancha frontal: 3x40s"])
+    ]
+  },
+  terca: {
+    title:"Inferior A controlado + Core B + corrida intervalada",
+    priority:"Perna RPE 6-7 para não atrapalhar os tiros",
+    blocks:[
+      block("Ativação e potência microdose", "potencia", ["Skipping: 3x20m", "Ankling: 3x20m", "Salto vertical baixo volume: 3x3, apenas se joelho estiver bem"]),
+      block("Âncora dominante de joelho controlada", "forca", ["Leg press, hack leve ou goblet squat: 3x8-10 [Âncora]", "RPE 6-7, sem falha", "⏱ Descanso: 90s"]),
+      block("Posterior e estabilidade", "forca", ["RDL leve/moderado: 3x8 [Âncora]", "Panturrilha: 3x15", "Miniband lateral walk: 2x12 cada lado"]),
+      block("Core B TACF", "core", ["Abdominal TACF: 5x30s", "Pallof press: 3x12 cada lado", "Prancha lateral: 3x30s cada lado"]),
+      block("Corrida do calendário", "corrida", runLines("2026-06-16"))
+    ]
+  },
+  quarta: {
+    title:"Superior B — puxar + dorsais + bíceps + deltoide posterior + trapézio + carry + Core C",
+    priority:"Costas, braços, trapézio e estabilidade",
+    blocks:[
+      block("Aquecimento", "ombro", ["Bike leve: 5min", "Face pull: 2x15", "Scap pull-up: 2x8"]),
+      block("Âncora puxar vertical", "forca", ["Barra fixa, puxada alta ou pull-up assistido: 4x6-10 [Âncora]", "⏱ Descanso: 120s"]),
+      block("Âncora puxar horizontal", "forca", ["Remada baixa, curvada ou unilateral: 4x8-12 [Âncora]", "⏱ Descanso: 90s"]),
+      block("Hipertrofia estética", "hiper", ["Rosca bíceps: 4x10-15", "Elevação posterior: 4x15-20", "Encolhimento: 4x12-15"]),
+      block("Carry", "forca", ["Farmer carry ou suitcase carry: 4x30-40m [Âncora]"]),
+      block("Core C anti-rotação", "core", ["Pallof press: 4x10 cada lado", "Dead bug: 3x10 cada lado", "Side plank reach: 3x8 cada lado"])
+    ]
+  },
+  quinta: {
+    title:"Posterior leve + ativação atlética + Core D + corrida de qualidade",
+    priority:"Ativar posterior e core sem fadigar antes do tempo run",
+    blocks:[
+      block("Mobilidade e drills", "potencia", ["Mobilidade de quadril: 4min", "Mobilidade de tornozelo: 3min", "Drills de corrida: 3x20m", "Ponte de glúteo: 2x12"]),
+      block("Âncora dominante de quadril leve", "forca", ["RDL leve/moderado: 3x6-8 [Âncora]", "RPE 6-7, foco em técnica", "⏱ Descanso: 90s"]),
+      block("Posterior e glúteo", "forca", ["Mesa flexora ou nórdico regressivo: 2-3x8-12", "Glute bridge: 3x12", "Panturrilha leve: 3x15"]),
+      block("Core D pré-corrida", "core", ["Dead bug: 3x8 cada lado", "Hollow rock: 3x12", "Respiração 90/90: 3x5 ciclos"]),
+      block("Corrida do calendário", "corrida", runLines("2026-06-18"))
+    ]
+  },
+  sexta: {
+    title:"Hipertrofia estética + flexão densidade + finisher híbrido curto + Core E",
+    priority:"Ombros, braços, trapézio, peito e costas sem destruir o longo",
+    blocks:[
+      block("Aquecimento", "ombro", ["BikeErg leve: 5min", "Rotação externa: 2x15", "Elevação lateral leve: 2x15"]),
+      block("Hipertrofia estética", "hiper", ["Supino máquina ou halteres: 3x8-12", "Remada ou puxada: 3x8-12", "Elevação lateral: 5x12-20", "Rosca bíceps: 4x10-15", "Tríceps: 4x10-15", "Encolhimento: 4x12-15"]),
+      block("Flexão densidade", "tacf", ["EMOM 8-10min: 8 a 12 flexões por minuto", "Registrar total"]),
+      block("Finisher híbrido curto", "cond", ["8min RPE 6-7: 45s BikeErg + 10 flexões + 30m farmer carry", "Não virar WOD destrutivo"]),
+      block("Core E estético + TACF", "core", ["Abdominal TACF: 5x35s", "Elevação de pernas: 4x10-12", "Russian twist: 3x20", "Farmer carry: 4x40m"])
+    ]
+  },
+  sabado: {
+    title:"Longo Z2 + Inferior B acessório + Core F",
+    priority:"Base aeróbica e resistência muscular sem falha",
+    blocks:[
+      block("Corrida longa", "corrida", runLines("2026-06-20")),
+      block("Inferior B acessório", "forca", ["Hip thrust: 3x10 [Âncora]", "Mesa flexora: 3x12", "Panturrilha: 4x15-20", "Abdutor/glúteo médio: 3x15-20", "Tibial anterior, se possível: 3x15-20"]),
+      block("Core F pós-longo", "core", ["Prancha frontal: 3x45s", "Prancha lateral: 3x30s cada lado", "Dead bug: 3x10 cada lado", "Respiração diafragmática: 3min"])
+    ]
+  },
+  domingo: {
+    title:"Recuperação ativa + mobilidade + Core G + preparação da semana",
+    priority:"Baixar fadiga e preparar a próxima semana",
+    blocks:[
+      block("Caminhada leve", "rec", ["Caminhada Z1: 25-35min", "Respiração confortável, sem objetivo de pace"]),
+      block("Mobilidade", "mob", ["Quadril: 4min", "Tornozelo: 3min", "Torácica: 3min", "Posterior de coxa: 3min", "Panturrilha: 3min"]),
+      block("Core G restaurativo", "core", ["Respiração 90/90: 4x5 ciclos", "Cat-camel: 2x10", "Bird dog: 3x8 cada lado", "Dead bug leve: 3x8 cada lado", "Prancha lateral leve: 2x25s cada lado"]),
+      block("Preparação da semana", "prep", ["Conferir treinos da semana", "Registrar peso, sono médio e dores", "Definir prioridade da semana"])
+    ]
+  }
+};
+
+function run(type, structure, target){ return {type, structure, target}; }
+function meal(horario, nome, objetivo, alimentos, quantidade, substituicoes, observacao){
+  return {horario, nome, objetivo, alimentos, quantidade, substituicoes, observacao};
+}
+function block(name,type,items){return {name,type,items};}
+function runLines(date){
+  const r = RUNNING_PLAN[date];
+  if(!r) return ["Corrida não prevista para este dia"];
+  return [r.type, r.structure, r.target];
+}
+
+function generateCalendarPlan(){
+  const plan = [];
+  for(let d = toDate("2026-06-15"); d <= toDate("2026-10-01"); d.setDate(d.getDate()+1)){
+    const date = isoDate(d);
+    const dayKey = dayKeyFromDate(d);
+    const template = buildTemplateForDate(date, dayKey);
+    plan.push({
+      date,
+      dayKey,
+      phase: getCurrentPhase(date),
+      nutritionType: nutritionTypeForDate(date, dayKey),
+      isSimulation: SIMULATION_DATES.includes(date),
+      isTaper: isBetween(date, "2026-09-22", "2026-10-01"),
+      isTransition: isBetween(date, "2026-08-02", "2026-08-03") || isBetween(date, "2026-09-20", "2026-09-21"),
+      isPreSimulation: isBeforeSimulation(date),
+      ...template
+    });
+  }
+  return plan;
+}
+
+function isoDate(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,"0");
+  const d = String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+function isBetween(date, start, end){
+  return date >= start && date <= end;
+}
+
+function getCurrentPhase(date){
+  return (PHASES.find(p => isBetween(date, p.start, p.end)) || PHASES[0]).name;
+}
+
+function dayKeyFromDate(date){
+  return ["domingo","segunda","terca","quarta","quinta","sexta","sabado"][date.getDay()];
+}
+
+function nutritionTypeForDate(date, dayKey){
+  if(dayKey === "domingo") return "recuperacao";
+  if(RUNNING_PLAN[date]) return "corrida_forte";
+  return "musculacao";
+}
+
+function cloneBlocks(blocks){
+  return blocks.map(b => block(b.name, b.type, [...b.items]));
+}
+
+function buildTemplateForDate(date, dayKey){
+  if(date === "2026-10-01") return buildRaceDay(date);
+  if(isBetween(date, "2026-08-02", "2026-08-03")) return buildTransitionDay(date, "Transição Fase 2 → Fase 3");
+  if(isBetween(date, "2026-09-20", "2026-09-21")) return buildTransitionDay(date, "Transição para tapering");
+
+  const base = STRENGTH_TEMPLATES[dayKey] || STRENGTH_TEMPLATES.domingo;
+  const day = {
+    title: base.title,
+    priority: base.priority,
+    blocks: cloneBlocks(base.blocks)
+  };
+
+  day.blocks = day.blocks.map(b => b.type === "corrida" ? block(b.name, b.type, runLines(date)) : b);
+
+  if(SIMULATION_DATES.includes(date)){
+    day.title = "Simulação 3 km + mobilidade + Core leve";
+    day.priority = "Corrida é prioridade absoluta. Sem Inferior A completo antes da simulação.";
+    day.blocks = [
+      block("Aquecimento e mobilidade", "mob", ["Mobilidade de tornozelo e quadril: 8min", "Drills leves: 3x20m", "Strides progressivos: 3x15s"]),
+      block("Simulação 3 km", "corrida", runLines(date)),
+      block("Core leve pós-simulação", "core", ["Dead bug: 2x8 cada lado", "Prancha lateral leve: 2x25s cada lado", "Respiração 90/90: 3x5 ciclos"])
+    ];
+  } else if(isBeforeSimulation(date)){
+    day.priority += " · Pré-simulação: reduzir pernas e evitar falha.";
+    day.blocks = reduceLegVolume(day.blocks, "48h antes da simulação: volume reduzido e sem perna pesada.");
+  }
+
+  if(isTaperDate(date)){
+    day.priority += " · Tapering: preservar velocidade e evitar DOMS.";
+    day.blocks = taperBlocks(day.blocks, date);
+  } else if(isDeloadDate(date)){
+    day.priority += " · Deload de musculação: reduzir 25-35% do volume.";
+    day.blocks = day.blocks.map(b => b.type === "forca" || b.type === "hiper" ? block(b.name + " — deload", b.type, [...b.items, "Regra do dia: reduzir 1-2 séries e manter RPE 6-7."]) : b);
+  }
+
+  return day;
+}
+
+function buildTransitionDay(date, title){
+  return {
+    title: `${title} — recuperação ativa + Core G`,
+    priority: "Sem lacuna no calendário. Baixar fadiga e preparar a próxima fase.",
+    blocks: [
+      block("Recuperação ativa", "rec", ["Caminhada Z1 ou BikeErg leve: 25-35min", "Respiração confortável, sem objetivo de pace"]),
+      block("Mobilidade completa", "mob", ["Quadril: 4min", "Tornozelo: 3min", "Torácica: 3min", "Posterior: 3min", "Panturrilha: 3min"]),
+      block("Core restaurativo", "core", ["Respiração 90/90: 4x5 ciclos", "Cat-camel: 2x10", "Bird dog: 3x8 cada lado", "Dead bug leve: 3x8 cada lado"]),
+      block("Preparação", "prep", ["Revisar fase seguinte", "Registrar sono, dores e peso", "Definir prioridade da semana"])
+    ]
+  };
+}
+
+function buildRaceDay(date){
+  return {
+    title:"PROVA TACF — 3 km abaixo de 12:00",
+    priority:"Executar o plano, aquecer bem e correr por pace. Meta: 3:58/km.",
+    blocks:[
+      block("Aquecimento", "corrida", ["10min Z2 132-145 bpm", "Mobilidade dinâmica: 5min", "3 strides progressivos de 15-20s"]),
+      block("PROVA 3 km", "corrida", runLines(date)),
+      block("Desaquecimento", "rec", ["5min trote/caminhada leve", "Respiração nasal e hidratação", "Registrar tempo final, FC média/máxima e RPE"])
+    ]
+  };
+}
+
+function isBeforeSimulation(date){
+  return SIMULATION_DATES.some(sim => {
+    const days = Math.round((toDate(sim) - toDate(date)) / 86400000);
+    return days > 0 && days <= 2;
+  });
+}
+
+function isTaperDate(date){
+  return isBetween(date, "2026-09-22", "2026-10-01");
+}
+
+function isDeloadDate(date){
+  const week = getPlanWeek(date);
+  return week % 4 === 0 && !isTaperDate(date);
+}
+
+function reduceLegVolume(blocks, reason){
+  return blocks.map(b => {
+    if(b.type !== "forca" && b.type !== "potencia") return b;
+    if(/joelho|quadril|posterior|glúteo|dominante|Inferior|Panturrilha/i.test(b.name + " " + b.items.join(" "))){
+      return block(b.name + " — reduzido", b.type, [...b.items.filter(x => !/salto|falha|pesado/i.test(x)), reason, "Manter RPE 5-6 e técnica limpa."]);
+    }
+    return b;
+  });
+}
+
+function taperBlocks(blocks, date){
+  if(date === "2026-10-01") return blocks;
+  return blocks
+    .filter(b => !["hiper","cond"].includes(b.type))
+    .map(b => {
+      if(b.type === "forca") return block(b.name + " — taper", b.type, ["Movimento leve: 2x8-10", "RPE 5-6, sem falha, sem DOMS", "Se for perna, usar apenas ativação e mobilidade."]);
+      if(b.type === "core") return block(b.name + " — leve", b.type, ["Dead bug: 2x8 cada lado", "Prancha lateral leve: 2x20s cada lado", "Respiração 90/90: 3x5 ciclos"]);
+      return b;
+    });
+}
+
+const CALENDAR_PLAN = generateCalendarPlan();
+let selectedDate = "2026-06-15";
+let checkins = loadJson("checkins_mvp_v2", {});
+let checked = loadJson("checked_mvp_v3", {});
+let workoutLogs = loadJson("workout_logs_v1", {});
+let anchorLogs = loadJson("anchor_logs_v1", {});
+let bodyMeasurements = loadJson("body_measurements_v1", []);
+
+function loadJson(key, fallback){
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch(e){ return fallback; }
+}
+function saveJson(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){} }
+function getWorkout(date){ return CALENDAR_PLAN.find(d => d.date === date) || CALENDAR_PLAN[0]; }
+function getCheckin(date){ return checkins[date] || null; }
+function getWorkoutLog(date){ return workoutLogs[date] || null; }
+function getAnchorLog(date){ return anchorLogs[date] || []; }
+function toDate(s){ const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); }
+function fmtDate(s){ return toDate(s).toLocaleDateString("pt-BR",{day:"2-digit",month:"short"}).replace(".",""); }
+function daysUntilTacf(fromDate){
+  const diff = toDate(USER_PROFILE.tacfDate) - toDate(fromDate);
+  return Math.max(0, Math.ceil(diff / 86400000));
+}
+
+function calculateReadiness(ci){
+  if(!ci) return {score:null,status:"base",label:"sem check-in",reasons:["Sem check-in salvo. Mostrando treino-base."]};
+  let score = 100;
+  const reasons = [];
+  if(ci.sleepHours < 6){ score -= 15; reasons.push("sono abaixo de 6h"); }
+  else if(ci.sleepHours < 7){ score -= 8; reasons.push("sono um pouco baixo"); }
+  if(ci.sleepQuality <= 2){ score -= 10; reasons.push("qualidade do sono baixa"); }
+  if(ci.energy <= 2){ score -= 15; reasons.push("energia baixa"); }
+  else if(ci.energy === 3){ score -= 5; reasons.push("energia moderada"); }
+  if(ci.restingHr >= USER_PROFILE.restingHr + 8){ score -= 12; reasons.push("FC repouso acima do normal"); }
+  if(ci.prevRpe >= 9){ score -= 12; reasons.push("PSE anterior muito alto"); }
+  else if(ci.prevRpe >= 8){ score -= 6; reasons.push("PSE anterior alto"); }
+  const maxPain = Math.max(ci.kneePain, ci.shoulderPain, ci.adductorPain, ci.backPain);
+  if(maxPain >= 6){ score -= 30; reasons.push("dor alta reportada"); }
+  else if(maxPain >= 4){ score -= 14; reasons.push("dor moderada reportada"); }
+  if(ci.availableMinutes < 45){ score -= 8; reasons.push("tempo curto"); }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  const status = score >= 75 ? "green" : score >= 55 ? "amber" : "red";
+  const label = status === "green" ? "verde" : status === "amber" ? "amarelo" : "vermelho";
+  return {score,status,label,reasons: reasons.length ? reasons : ["pronto para manter o plano"]};
+}
+
+function adjustWorkoutByCheckin(workout, ci){
+  const readiness = calculateReadiness(ci);
+  const notes = calendarNotes(workout);
+  let mode = "Manter treino planejado.";
+  if(!ci) return {readiness, mode:"Treino-base sem ajuste.", notes:["Preencha o check-in para ajustar o dia.", ...notes], hiddenTypes:[], compact:false};
+  const hiddenTypes = [];
+  let compact = false;
+  if(readiness.status === "amber"){
+    mode = "Reduzir volume em 20-30%, manter técnica e evitar falha.";
+    notes.push("Use uma série a menos nos blocos de força/hipertrofia.");
+  }
+  if(readiness.status === "red"){
+    mode = "Trocar por recuperação, mobilidade e core leve.";
+    notes.push("Hoje a meta é preservar consistência, não forçar adaptação.");
+    hiddenTypes.push("forca","hiper","cond","potencia","corrida");
+  }
+  if(ci.availableMinutes < 45){
+    compact = true;
+    notes.push("Versão compacta: priorize aquecimento, corrida/calistenia principal e core.");
+  }
+  if(ci.kneePain >= 6){
+    notes.push("Joelho >= 6: evitar agachamento pesado, avanço pesado, saltos e tiros agressivos.");
+    hiddenTypes.push("potencia");
+  }
+  if(ci.shoulderPain >= 6){
+    notes.push("Ombro >= 6: evitar overhead pesado, supino pesado, dips e kipping.");
+  }
+  if(ci.adductorPain >= 6){
+    notes.push("Adutor >= 6: evitar tiros, sprints e mudanças bruscas.");
+  }
+  if(ci.backPain >= 6){
+    notes.push("Lombar >= 6: evitar RDL pesado, deadlift, cargas axiais e core agressivo.");
+  }
+  if(RUNNING_PLAN[workout.date]){
+    notes.push("Corrida é prioridade do dia. Musculação deve sair com margem.");
+  }
+  return {readiness, mode, notes:[...new Set(notes)], hiddenTypes:[...new Set(hiddenTypes)], compact};
+}
+
+function calendarNotes(workout){
+  const notes = [];
+  if(workout.isSimulation) notes.push("Simulação 3 km: pace manda, musculação vira mobilidade e core leve.");
+  if(workout.isPreSimulation) notes.push("48h pré-simulação: sem perna pesada, sem falha e core leve.");
+  if(workout.isTaper) notes.push("Tapering: reduzir volume, preservar velocidade e evitar dor muscular tardia.");
+  if(workout.isTransition) notes.push("Transição preenchida: recuperação ativa, mobilidade e preparação da próxima fase.");
+  return notes;
+}
+
+function renderMissedWorkoutCard(currentWorkout){
+  const missed = getRelevantMissedWorkout(currentWorkout.date);
+  if(!missed){
+    document.getElementById("missed-card").innerHTML = "";
+    return;
+  }
+  const decision = decideMissedWorkoutRecovery(missed.workout, currentWorkout);
+  document.getElementById("missed-card").innerHTML = `
+    <div class="card warn">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Treino perdido: ${fmtDate(missed.date)}</div>
+          <div class="card-sub">${missed.workout.title}</div>
+        </div>
+        <span class="pill amber">${decision.category}</span>
+      </div>
+      <div class="card-body">
+        <div class="row"><span>Decisão</span><span>${decision.action}</span></div>
+        <div class="row"><span>Motivo</span><span>${decision.reason}</span></div>
+        <div class="row"><span>Preservar</span><span>${decision.preserve}</span></div>
+        <div class="row"><span>Descartar</span><span>${decision.discard}</span></div>
+        ${decision.addOn ? `<div class="row"><span>Micro-ajuste permitido</span><span>${decision.addOn}</span></div>` : ""}
+      </div>
+    </div>`;
+}
+
+function getRelevantMissedWorkout(currentDate){
+  const missedDates = Object.entries(workoutLogs)
+    .filter(([date, log]) => log.status === "nao_feito" && date < currentDate)
+    .map(([date]) => date)
+    .sort()
+    .reverse();
+  const date = missedDates.find(d => daysBetween(d, currentDate) <= 6);
+  return date ? {date, workout:getWorkout(date), log:workoutLogs[date]} : null;
+}
+
+function classifyMissedWorkout(workout){
+  const run = RUNNING_PLAN[workout.date];
+  if(run){
+    if(/Longo Z2/i.test(run.type)) return {category:"Longo Z2", priority:1};
+    if(/Simulação|PROVA/i.test(run.type)) return {category:"Corrida-chave", priority:4};
+    if(/Intervalados|Tempo|Repetições|Ativação/i.test(run.type)) return {category:"Corrida-chave", priority:3};
+  }
+  if(workout.isTransition || workout.dayKey === "domingo") return {category:"Recuperação/mobilidade", priority:0};
+  if(getWorkoutAnchors(workout).length) return {category:"Musculação com âncora", priority:2};
+  if(workout.blocks.some(b => b.type === "core")) return {category:"Core", priority:1};
+  return {category:"Recuperação/mobilidade", priority:0};
+}
+
+function decideMissedWorkoutRecovery(missedWorkout, currentWorkout){
+  const cls = classifyMissedWorkout(missedWorkout);
+  const currentRun = RUNNING_PLAN[currentWorkout.date];
+  const nextStrongRunSoon = hasStrongRunWithin(currentWorkout.date, 2);
+  const currentIsSimulation = currentWorkout.isSimulation || currentWorkout.date === USER_PROFILE.tacfDate;
+  const currentHasHardRun = currentRun && !/Longo Z2|Z2 30|Z2 35|Z2 40|Z2 45/i.test(currentRun.type);
+
+  if(cls.category === "Recuperação/mobilidade"){
+    return {
+      category:cls.category,
+      action:"Não compensar.",
+      reason:"Recuperação perdida não deve virar carga extra.",
+      preserve:"Treino previsto de hoje.",
+      discard:"Qualquer tentativa de repor recuperação ativa."
+    };
+  }
+
+  if(cls.category === "Core"){
+    return {
+      category:cls.category,
+      action:"Manter treino de hoje e adicionar core curto se houver tempo.",
+      reason:"Core tolera microdose, mas não precisa dobrar volume.",
+      preserve:"Core previsto de hoje.",
+      discard:"Dobrar Core completo.",
+      addOn:"8-10min: dead bug + prancha lateral + respiração."
+    };
+  }
+
+  if(cls.category === "Longo Z2"){
+    if(currentWorkout.dayKey === "domingo"){
+      return {
+        category:cls.category,
+        action:"Mover para hoje apenas se readiness estiver verde.",
+        reason:"Domingo comporta longo Z2 se recuperação estiver boa.",
+        preserve:"FC Z2 132-145 bpm e respiração confortável.",
+        discard:"Transformar segunda-feira em longo.",
+        addOn:"Se não estiver verde, caminhar Z1 e seguir calendário."
+      };
+    }
+    return {
+      category:cls.category,
+      action:"Pular longo perdido e seguir calendário.",
+      reason:"Longo atrasado não deve contaminar dias de qualidade.",
+      preserve:"Próxima corrida prevista.",
+      discard:"Longo na segunda ou junto de treino forte."
+    };
+  }
+
+  if(cls.category === "Corrida-chave"){
+    if(currentIsSimulation){
+      return {
+        category:cls.category,
+        action:"Não compensar. Simulação/prova tem prioridade absoluta.",
+        reason:"3 km manda sobre qualquer treino perdido.",
+        preserve:"Aquecimento, simulação/prova e recuperação.",
+        discard:"Corrida forte perdida e musculação extra."
+      };
+    }
+    if(!currentHasHardRun && !nextStrongRunSoon){
+      return {
+        category:cls.category,
+        action:"Pode mover a corrida perdida para hoje, com cautela.",
+        reason:"Há pelo menos 48h sem outra corrida forte.",
+        preserve:"A sessão de corrida perdida como prioridade.",
+        discard:"Musculação pesada no mesmo dia.",
+        addOn:"Se readiness amarelo, reduzir 20-30% dos tiros."
+      };
+    }
+    return {
+      category:cls.category,
+      action:"Pular corrida perdida e seguir calendário.",
+      reason:"Não fazer duas corridas fortes em dias consecutivos.",
+      preserve:"Próxima corrida-chave prevista.",
+      discard:"Dobrar corrida forte ou encaixar antes de simulação."
+    };
+  }
+
+  if(cls.category === "Musculação com âncora"){
+    if(currentHasHardRun || currentIsSimulation){
+      return {
+        category:cls.category,
+        action:"Não somar dois treinos. Manter hoje e fazer só microdose TACF.",
+        reason:"Corrida de qualidade não deve ser prejudicada por musculação atrasada.",
+        preserve:"Treino-base de hoje.",
+        discard:"Blocos pesados e acessórios estéticos perdidos.",
+        addOn:"3 séries submáximas de flexão, se ombro estiver ok."
+      };
+    }
+    return {
+      category:cls.category,
+      action:"Manter treino de hoje e recuperar apenas 1 bloco essencial.",
+      reason:"Âncoras importam, mas o plano não deve virar treino duplo.",
+      preserve:"Âncora principal ou flexão TACF.",
+      discard:"Acessórios estéticos do treino perdido.",
+      addOn:"Escolha 1: âncora principal 2-3 séries técnicas ou flexão submáxima."
+    };
+  }
+
+  return {
+    category:cls.category,
+    action:"Seguir calendário.",
+    reason:"Prioridade é consistência semanal.",
+    preserve:"Treino-base de hoje.",
+    discard:"Compensação completa."
+  };
+}
+
+function hasStrongRunWithin(date, days){
+  return CALENDAR_PLAN.some(d => {
+    if(d.date <= date) return false;
+    if(daysBetween(date, d.date) > days) return false;
+    const r = RUNNING_PLAN[d.date];
+    return r && !/Longo Z2|Z2 30|Z2 35|Z2 40|Z2 45/i.test(r.type);
+  });
+}
+
+function render(){
+  const workout = getWorkout(selectedDate);
+  const ci = getCheckin(selectedDate);
+  const adj = adjustWorkoutByCheckin(workout, ci);
+  renderHeader(workout, adj);
+  renderDatebar();
+  renderCoach(workout, adj);
+  renderMissedWorkoutCard(workout);
+  renderBlocks(workout, adj);
+  renderCalendar();
+  renderCheckinForm(ci);
+  renderWorkoutLogForm(getWorkoutLog(selectedDate));
+  renderTacf();
+  renderHypertrophy(workout);
+  renderNutrition(workout);
+  renderBody();
+  renderProgression();
+  renderMemory();
+  renderProfile();
+}
+
+function renderHeader(workout, adj){
+  document.getElementById("phase-sub").textContent = workout.phase;
+  document.getElementById("today-summary").textContent = `${fmtDate(workout.date)} · ${workout.title}. Prioridade: ${workout.priority}.`;
+  document.getElementById("days-left").textContent = daysUntilTacf(workout.date);
+  document.getElementById("ready-score").textContent = adj.readiness.score ?? "--";
+  document.getElementById("ready-state").textContent = adj.readiness.label;
+  const pill = document.getElementById("ready-pill");
+  pill.className = "pill " + (adj.readiness.status === "green" ? "green" : adj.readiness.status === "amber" ? "amber" : adj.readiness.status === "red" ? "red" : "");
+  pill.textContent = adj.readiness.label;
+}
+
+function renderDatebar(){
+  const todayIso = new Date().toISOString().slice(0,10);
+  document.getElementById("datebar").innerHTML = CALENDAR_PLAN.map(d => `
+    <button class="day-chip${d.date===selectedDate?' active':''}${d.date===todayIso?' today':''}" onclick="selectDate('${d.date}')">
+      <div class="day-name">${d.dayKey.slice(0,3)}</div>
+      <div class="day-date">${fmtDate(d.date)}</div>
+    </button>`).join("");
+}
+
+function renderCalendar(){
+  const weeks = groupCalendarWeeks();
+  document.getElementById("cal-count-pill").textContent = CALENDAR_PLAN.length + " dias";
+  document.getElementById("cal-weeks").textContent = weeks.length;
+  document.getElementById("cal-runs").textContent = Object.keys(RUNNING_PLAN).length;
+  document.getElementById("cal-sims").textContent = SIMULATION_DATES.length;
+  document.getElementById("calendar-weeks").innerHTML = weeks.map(renderWeekCard).join("");
+}
+
+function groupCalendarWeeks(){
+  const weeks = [];
+  CALENDAR_PLAN.forEach(day => {
+    const week = getPlanWeek(day.date);
+    let bucket = weeks.find(w => w.week === week);
+    if(!bucket){
+      bucket = {week, days:[]};
+      weeks.push(bucket);
+    }
+    bucket.days.push(day);
+  });
+  return weeks;
+}
+
+function renderWeekCard(week){
+  const days = week.days;
+  const first = days[0];
+  const last = days[days.length - 1];
+  const badges = getWeekBadges(days);
+  const selectedInWeek = days.some(d => d.date === selectedDate);
+  return `<div class="week-card${selectedInWeek ? ' selected-week' : ''}">
+    <div class="week-head">
+      <div>
+        <div class="week-title">Semana ${week.week} · ${fmtDate(first.date)}–${fmtDate(last.date)}</div>
+        <div class="week-sub">${first.phase}<br>${weekFocus(days)}</div>
+      </div>
+      <div class="week-badges">${badges.map(b => `<span class="mini-badge ${b.type}">${b.label}</span>`).join("")}</div>
+    </div>
+    <div class="week-days">${renderWeekDays(days)}</div>
+  </div>`;
+}
+
+function renderWeekDays(days){
+  const dayMap = Object.fromEntries(days.map(d => [toDate(d.date).getDay(), d]));
+  return [1,2,3,4,5,6,0].map(dow => {
+    const day = dayMap[dow];
+    if(!day) return `<button class="cal-day empty" disabled></button>`;
+    const tags = getDayTags(day);
+    return `<button class="cal-day${day.date===selectedDate?' selected':''}" onclick="openCalendarDay('${day.date}')">
+      <div class="cal-day-name">${day.dayKey.slice(0,3)}</div>
+      <div class="cal-day-date">${toDate(day.date).getDate()}</div>
+      <div class="cal-day-tags">${tags.map(t => `<span class="dot-tag ${t}" title="${t}"></span>`).join("")}</div>
+    </button>`;
+  }).join("");
+}
+
+function getWeekBadges(days){
+  const badges = [];
+  if(days.some(d => RUNNING_PLAN[d.date])) badges.push({type:"run", label:`${days.filter(d => RUNNING_PLAN[d.date]).length} corridas`});
+  if(days.some(d => d.isSimulation)) badges.push({type:"sim", label:"Simulação"});
+  if(days.some(d => d.isTaper)) badges.push({type:"taper", label:"Taper"});
+  if(days.some(d => d.isTransition)) badges.push({type:"trans", label:"Transição"});
+  if(days.some(d => isDeloadDate(d.date))) badges.push({type:"deload", label:"Deload"});
+  if(days.some(d => d.date === USER_PROFILE.tacfDate)) badges.push({type:"race", label:"Prova"});
+  return badges;
+}
+
+function getDayTags(day){
+  const tags = [];
+  if(RUNNING_PLAN[day.date]) tags.push("run");
+  if(day.isSimulation) tags.push("sim");
+  if(day.isTaper) tags.push("taper");
+  if(day.isTransition) tags.push("trans");
+  if(isDeloadDate(day.date)) tags.push("deload");
+  if(day.date === USER_PROFILE.tacfDate) tags.push("race");
+  return tags;
+}
+
+function weekFocus(days){
+  if(days.some(d => d.date === USER_PROFILE.tacfDate)) return "Prova TACF: preservar pernas e executar.";
+  if(days.some(d => d.isTaper)) return "Tapering: volume baixo, velocidade preservada e sem DOMS.";
+  if(days.some(d => d.isSimulation)) return "Semana com simulação: corrida manda e pernas saem com margem.";
+  if(days.some(d => d.isTransition)) return "Transição: recuperação ativa, mobilidade e preparação.";
+  if(days.some(d => isDeloadDate(d.date))) return "Deload de musculação: reduzir volume, manter corrida do calendário.";
+  return "Semana híbrida: corrida de qualidade, força funcional, hipertrofia e core diário.";
+}
+
+function openCalendarDay(date){
+  selectedDate = date;
+  render();
+  const treinoBtn = document.querySelector(".bottomnav .nav-item");
+  showPage("treino", treinoBtn);
+}
+
+function renderCoach(workout, adj){
+  document.getElementById("coach-card").innerHTML = `
+    <div class="card coach">
+      <div class="card-head">
+        <div><div class="card-title">Explicação do treinador</div><div class="card-sub">${adj.mode}</div></div>
+        <span class="pill ${adj.readiness.status === 'green' ? 'green' : adj.readiness.status === 'amber' ? 'amber' : adj.readiness.status === 'red' ? 'red' : ''}">${adj.readiness.score ?? 'base'}</span>
+      </div>
+      <div class="card-body">
+        ${adj.notes.map(n => `<div class="row"><span>${n}</span><span>ajuste</span></div>`).join("")}
+        <div class="row"><span>Motivo readiness</span><span>${adj.readiness.reasons.join(", ")}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderBlocks(workout, adj){
+  let blocks = workout.blocks;
+  if(adj.hiddenTypes.length) blocks = blocks.filter(b => !adj.hiddenTypes.includes(b.type));
+  if(adj.readiness.status === "red"){
+    blocks = [
+      block("Ajuste vermelho — recuperação ativa", "rec", [
+        "Caminhada Z1 ou BikeErg leve: 20-30min",
+        "Mobilidade de quadril, tornozelo e torácica: 10min",
+        "Respiração 90/90: 4x5 ciclos",
+        "Sem tiros, sem carga pesada e sem falha muscular"
+      ]),
+      ...blocks.filter(b => b.type === "core" || b.type === "mob" || b.type === "prep")
+    ];
+  }
+  if(adj.compact) blocks = compactBlocks(blocks);
+  document.getElementById("workout-blocks").innerHTML = blocks.map((b, bi) => `
+    <div class="block">
+      <div class="block-head"><div class="block-name">${b.name}</div><div class="block-meta">${b.type}</div></div>
+      ${b.items.map((item, ei) => renderExercise(workout.date, bi, ei, item)).join("")}
+    </div>`).join("");
+  updateProgress();
+}
+
+function compactBlocks(blocks){
+  const priority = ["corrida","tacf","core","forca","potencia","ombro","rec","mob","prep"];
+  return blocks.filter(b => priority.includes(b.type)).slice(0,4);
+}
+
+function renderExercise(date, bi, ei, item){
+  const key = `${date}-${bi}-${ei}`;
+  const done = !!checked[key];
+  const isRest = item.startsWith("⏱");
+  const checkable = isCheckableItem(item);
+  const anchor = item.includes("[Âncora]");
+  const clean = item.replace(" [Âncora]","");
+  const click = checkable ? `onclick="toggleCheck('${key}')"` : "";
+  return `<div class="ex ${done && checkable?'done':''} ${isRest?'rest':''} ${checkable?'checkable':'info-line'}" ${click}>
+    <div class="chk ${done && checkable?'done':''}">${done && checkable?'✓':''}</div>
+    <div class="ex-text">${clean}${anchor?'<span class="anchor-tag">Âncora</span>':''}</div>
+  </div>`;
+}
+
+function isCheckableItem(item){
+  const t = item.trim().toLowerCase();
+  if(!t) return false;
+  if(t.startsWith("⏱")) return false;
+  if(t.startsWith("alvo") || t.startsWith("prioridade") || t.startsWith("meta")) return false;
+  if(t.startsWith("estrutura") || t.startsWith("progressão") || t.startsWith("progressao")) return false;
+  if(t.startsWith("regra") || t.startsWith("observação") || t.startsWith("observacao")) return false;
+  if(t.startsWith("foco em") || t.startsWith("rpe ") || t.startsWith("pace ")) return false;
+  if(t.includes("não virar") || t.includes("nao virar")) return false;
+  if(t.includes("sem tiros") || t.includes("sem carga") || t.includes("sem falha")) return false;
+  if(t.includes("fc não manda") || t.includes("fc nao manda")) return false;
+  if(t.includes("prioridade: pace")) return false;
+  if(t.includes("recuperação z1") || t.includes("recuperacao z1")) return false;
+  if(t.includes("aquecimento") && t.includes("desaquecimento") && (t.includes("→") || t.includes("->"))) return false;
+  if(t.includes("pace ") && (t.includes("bpm") || t.includes("/km"))) return false;
+  if(t.startsWith("tiros z") || t.startsWith("z2 ") || t.startsWith("z2 +")) return false;
+  if(t.includes("z2 ") && !/\d+x|min|km|corrida|bike|caminhada|strides/.test(t)) return false;
+  return true;
+}
+
+function updateProgress(){
+  const all = [...document.querySelectorAll("#workout-blocks .ex.checkable")];
+  const done = [...document.querySelectorAll("#workout-blocks .ex.checkable.done")];
+  const pct = all.length ? Math.round(done.length / all.length * 100) : 0;
+  document.getElementById("progress-label").textContent = pct + "%";
+  document.getElementById("progress-fill").style.width = pct + "%";
+}
+
+function renderCheckinForm(ci){
+  document.getElementById("checkin-date-pill").textContent = fmtDate(selectedDate);
+  const values = ci || {sleepHours:7,sleepQuality:3,energy:3,restingHr:57,kneePain:0,shoulderPain:0,adductorPain:0,backPain:0,prevRpe:6,availableMinutes:60,location:"academia"};
+  Object.entries(values).forEach(([k,v]) => {
+    const el = document.getElementById("ci-"+k);
+    if(el) el.value = v;
+  });
+  const adj = adjustWorkoutByCheckin(getWorkout(selectedDate), ci);
+  document.getElementById("checkin-result").innerHTML = ci ? resultCard(adj) : `<div class="empty">Ainda não há check-in salvo para ${fmtDate(selectedDate)}.</div>`;
+}
+
+function resultCard(adj){
+  return `<div class="card coach"><div class="card-body">
+    <div class="card-title">Readiness ${adj.readiness.label}: ${adj.readiness.score}/100</div>
+    <div class="card-sub">${adj.mode}</div>
+    ${adj.notes.map(n => `<div class="row"><span>${n}</span><span>ok</span></div>`).join("")}
+  </div></div>`;
+}
+
+function renderWorkoutLogForm(log){
+  document.getElementById("log-date-pill").textContent = fmtDate(selectedDate);
+  const values = log || {
+    status:"completo", rpe:7, duration:60, kneePain:0, shoulderPain:0, adductorPain:0, backPain:0,
+    runDistance:0, runTime:"", avgHr:0, maxHr:0, pushups:0, bestPushupSet:0, situps:0, pace:"",
+    notes:""
+  };
+  Object.entries(values).forEach(([k,v]) => {
+    const el = document.getElementById("log-"+k);
+    if(el) el.value = v;
+  });
+  renderAnchorLogFields();
+  document.getElementById("log-result").innerHTML = log ? workoutLogCard(selectedDate, log) : `<div class="empty">Nenhum registro pós-treino salvo para ${fmtDate(selectedDate)}.</div>`;
+}
+
+function renderAnchorLogFields(){
+  const anchors = getWorkoutAnchors(getWorkout(selectedDate));
+  const saved = getAnchorLog(selectedDate);
+  if(!anchors.length){
+    document.getElementById("anchor-log-fields").innerHTML = `<div class="empty">Nenhuma âncora detectada neste dia.</div>`;
+    document.getElementById("anchor-suggestions").innerHTML = "";
+    return;
+  }
+  document.getElementById("anchor-log-fields").innerHTML = anchors.map((a,i) => {
+    const prev = saved.find(x => x.id === a.id) || {};
+    return `<div class="card"><div class="card-head"><div><div class="card-title">${a.name}</div><div class="card-sub">${a.blockName}</div></div><span class="pill green">Âncora</span></div>
+      <div class="card-body">
+        <div class="form" style="padding:0">
+          <div class="field"><label>Carga</label><input id="anchor-${i}-load" type="number" step="0.5" value="${prev.load || ""}" placeholder="kg"></div>
+          <div class="field"><label>Séries</label><input id="anchor-${i}-sets" type="number" min="0" value="${prev.sets || a.plannedSets || ""}"></div>
+          <div class="field"><label>Reps</label><input id="anchor-${i}-reps" type="number" min="0" value="${prev.reps || a.targetTop || ""}"></div>
+          <div class="field"><label>RPE</label><input id="anchor-${i}-rpe" type="number" min="1" max="10" value="${prev.rpe || 8}"></div>
+          <div class="field full"><label>Observação</label><input id="anchor-${i}-notes" type="text" value="${prev.notes || ""}" placeholder="técnica, dor, margem"></div>
+        </div>
+      </div></div>`;
+  }).join("");
+  renderAnchorSuggestions(saved);
+}
+
+function saveWorkoutLog(){
+  const runDistance = Number(document.getElementById("log-runDistance").value || 0);
+  const runTime = document.getElementById("log-runTime").value.trim();
+  const manualPace = document.getElementById("log-pace").value.trim();
+  const log = {
+    status:document.getElementById("log-status").value,
+    rpe:num("log-rpe"),
+    duration:num("log-duration"),
+    kneePain:num("log-kneePain"),
+    shoulderPain:num("log-shoulderPain"),
+    adductorPain:num("log-adductorPain"),
+    backPain:num("log-backPain"),
+    runDistance,
+    runTime,
+    avgHr:num("log-avgHr"),
+    maxHr:num("log-maxHr"),
+    pushups:num("log-pushups"),
+    bestPushupSet:num("log-bestPushupSet"),
+    situps:num("log-situps"),
+    pace: manualPace || calculatePace(runDistance, runTime),
+    notes:document.getElementById("log-notes").value.trim(),
+    savedAt:new Date().toISOString()
+  };
+  workoutLogs[selectedDate] = log;
+  anchorLogs[selectedDate] = collectAnchorLogs();
+  saveJson("workout_logs_v1", workoutLogs);
+  saveJson("anchor_logs_v1", anchorLogs);
+  syncRecordSoon("workout_logs", selectedDate, log);
+  syncRecordSoon("anchor_logs", selectedDate, anchorLogs[selectedDate]);
+  render();
+  showPage("registro", [...document.querySelectorAll(".bottomnav .nav-item")].find(b => b.textContent.includes("Log")));
+}
+
+function getWorkoutAnchors(workout){
+  const anchors = [];
+  workout.blocks.forEach((b, bi) => {
+    b.items.forEach((item, ei) => {
+      if(!item.includes("[Âncora]")) return;
+      const name = item.replace(" [Âncora]","").replace("[Âncora]","").trim();
+      const range = parseRepRange(name);
+      anchors.push({
+        id: slugify(name),
+        name,
+        blockName:b.name,
+        plannedSets: estimateSets(name),
+        targetMin: range.min,
+        targetTop: range.max,
+        blockIndex:bi,
+        itemIndex:ei
+      });
+    });
+  });
+  return anchors;
+}
+
+function collectAnchorLogs(){
+  const anchors = getWorkoutAnchors(getWorkout(selectedDate));
+  return anchors.map((a,i) => ({
+    id:a.id,
+    name:a.name,
+    blockName:a.blockName,
+    load:Number(document.getElementById(`anchor-${i}-load`)?.value || 0),
+    sets:Number(document.getElementById(`anchor-${i}-sets`)?.value || 0),
+    reps:Number(document.getElementById(`anchor-${i}-reps`)?.value || 0),
+    rpe:Number(document.getElementById(`anchor-${i}-rpe`)?.value || 0),
+    notes:document.getElementById(`anchor-${i}-notes`)?.value.trim() || "",
+    targetMin:a.targetMin,
+    targetTop:a.targetTop,
+    savedAt:new Date().toISOString()
+  })).filter(a => a.load || a.sets || a.reps || a.notes);
+}
+
+function parseRepRange(text){
+  const range = text.match(/x(\d+)\s*-\s*(\d+)/i);
+  if(range) return {min:Number(range[1]), max:Number(range[2])};
+  const single = text.match(/x(\d+)/i);
+  if(single) return {min:Number(single[1]), max:Number(single[1])};
+  return {min:0, max:0};
+}
+
+function slugify(text){
+  return text.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"_")
+    .replace(/^_|_$/g,"")
+    .slice(0,80);
+}
+
+function calculatePace(distanceKm, timeText){
+  if(!distanceKm || !timeText) return "";
+  const parts = timeText.split(":").map(Number);
+  if(parts.some(Number.isNaN)) return "";
+  const seconds = parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2] : parts[0]*60 + parts[1];
+  if(!seconds) return "";
+  const paceSec = Math.round(seconds / distanceKm);
+  return `${Math.floor(paceSec/60)}:${String(paceSec%60).padStart(2,"0")}/km`;
+}
+
+function workoutLogCard(date, log){
+  const statusLabelMap = {completo:"Completo", parcial:"Parcial", recuperacao:"Recuperação", nao_feito:"Não feito"};
+  const painMax = Math.max(log.kneePain||0, log.shoulderPain||0, log.adductorPain||0, log.backPain||0);
+  return `<div class="card coach"><div class="card-body">
+    <div class="card-title">${fmtDate(date)} · ${statusLabelMap[log.status] || log.status}</div>
+    <div class="card-sub">PSE ${log.rpe}/10 · ${log.duration}min · maior dor pós ${painMax}/10${log.pace ? " · pace " + log.pace : ""}</div>
+    ${log.notes ? `<div class="row"><span>Observação</span><span>${log.notes}</span></div>` : ""}
+  </div></div>`;
+}
+
+function renderAnchorSuggestions(logs){
+  const suggestions = buildAnchorSuggestions(selectedDate, logs);
+  document.getElementById("anchor-suggestions").innerHTML = suggestions.length
+    ? `<div class="section-title">Sugestão de progressão</div>${suggestions.map(s => `<div class="card ${s.type === 'warn' ? 'warn' : 'coach'}"><div class="card-body"><div class="card-title">${s.title}</div><div class="card-sub">${s.text}</div></div></div>`).join("")}`
+    : "";
+}
+
+function buildAnchorSuggestions(date, logs){
+  const workoutLog = getWorkoutLog(date);
+  const painMax = workoutLog ? Math.max(workoutLog.kneePain||0, workoutLog.shoulderPain||0, workoutLog.adductorPain||0, workoutLog.backPain||0) : 0;
+  return logs.map(a => {
+    if(painMax >= 6){
+      return {type:"warn", title:a.name, text:"Dor pós-treino alta. Na próxima sessão, preservar articulação e considerar substituição ou redução de carga."};
+    }
+    if(a.targetTop && a.reps >= a.targetTop && a.rpe <= 8){
+      return {type:"coach", title:a.name, text:`Fez topo da faixa com RPE ${a.rpe}. Próxima sessão: considerar subir carga levemente.`};
+    }
+    if(a.targetMin && a.reps < a.targetMin){
+      return {type:"warn", title:a.name, text:`Reps abaixo do mínimo planejado. Próxima sessão: manter ou reduzir carga até recuperar técnica.`};
+    }
+    return {type:"coach", title:a.name, text:"Manter carga e buscar mais qualidade/reps antes de progredir."};
+  });
+}
+
+function renderProgression(){
+  const rows = buildProgressionRows();
+  const upCount = rows.filter(r => r.status === "up").length;
+  const warnCount = rows.filter(r => r.status === "warn" || r.status === "down").length;
+  document.getElementById("prog-anchor-pill").textContent = rows.length + " âncoras";
+  document.getElementById("prog-history-count").textContent = rows.filter(r => r.history.length >= 2).length;
+  document.getElementById("prog-up-count").textContent = upCount;
+  document.getElementById("prog-warn-count").textContent = warnCount;
+  document.getElementById("prog-summary").textContent = rows.length
+    ? "Última execução comparada com a anterior sempre que houver histórico."
+    : "Registre âncoras na aba Log para liberar sugestões.";
+  document.getElementById("progression-list").innerHTML = rows.length
+    ? rows.map(renderProgressionCard).join("")
+    : `<div class="card coach"><div class="card-body"><div class="card-title">Sem dados de progressão</div><div class="card-sub">Use a aba Log e preencha carga, séries, reps e RPE das âncoras do dia.</div></div></div>`;
+}
+
+function buildProgressionRows(){
+  const map = {};
+  Object.entries(anchorLogs).forEach(([date, logs]) => {
+    (logs || []).forEach(log => {
+      if(!map[log.id]) map[log.id] = {id:log.id, name:log.name, history:[]};
+      map[log.id].history.push({date, ...log});
+    });
+  });
+  return Object.values(map).map(item => {
+    item.history.sort((a,b) => a.date.localeCompare(b.date));
+    const last = item.history[item.history.length - 1];
+    const prev = item.history[item.history.length - 2] || null;
+    const decision = progressionDecision(last, prev);
+    return {...item, last, prev, ...decision};
+  }).sort((a,b) => statusOrder(a.status) - statusOrder(b.status) || b.last.date.localeCompare(a.last.date));
+}
+
+function progressionDecision(last, prev){
+  if(!last) return {status:"neutral", label:"Sem dados", text:"Ainda não há execução registrada."};
+  if(last.rpe >= 9) return {status:"warn", label:"Manter/reduzir", text:"RPE alto. Próxima sessão: manter ou reduzir carga para preservar técnica."};
+  if(last.targetTop && last.reps >= last.targetTop && last.rpe <= 8){
+    return {status:"up", label:"Subir carga", text:"Topo da faixa com RPE <= 8. Aumente carga levemente na próxima execução."};
+  }
+  if(last.targetMin && last.reps < last.targetMin){
+    return {status:"down", label:"Reduzir/ajustar", text:"Reps abaixo do mínimo planejado. Ajuste carga ou volume."};
+  }
+  if(prev){
+    const volumeNow = trainingVolume(last);
+    const volumePrev = trainingVolume(prev);
+    if(volumeNow > volumePrev && last.rpe <= prev.rpe) return {status:"up", label:"Progredindo", text:"Volume subiu sem aumentar RPE. Pode tentar pequena progressão."};
+    if(volumeNow < volumePrev && last.rpe >= prev.rpe) return {status:"warn", label:"Atenção", text:"Volume caiu e RPE não melhorou. Observe sono, dor e recuperação."};
+  }
+  return {status:"neutral", label:"Manter", text:"Manter carga e buscar mais reps/técnica antes de subir."};
+}
+
+function renderProgressionCard(row){
+  const cls = row.status === "up" ? "coach" : row.status === "warn" || row.status === "down" ? "warn" : "";
+  const prevText = row.prev ? `${fmtDate(row.prev.date)} · ${row.prev.load || "--"}kg · ${row.prev.sets || "--"}x${row.prev.reps || "--"} · RPE ${row.prev.rpe || "--"}` : "sem execução anterior";
+  const lastText = `${fmtDate(row.last.date)} · ${row.last.load || "--"}kg · ${row.last.sets || "--"}x${row.last.reps || "--"} · RPE ${row.last.rpe || "--"}`;
+  return `<div class="card ${cls}">
+    <div class="card-head">
+      <div><div class="card-title">${row.name}</div><div class="card-sub">${row.label}</div></div>
+      <span class="pill ${row.status === "up" ? "green" : row.status === "warn" || row.status === "down" ? "amber" : ""}">${row.history.length}x</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span>Última</span><span>${lastText}</span></div>
+      <div class="row"><span>Anterior</span><span>${prevText}</span></div>
+      <div class="row"><span>Sugestão</span><span>${row.text}</span></div>
+    </div>
+  </div>`;
+}
+
+function trainingVolume(log){
+  return Number(log.load || 0) * Number(log.sets || 0) * Number(log.reps || 0);
+}
+
+function statusOrder(status){
+  return {up:0,warn:1,down:2,neutral:3}[status] ?? 4;
+}
+
+function renderTacf(){
+  const metrics = getTacfMetrics();
+  document.getElementById("tacf-next-run-days").textContent = metrics.nextRun ? daysBetween(selectedDate, metrics.nextRun.date) : "--";
+  document.getElementById("tacf-next-run-type").textContent = metrics.nextRun ? metrics.nextRun.run.type : "sem corrida";
+  document.getElementById("tacf-best-3k").textContent = metrics.best3k ? metrics.best3k.runTime : "--";
+  document.getElementById("tacf-best-pushups").textContent = metrics.bestPushups || "--";
+
+  document.getElementById("tacf-dashboard").innerHTML = `
+    <div class="card"><div class="card-body">
+      <div class="row"><span>Próxima simulação</span><span>${metrics.nextSimulation ? `${fmtDate(metrics.nextSimulation.date)} · ${daysBetween(selectedDate, metrics.nextSimulation.date)} dias` : "concluída"}</span></div>
+      <div class="row"><span>Último pace registrado</span><span>${metrics.lastRun ? (metrics.lastRun.pace || "sem pace") : "sem registro"}</span></div>
+      <div class="row"><span>Melhor abdominal 1min</span><span>${metrics.bestSitups || "--"}</span></div>
+      <div class="row"><span>Melhor série de flexões</span><span>${metrics.bestPushupSet || "--"}</span></div>
+    </div></div>`;
+
+  document.getElementById("tacf-run-history").innerHTML = metrics.recentRuns.length ? metrics.recentRuns.map(r => `
+    <div class="memory-item"><strong style="color:var(--text)">${fmtDate(r.date)} · ${r.runDistance} km · ${r.runTime || "sem tempo"}</strong><br>Pace ${r.pace || "--"} · FC ${r.avgHr || "--"}/${r.maxHr || "--"} · PSE ${r.rpe || "--"}/10${r.notes ? "<br>" + r.notes : ""}</div>
+  `).join("") : `<div class="empty">Nenhuma corrida registrada ainda. Use a aba Log depois dos treinos.</div>`;
+
+  const alerts = buildTacfAlerts(metrics);
+  document.getElementById("tacf-alerts").innerHTML = alerts.length
+    ? alerts.map(a => `<div class="card ${a.type === 'warn' ? 'warn' : 'coach'}"><div class="card-body"><div class="card-title">${a.title}</div><div class="card-sub">${a.text}</div></div></div>`).join("")
+    : `<div class="card coach"><div class="card-body"><div class="card-title">Sem alertas TACF</div><div class="card-sub">Registre corridas e testes para o painel começar a comparar tendência e meta.</div></div></div>`;
+
+  const runs = CALENDAR_PLAN.filter(d => RUNNING_PLAN[d.date] && d.date >= selectedDate).slice(0,8).map(d => ({...d, run:RUNNING_PLAN[d.date]}));
+  document.getElementById("next-runs").innerHTML = runs.map(d => `
+    <div class="card"><div class="card-head">
+      <div><div class="card-title">${fmtDate(d.date)} — ${d.run.type}</div><div class="card-sub">${d.run.structure}</div></div>
+    </div><div class="card-body"><div class="row"><span>Alvo</span><span>${d.run.target}</span></div></div></div>`).join("");
+  document.getElementById("zones-list").innerHTML = HR_ZONES.map(z => `<div class="row"><span>${z[0]} · ${z[1]}<br><small style="color:var(--muted)">${z[3]}</small></span><span>${z[2]}</span></div>`).join("");
+}
+
+function getTacfMetrics(){
+  const logs = Object.entries(workoutLogs).map(([date,log]) => ({date, ...log})).sort((a,b) => a.date.localeCompare(b.date));
+  const runLogs = logs.filter(l => Number(l.runDistance || 0) > 0);
+  const threeKLogs = runLogs.filter(l => Math.abs(Number(l.runDistance) - 3) <= 0.15 && l.runTime);
+  const nextRun = CALENDAR_PLAN.filter(d => RUNNING_PLAN[d.date] && d.date >= selectedDate).map(d => ({...d, run:RUNNING_PLAN[d.date]}))[0] || null;
+  const nextSimulation = CALENDAR_PLAN.filter(d => d.isSimulation && d.date >= selectedDate)[0] || null;
+  return {
+    nextRun,
+    nextSimulation,
+    recentRuns: runLogs.slice(-6).reverse(),
+    lastRun: runLogs[runLogs.length - 1] || null,
+    best3k: bestByTime(threeKLogs),
+    bestPushups: maxLogValue(logs, "pushups"),
+    bestPushupSet: maxLogValue(logs, "bestPushupSet"),
+    bestSitups: maxLogValue(logs, "situps")
+  };
+}
+
+function bestByTime(logs){
+  return logs
+    .map(l => ({...l, seconds: timeToSeconds(l.runTime)}))
+    .filter(l => l.seconds)
+    .sort((a,b) => a.seconds - b.seconds)[0] || null;
+}
+
+function maxLogValue(logs, field){
+  return logs.reduce((max,l) => Math.max(max, Number(l[field] || 0)), 0);
+}
+
+function timeToSeconds(timeText){
+  if(!timeText) return 0;
+  const parts = String(timeText).split(":").map(Number);
+  if(parts.some(Number.isNaN)) return 0;
+  return parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2] : parts[0]*60 + parts[1];
+}
+
+function daysBetween(from, to){
+  return Math.max(0, Math.ceil((toDate(to) - toDate(from)) / 86400000));
+}
+
+function addDays(date, days){
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function buildTacfAlerts(metrics){
+  const alerts = [];
+  if(!metrics.recentRuns.length){
+    alerts.push({type:"warn", title:"Sem histórico de corrida", text:"Registre distância e tempo na aba Log para o painel comparar pace, FC e evolução."});
+  }
+  if(metrics.nextSimulation && daysBetween(selectedDate, metrics.nextSimulation.date) <= 7){
+    alerts.push({type:"coach", title:"Simulação próxima", text:`Próxima simulação em ${daysBetween(selectedDate, metrics.nextSimulation.date)} dias. Evite perna pesada nas 48h anteriores.`});
+  }
+  if(metrics.best3k){
+    const diff = metrics.best3k.seconds - 720;
+    if(diff <= 0) alerts.push({type:"coach", title:"Meta sub-12 registrada", text:`Melhor 3 km: ${metrics.best3k.runTime}. Agora o foco é repetir descansado no TACF.`});
+    else alerts.push({type:"warn", title:"Ainda falta para sub-12", text:`Melhor 3 km: ${metrics.best3k.runTime}. Faltam ${diff}s para 12:00.`});
+  }
+  if(metrics.lastRun && Number(metrics.lastRun.avgHr || 0) >= 170 && metrics.lastRun.pace){
+    alerts.push({type:"warn", title:"FC alta no último registro", text:"Última corrida teve FC média alta. Verifique sono, calor, hidratação e recuperação."});
+  }
+  if(metrics.bestPushups && metrics.bestPushups < 70){
+    alerts.push({type:"coach", title:"Flexões em construção", text:`Melhor total registrado: ${metrics.bestPushups}. Meta secundária: 70 reps.`});
+  }
+  return alerts.slice(0,5);
+}
+
+function renderHypertrophy(workout){
+  const week = getPlanWeek(workout.date);
+  const weekDays = getWeekDays(workout.date);
+  const volume = calculateWeeklyMuscleVolume(weekDays);
+  const anchors = getWeeklyAnchorsStatus(weekDays);
+  const targetEntries = Object.entries(MUSCLE_VOLUME_TARGETS);
+  const priorityOk = targetEntries.filter(([k,t]) => t.priority && isWithinTarget(volume[k] || 0, t)).length;
+  const priorityTotal = targetEntries.filter(([,t]) => t.priority).length;
+  const coreDays = weekDays.filter(d => d.blocks.some(b => b.type === "core")).length;
+  const alerts = buildHypertrophyAlerts(volume, weekDays);
+
+  document.getElementById("hy-week-pill").textContent = "Semana " + week;
+  document.getElementById("hy-summary").textContent = `${weekDays[0] ? fmtDate(weekDays[0].date) : "--"} a ${weekDays[weekDays.length-1] ? fmtDate(weekDays[weekDays.length-1].date) : "--"} · ${workout.phase}`;
+  document.getElementById("hy-priority-ok").textContent = `${priorityOk}/${priorityTotal}`;
+  document.getElementById("hy-core-days").textContent = coreDays;
+  document.getElementById("hy-anchor-count").textContent = anchors.done.length;
+  document.getElementById("hy-volume-list").innerHTML = targetEntries.map(([key,target]) => renderMuscleVolumeRow(key, target, volume[key] || 0)).join("");
+  document.getElementById("hy-alerts").innerHTML = alerts.length
+    ? alerts.map(a => `<div class="card ${a.type === 'warn' ? 'warn' : 'coach'}"><div class="card-body"><div class="card-title">${a.title}</div><div class="card-sub">${a.text}</div></div></div>`).join("")
+    : `<div class="card coach"><div class="card-body"><div class="card-title">Semana bem distribuída</div><div class="card-sub">Os principais grupos estão dentro de uma faixa útil para o objetivo híbrido.</div></div></div>`;
+  document.getElementById("hy-anchors").innerHTML = anchors.all.map(a => `<div class="row"><span>${a.label}</span><span>${a.done ? "ok" : "faltando"}</span></div>`).join("");
+}
+
+function renderMuscleVolumeRow(key, target, value){
+  const status = getVolumeStatus(value, target);
+  const color = status === "ok" ? "var(--green)" : status === "high" ? "var(--amber)" : "var(--red)";
+  const unit = target.unit || "séries";
+  const pct = Math.max(5, Math.min(100, Math.round(value / target.max * 100)));
+  return `<div class="card">
+    <div class="card-body">
+      <div class="row"><span>${target.label}${target.priority ? " · prioridade" : ""}</span><span style="color:${color}">${value} ${unit}</span></div>
+      <div class="progress" style="margin-top:8px"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="card-sub" style="margin-top:8px">Meta: ${target.min}-${target.max} ${unit} · ${statusLabel(status)}</div>
+    </div>
+  </div>`;
+}
+
+function calculateWeeklyMuscleVolume(days){
+  const volume = Object.fromEntries(Object.keys(MUSCLE_VOLUME_TARGETS).map(k => [k,0]));
+  days.forEach(day => {
+    const isDeload = day.priority.includes("Deload") || day.isTaper;
+    day.blocks.forEach(block => {
+      if(block.type === "core"){
+        volume.core += 1;
+        return;
+      }
+      block.items.forEach(item => {
+        const sets = estimateSets(item);
+        if(!sets) return;
+        const groups = muscleGroupsForExercise(item);
+        groups.forEach(g => volume[g] += isDeload ? Math.max(1, Math.round(sets * 0.65)) : sets);
+      });
+    });
+  });
+  return volume;
+}
+
+function estimateSets(text){
+  const m = text.match(/(\d+)\s*x\s*(\d+|[0-9]+min|[0-9]+s)/i);
+  if(m) return Number(m[1]);
+  const range = text.match(/(\d+)\s*-\s*(\d+)x/i);
+  if(range) return Number(range[2]);
+  if(/EMOM/i.test(text)) return 4;
+  if(/Farmer carry|suitcase carry/i.test(text)) return 4;
+  return 0;
+}
+
+function muscleGroupsForExercise(text){
+  const t = text.toLowerCase();
+  const groups = new Set();
+  if(/supino|flexões|flexao|peito/.test(t)) { groups.add("peito"); groups.add("triceps"); }
+  if(/desenvolvimento|overhead|elevação lateral|elevaçao lateral|elevação posterior|elevaçao posterior|ombro/.test(t)) groups.add("ombro");
+  if(/tríceps|triceps/.test(t)) groups.add("triceps");
+  if(/rosca|bíceps|biceps/.test(t)) groups.add("biceps");
+  if(/encolhimento|trapézio|trapezio|carry|farmer|suitcase/.test(t)) groups.add("trapezio");
+  if(/barra fixa|puxada|remada|pull-up|scap pull/.test(t)) { groups.add("costas"); groups.add("biceps"); }
+  if(/leg press|hack|goblet|squat|agachamento/.test(t)) groups.add("quadriceps");
+  if(/rdl|hip thrust|mesa flexora|nórdico|nordico|glute|ponte/.test(t)) groups.add("posterior");
+  if(/panturrilha/.test(t)) groups.add("panturrilha");
+  return [...groups];
+}
+
+function buildHypertrophyAlerts(volume, days){
+  const alerts = [];
+  Object.entries(MUSCLE_VOLUME_TARGETS).forEach(([key,target]) => {
+    const value = volume[key] || 0;
+    if(value < target.min) alerts.push({type:"warn", title:`${target.label} abaixo da meta`, text:`Semana com ${value}; alvo é ${target.min}-${target.max}. Priorize esse grupo se houver margem de recuperação.`});
+    if(value > target.max) alerts.push({type:"warn", title:`${target.label} acima da meta`, text:`Semana com ${value}; alvo é ${target.min}-${target.max}. Cuidado com interferência e dor articular.`});
+  });
+  if(days.some(d => d.isTaper)) alerts.push({type:"coach", title:"Semana em tapering", text:"Volume reduzido é esperado. O objetivo é chegar descansado, não bater meta de hipertrofia."});
+  if(days.some(d => d.isPreSimulation || d.isSimulation)) alerts.push({type:"coach", title:"Semana com simulação", text:"Pernas podem ficar abaixo da meta de volume para proteger a qualidade do 3 km."});
+  return alerts.slice(0,6);
+}
+
+function getWeeklyAnchorsStatus(days){
+  const anchors = [
+    ["push_h","Empurrar horizontal",/supino|flexões|flexao/i],
+    ["push_v","Empurrar vertical",/desenvolvimento/i],
+    ["pull_v","Puxar vertical",/barra fixa|puxada|pull-up/i],
+    ["pull_h","Puxar horizontal",/remada/i],
+    ["knee","Dominante de joelho",/leg press|hack|goblet|squat|agachamento/i],
+    ["hip","Dominante de quadril",/rdl|hip thrust|mesa flexora/i],
+    ["carry","Carry",/farmer|suitcase|carry/i],
+    ["core","Core",/dead bug|prancha|hollow|pallof|abdominal/i],
+    ["tacf_push","Flexão TACF",/flex/i],
+    ["tacf_abs","Abdominal TACF",/abdominal tacf/i]
+  ];
+  const text = days.flatMap(d => d.blocks.flatMap(b => b.items)).join(" ");
+  const all = anchors.map(([key,label,re]) => ({key,label,done:re.test(text)}));
+  return {all, done: all.filter(a => a.done)};
+}
+
+function getWeekDays(date){
+  const idx = CALENDAR_PLAN.findIndex(d => d.date === date);
+  if(idx < 0) return [];
+  const current = toDate(date);
+  const monday = new Date(current);
+  const offset = (current.getDay() + 6) % 7;
+  monday.setDate(current.getDate() - offset);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return CALENDAR_PLAN.filter(d => toDate(d.date) >= monday && toDate(d.date) <= sunday);
+}
+
+function getPlanWeek(date){
+  if(date <= "2026-06-21") return 1;
+  return Math.floor((toDate(date) - toDate("2026-06-22")) / (7 * 86400000)) + 2;
+}
+
+function isWithinTarget(value, target){
+  return value >= target.min && value <= target.max;
+}
+
+function getVolumeStatus(value, target){
+  if(value < target.min) return "low";
+  if(value > target.max) return "high";
+  return "ok";
+}
+
+function statusLabel(status){
+  return status === "ok" ? "dentro da faixa" : status === "high" ? "acima da faixa" : "abaixo da faixa";
+}
+
+function renderNutrition(workout){
+  const n = NUTRITION_TEMPLATES[workout.nutritionType];
+  const dayPlan = CARDAPIO_SEMANAL[workout.dayKey] || CARDAPIO_SEMANAL.domingo;
+  document.getElementById("nutrition-card").innerHTML = `
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">${n.name}</div><div class="card-sub">${dayPlan.foco} · ${n.note}</div></div></div>
+      <div class="card-body">
+        <div class="row"><span>Calorias</span><span>${n.kcal}</span></div>
+        <div class="row"><span>Proteína</span><span>${n.protein}</span></div>
+        <div class="row"><span>Carboidratos</span><span>${n.carbs}</span></div>
+        <div class="row"><span>Gorduras</span><span>${n.fats}</span></div>
+      </div>
+    </div>`;
+  const alerts = buildNutritionAlerts(workout);
+  document.getElementById("nutrition-alerts").innerHTML = alerts.map(a => `
+    <div class="card ${a.type === "warn" ? "warn" : "coach"}"><div class="card-body">
+      <div class="card-title">${a.title}</div><div class="card-sub">${a.text}</div>
+    </div></div>`).join("");
+  document.getElementById("nutrition-timing").innerHTML = `
+    <div class="card coach"><div class="card-body">
+      <div class="row"><span>Pré-treino</span><span>${dayPlan.pre}</span></div>
+      <div class="row"><span>Pós-treino</span><span>${dayPlan.pos}</span></div>
+    </div></div>`;
+  document.getElementById("meal-plan-list").innerHTML = dayPlan.refeicoes.map(renderMealCard).join("");
+  document.getElementById("nutrition-checklist").innerHTML = buildNutritionChecklist(workout).map(item => `
+    <div class="row"><span>${item}</span><span>hoje</span></div>`).join("");
+}
+
+function renderMealCard(meal){
+  return `<div class="card">
+    <div class="card-head">
+      <div><div class="card-title">${meal.horario} · ${meal.nome}</div><div class="card-sub">${meal.objetivo}</div></div>
+    </div>
+    <div class="card-body">
+      <div class="row"><span>Alimentos</span><span>${meal.alimentos}</span></div>
+      <div class="row"><span>Quantidade</span><span>${meal.quantidade}</span></div>
+      <div class="row"><span>Substituições</span><span>${meal.substituicoes}</span></div>
+      <div class="row"><span>Observação</span><span>${meal.observacao}</span></div>
+    </div>
+  </div>`;
+}
+
+function buildNutritionAlerts(workout){
+  const alerts = [];
+  if(RUNNING_PLAN[workout.date]){
+    alerts.push({type:"coach", title:"Dia de corrida", text:"Priorize carboidrato simples no pré-treino e proteína + carboidrato no pós."});
+  }
+  const tomorrow = isoDate(addDays(toDate(workout.date), 1));
+  if(RUNNING_PLAN[tomorrow]){
+    alerts.push({type:"warn", title:"Amanhã tem corrida", text:"Não faça restrição agressiva de carboidrato hoje."});
+  }
+  const nextSim = CALENDAR_PLAN.find(d => d.isSimulation && d.date >= workout.date);
+  if(nextSim && daysBetween(workout.date, nextSim.date) <= 2){
+    alerts.push({type:"warn", title:"Simulação próxima", text:"Véspera/semana de simulação: manter carboidrato suficiente e evitar testes alimentares."});
+  }
+  if(workout.isTaper){
+    alerts.push({type:"coach", title:"Tapering", text:"Não inventar dieta agressiva. Chegar abastecido é parte da estratégia."});
+  }
+  if(workout.nutritionType === "recuperacao"){
+    alerts.push({type:"coach", title:"Recuperação", text:"Manter proteína alta, reduzir carboidrato com calma e priorizar sono/hidratação."});
+  }
+  return alerts;
+}
+
+function buildNutritionChecklist(workout){
+  const list = ["Bater 170-190g de proteína", "Água 3,1-4,0L no dia", "Creatina 3-5g", "Vegetais em 2 refeições"];
+  if(RUNNING_PLAN[workout.date]) list.push("Pré-treino com carbo fácil", "Eletrólitos se calor/suor intenso");
+  if(workout.isSimulation || workout.date === USER_PROFILE.tacfDate) list.push("Nada novo antes da corrida", "Refeição familiar e digerível");
+  if(workout.nutritionType === "recuperacao") list.push("Carbo moderado, não zerado");
+  return list;
+}
+
+function renderBody(){
+  const sorted = [...bodyMeasurements].sort((a,b) => b.date.localeCompare(a.date));
+  const latest = sorted[0] || null;
+  const prev = sorted[1] || null;
+  document.getElementById("body-count-pill").textContent = sorted.length + " registros";
+  document.getElementById("body-current").innerHTML = latest ? `
+    <div class="hero">
+      <div class="card-sub">Último registro: ${fmtDate(latest.date)}. Olhe tendência, não um dado isolado.</div>
+      <div class="hero-grid">
+        <div class="metric"><div class="metric-label">Peso</div><div class="metric-val">${fmtNum(latest.weight)}</div><div class="metric-sub">${deltaText(latest.weight, prev?.weight, false)}</div></div>
+        <div class="metric"><div class="metric-label">Cintura</div><div class="metric-val">${fmtNum(latest.waist)}</div><div class="metric-sub">${deltaText(latest.waist, prev?.waist, true)}</div></div>
+        <div class="metric"><div class="metric-label">Flancos</div><div class="metric-val">${latest.flanks || "--"}</div><div class="metric-sub">percepção 1-5</div></div>
+      </div>
+    </div>` : `<div class="empty">Nenhuma medida salva ainda.</div>`;
+  document.getElementById("body-history").innerHTML = sorted.length ? sorted.map(m => `
+    <div class="memory-item"><strong style="color:var(--text)">${fmtDate(m.date)} · ${fmtNum(m.weight)}kg</strong><br>Cintura ${fmtNum(m.waist)} · Abdômen ${fmtNum(m.abdomen)} · Braço contraído ${fmtNum(m.armFlexed)} · Coxa ${fmtNum(m.thigh)} · Flancos ${m.flanks || "--"}/5</div>
+  `).join("") : `<div class="empty">Sem histórico de medidas.</div>`;
+}
+
+function saveBodyMeasurement(){
+  const entry = {
+    date: selectedDate,
+    weight:num("body-weight"),
+    waist:num("body-waist"),
+    abdomen:num("body-abdomen"),
+    hip:num("body-hip"),
+    armRelaxed:num("body-armRelaxed"),
+    armFlexed:num("body-armFlexed"),
+    thigh:num("body-thigh"),
+    calf:num("body-calf"),
+    flanks:num("body-flanks"),
+    savedAt:new Date().toISOString()
+  };
+  bodyMeasurements = bodyMeasurements.filter(m => m.date !== selectedDate);
+  bodyMeasurements.push(entry);
+  saveJson("body_measurements_v1", bodyMeasurements);
+  const {date, ...bodyData} = entry;
+  syncRecordSoon("body_measurements", entry.date, bodyData);
+  render();
+  showPage("corpo", [...document.querySelectorAll(".bottomnav .nav-item")].find(b => b.textContent.includes("Corpo")));
+}
+
+function fmtNum(v){
+  return v ? Number(v).toFixed(1).replace(".0","") : "--";
+}
+
+function deltaText(cur, prev, lowerIsGood){
+  if(!cur || !prev) return "sem comparação";
+  const diff = Math.round((cur - prev) * 10) / 10;
+  if(diff === 0) return "estável";
+  const good = lowerIsGood ? diff < 0 : diff > 0;
+  return `${diff > 0 ? "+" : ""}${diff} ${good ? "ok" : "atenção"}`;
+}
+
+function renderMemory(){
+  const dates = Object.keys(checkins).sort().reverse();
+  document.getElementById("memory-list").innerHTML = dates.length ? dates.map(date => {
+    const ci = checkins[date];
+    const r = calculateReadiness(ci);
+    return `<div class="memory-item"><strong style="color:var(--text)">${fmtDate(date)} · ${r.label} ${r.score}/100</strong><br>Sono ${ci.sleepHours}h · Energia ${ci.energy}/5 · Joelho ${ci.kneePain}/10 · Ombro ${ci.shoulderPain}/10 · Local ${ci.location}</div>`;
+  }).join("") : `<div class="empty">Nenhum check-in salvo ainda.</div>`;
+
+  const logDates = Object.keys(workoutLogs).sort().reverse();
+  document.getElementById("workout-log-list").innerHTML = logDates.length ? logDates.map(date => {
+    const log = workoutLogs[date];
+    const painMax = Math.max(log.kneePain||0, log.shoulderPain||0, log.adductorPain||0, log.backPain||0);
+    return `<div class="memory-item"><strong style="color:var(--text)">${fmtDate(date)} · ${log.status}</strong><br>PSE ${log.rpe}/10 · ${log.duration}min · dor máx ${painMax}/10${log.pace ? " · pace " + log.pace : ""}${log.notes ? "<br>" + log.notes : ""}</div>`;
+  }).join("") : `<div class="empty">Nenhum pós-treino salvo ainda.</div>`;
+
+  const anchorDates = Object.keys(anchorLogs).sort().reverse();
+  document.getElementById("anchor-log-list").innerHTML = anchorDates.length ? anchorDates.flatMap(date => {
+    return (anchorLogs[date] || []).map(a => `<div class="memory-item"><strong style="color:var(--text)">${fmtDate(date)} · ${a.name}</strong><br>${a.load || "--"}kg · ${a.sets || "--"}x${a.reps || "--"} · RPE ${a.rpe || "--"}${a.notes ? "<br>" + a.notes : ""}</div>`);
+  }).slice(0,12).join("") : `<div class="empty">Nenhuma âncora registrada ainda.</div>`;
+
+  const bodySorted = [...bodyMeasurements].sort((a,b) => b.date.localeCompare(a.date));
+  document.getElementById("memory-body-list").innerHTML = bodySorted.length ? bodySorted.slice(0,8).map(m => `
+    <div class="memory-item"><strong style="color:var(--text)">${fmtDate(m.date)} · ${fmtNum(m.weight)}kg</strong><br>Cintura ${fmtNum(m.waist)} · Abdômen ${fmtNum(m.abdomen)} · Flancos ${m.flanks || "--"}/5</div>
+  `).join("") : `<div class="empty">Nenhuma medida salva ainda.</div>`;
+
+  const missedDates = Object.entries(workoutLogs).filter(([,log]) => log.status === "nao_feito").map(([date]) => date).sort().reverse();
+  document.getElementById("missed-log-list").innerHTML = missedDates.length ? missedDates.map(date => {
+    const missedWorkout = getWorkout(date);
+    const nextDay = CALENDAR_PLAN.find(d => d.date > date) || missedWorkout;
+    const decision = decideMissedWorkoutRecovery(missedWorkout, nextDay);
+    return `<div class="memory-item"><strong style="color:var(--text)">${fmtDate(date)} · ${decision.category}</strong><br>${missedWorkout.title}<br>Decisão: ${decision.action}<br>Motivo: ${decision.reason}</div>`;
+  }).join("") : `<div class="empty">Nenhum treino perdido registrado.</div>`;
+
+  const alerts = buildMemoryAlerts();
+  document.getElementById("memory-alerts").innerHTML = alerts.length
+    ? alerts.map(a => `<div class="card ${a.type === 'warn' ? 'warn' : 'coach'}"><div class="card-body"><div class="card-title">${a.title}</div><div class="card-sub">${a.text}</div></div></div>`).join("")
+    : `<div class="card coach"><div class="card-body"><div class="card-title">Memória limpa</div><div class="card-sub">Ainda não há padrão de dor, queda de performance ou fadiga recorrente detectado.</div></div></div>`;
+}
+
+function buildMemoryAlerts(){
+  const alerts = [];
+  const logs = Object.entries(workoutLogs).sort(([a],[b]) => a.localeCompare(b)).slice(-14);
+  const checkinEntries = Object.entries(checkins).sort(([a],[b]) => a.localeCompare(b)).slice(-14);
+  const painFields = [
+    ["kneePain","Joelho"],["shoulderPain","Ombro"],["adductorPain","Adutor"],["backPain","Lombar"]
+  ];
+  painFields.forEach(([field,label]) => {
+    const highLogs = logs.filter(([,l]) => Number(l[field]||0) >= 5);
+    const highCheckins = checkinEntries.filter(([,c]) => Number(c[field]||0) >= 5);
+    if(highLogs.length + highCheckins.length >= 2){
+      alerts.push({type:"warn", title:`Atenção: ${label}`, text:`Dor >=5 apareceu ${highLogs.length + highCheckins.length} vezes nos últimos registros. Próximos ajustes devem proteger essa região.`});
+    }
+  });
+  const highRpe = logs.filter(([,l]) => Number(l.rpe||0) >= 9);
+  if(highRpe.length >= 2) alerts.push({type:"warn", title:"PSE alto recorrente", text:"Dois ou mais treinos recentes ficaram em PSE 9-10. Considere reduzir volume antes de corrida-chave."});
+  const missed = logs.filter(([,l]) => l.status === "nao_feito");
+  if(missed.length >= 2) alerts.push({type:"coach", title:"Aderência em queda", text:"Há dois ou mais treinos não feitos nos registros recentes. Melhor criar versão mínima do dia do que quebrar a sequência."});
+  return alerts.slice(0,5);
+}
+
+function renderProfile(){
+  document.getElementById("profile-card").innerHTML = `
+    <div class="row"><span>Plano</span><span>Projeto 12:00</span></div>
+    <div class="row"><span>Data-alvo</span><span>01/10/2026</span></div>
+    <div class="row"><span>Meta</span><span>${USER_PROFILE.goal}</span></div>
+    <div class="row"><span>FC repouso / máxima</span><span>${USER_PROFILE.restingHr} / ${USER_PROFILE.maxHr}</span></div>
+    <div class="row"><span>Método FC</span><span>HR Reserve</span></div>`;
+}
+
+function saveCheckin(){
+  const ci = {
+    sleepHours:num("ci-sleepHours"), sleepQuality:num("ci-sleepQuality"), energy:num("ci-energy"),
+    restingHr:num("ci-restingHr"), kneePain:num("ci-kneePain"), shoulderPain:num("ci-shoulderPain"),
+    adductorPain:num("ci-adductorPain"), backPain:num("ci-backPain"), prevRpe:num("ci-prevRpe"),
+    availableMinutes:num("ci-availableMinutes"), location:document.getElementById("ci-location").value,
+    savedAt:new Date().toISOString()
+  };
+  checkins[selectedDate] = ci;
+  saveJson("checkins_mvp_v2", checkins);
+  syncRecordSoon("checkins", selectedDate, ci);
+  render();
+  showPage("treino", document.querySelector(".nav-item"));
+}
+function num(id){ return Number(document.getElementById(id).value || 0); }
+function toggleCheck(key){
+  checked[key] = !checked[key];
+  saveJson("checked_mvp_v3", checked);
+  renderBlocks(getWorkout(selectedDate), adjustWorkoutByCheckin(getWorkout(selectedDate), getCheckin(selectedDate)));
+}
+function selectDate(date){ selectedDate = date; render(); }
+function showPage(id, btn){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  if(btn) btn.classList.add("active");
+}
+function clearMemory(){
+  if(!confirm("Limpar check-ins e progresso salvos neste MVP?")) return;
+  checkins = {}; checked = {}; workoutLogs = {}; anchorLogs = {}; bodyMeasurements = [];
+  saveJson("checkins_mvp_v2", checkins); saveJson("checked_mvp_v3", checked);
+  saveJson("workout_logs_v1", workoutLogs);
+  saveJson("anchor_logs_v1", anchorLogs);
+  saveJson("body_measurements_v1", bodyMeasurements);
+  render();
+}
+
+function exportAppData(){
+  const data = {
+    exportedAt:new Date().toISOString(),
+    profile:USER_PROFILE,
+    checkins,
+    checked,
+    workoutLogs,
+    anchorLogs,
+    bodyMeasurements
+  };
+  const json = JSON.stringify(data, null, 2);
+  try{
+    const blob = new Blob([json], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `projeto-12-dados-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    document.getElementById("export-result").innerHTML = `<div class="card-sub">Exportação gerada com sucesso.</div>`;
+  }catch(e){
+    document.getElementById("export-result").innerHTML = `<pre style="white-space:pre-wrap;font-size:11px;color:var(--muted)">${json}</pre>`;
+  }
+}
+
+function setSyncStatus(title, text, kind="coach"){
+  const el = document.getElementById("sync-status");
+  if(!el) return;
+  el.innerHTML = `<div class="card-title">${title}</div><div class="card-sub">${text}</div>`;
+  el.parentElement.className = `card ${kind === "warn" ? "warn" : "coach"}`;
+}
+
+async function supabaseRequest(path, options={}){
+  const headers = {
+    apikey: SUPABASE_CONFIG.anonKey,
+    Authorization: `Bearer ${SUPABASE_CONFIG.anonKey}`,
+    "Content-Type": "application/json",
+    Prefer: "return=minimal",
+    ...(options.headers || {})
+  };
+  const res = await fetch(`${SUPABASE_CONFIG.restUrl}/${path}`, {...options, headers});
+  if(!res.ok){
+    const text = await res.text().catch(() => "");
+    throw new Error(`${res.status} ${res.statusText} ${text}`);
+  }
+  if(res.status === 204) return null;
+  const bodyText = await res.text();
+  return bodyText ? JSON.parse(bodyText) : null;
+}
+
+function dateColumnForTable(table){
+  return table === "body_measurements" ? "measurement_date" : "workout_date";
+}
+
+async function saveRemoteRecord(table, date, data){
+  const dateCol = dateColumnForTable(table);
+  const encodedUser = encodeURIComponent(SUPABASE_CONFIG.userId);
+  await supabaseRequest(`${table}?user_id=eq.${encodedUser}&${dateCol}=eq.${date}`, {method:"DELETE"});
+  await supabaseRequest(table, {
+    method:"POST",
+    body:JSON.stringify({
+      user_id:SUPABASE_CONFIG.userId,
+      [dateCol]:date,
+      data
+    })
+  });
+}
+
+async function loadRemoteTable(table){
+  const dateCol = dateColumnForTable(table);
+  const encodedUser = encodeURIComponent(SUPABASE_CONFIG.userId);
+  const rows = await supabaseRequest(`${table}?user_id=eq.${encodedUser}&select=${dateCol},data&order=${dateCol}.asc`, {
+    method:"GET",
+    headers:{Prefer:""}
+  });
+  return rows || [];
+}
+
+async function syncFromSupabase(){
+  try{
+    setSyncStatus("Sincronizando", "Baixando dados do Supabase...");
+    const [remoteCheckins, remoteWorkoutLogs, remoteAnchorLogs, remoteBody] = await Promise.all([
+      loadRemoteTable("checkins"),
+      loadRemoteTable("workout_logs"),
+      loadRemoteTable("anchor_logs"),
+      loadRemoteTable("body_measurements")
+    ]);
+
+    remoteCheckins.forEach(r => { checkins[r.workout_date] = r.data; });
+    remoteWorkoutLogs.forEach(r => { workoutLogs[r.workout_date] = r.data; });
+    remoteAnchorLogs.forEach(r => { anchorLogs[r.workout_date] = r.data; });
+    remoteBody.forEach(r => {
+      bodyMeasurements = bodyMeasurements.filter(m => m.date !== r.measurement_date);
+      bodyMeasurements.push({date:r.measurement_date, ...r.data});
+    });
+
+    saveJson("checkins_mvp_v2", checkins);
+    saveJson("workout_logs_v1", workoutLogs);
+    saveJson("anchor_logs_v1", anchorLogs);
+    saveJson("body_measurements_v1", bodyMeasurements);
+    render();
+    setSyncStatus("Supabase sincronizado", `Baixado: ${remoteCheckins.length} check-ins, ${remoteWorkoutLogs.length} logs, ${remoteAnchorLogs.length} âncoras, ${remoteBody.length} medidas.`);
+  }catch(e){
+    setSyncStatus("Erro ao baixar", String(e.message || e), "warn");
+  }
+}
+
+async function syncToSupabase(){
+  try{
+    setSyncStatus("Sincronizando", "Enviando dados locais para o Supabase...");
+    const jobs = [];
+    Object.entries(checkins).forEach(([date,data]) => jobs.push(saveRemoteRecord("checkins", date, data)));
+    Object.entries(workoutLogs).forEach(([date,data]) => jobs.push(saveRemoteRecord("workout_logs", date, data)));
+    Object.entries(anchorLogs).forEach(([date,data]) => jobs.push(saveRemoteRecord("anchor_logs", date, data)));
+    bodyMeasurements.forEach(m => {
+      const {date, ...data} = m;
+      if(date) jobs.push(saveRemoteRecord("body_measurements", date, data));
+    });
+    await Promise.all(jobs);
+    setSyncStatus("Supabase atualizado", `${jobs.length} registros enviados para a nuvem.`);
+  }catch(e){
+    setSyncStatus("Erro ao enviar", String(e.message || e), "warn");
+  }
+}
+
+function syncRecordSoon(table, date, data){
+  saveRemoteRecord(table, date, data).catch(e => {
+    console.warn("Supabase sync falhou:", e);
+    setSyncStatus("Sync pendente", "Dados salvos localmente. Envie para o Supabase quando a conexão/tabelas estiverem ok.", "warn");
+  });
+}
+
+window.addEventListener("DOMContentLoaded", render);
+if("serviceWorker" in navigator && location.protocol !== "file:"){
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>

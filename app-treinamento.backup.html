@@ -1,0 +1,3171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1a0f">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>Plano de Treino v2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#080b0d;--bg2:#0d1117;--bg3:#161b22;
+--border:#21262d;--border2:#30363d;
+--text:#f0f6fc;--text2:#8b949e;--text3:#484f58;
+--green:#39d353;--lime:#b5ff47;
+--orange:#ff6b35;--amber:#ffab00;
+--blue:#58a6ff;--cyan:#79c0ff;
+--red:#f85149;--purple:#d2a8ff;
+--neon:#b5ff47;
+color-scheme:dark}
+html{height:100%;overflow:hidden;background:#080b0d}
+body{height:100%;overflow:hidden;background:#080b0d;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
+/* Force dark on iOS overscroll bounce areas */
+html::before,html::after{content:'';position:fixed;left:0;right:0;height:50vh;background:#080b0d;z-index:-1}
+html::before{top:-50vh}
+html::after{bottom:-50vh}
+.topbar{flex-shrink:0;background:linear-gradient(180deg,#0d1117 0%,#080b0d 100%);border-bottom:1px solid #b5ff4730;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-size:17px;font-weight:800;letter-spacing:-0.3px;background:linear-gradient(135deg,#f0f6fc,#b5ff47);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.edit-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer}
+.edit-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.1)}
+.page{display:none;flex:1;overflow:hidden;flex-direction:column}
+.page.active{display:flex}
+.page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.sem-scroll{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none}
+.sem-scroll::-webkit-scrollbar{display:none}
+.sem-chip{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;text-align:center}
+.sem-chip.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.12)}
+.sem-chip-sub{font-size:10px;opacity:0.7;margin-top:1px}
+.desc-box{margin:0 16px 10px;padding:10px 14px;border-radius:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);font-size:12px;color:var(--amber)}
+.logic-box{margin:0 16px 10px;padding:10px 14px;border-radius:10px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);font-size:12px;color:var(--blue)}
+.dia-scroll{display:flex;gap:6px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none}
+.dia-scroll::-webkit-scrollbar{display:none}
+.dia-btn{flex-shrink:0;width:44px;padding:8px 4px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;text-align:center;cursor:pointer}
+.dia-btn.active{border-color:#b5ff47;color:#b5ff47;background:#b5ff4712}
+.dia-btn-sub{font-size:9px;margin-top:2px;opacity:0.7}
+.prog-bar-wrap{padding:0 16px 12px}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:#484f58;font-weight:600;margin-bottom:5px}
+.prog-bar{background:var(--bg3);border-radius:4px;height:4px}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#39d353,#b5ff47);transition:width 0.4s ease;box-shadow:0 0 8px #b5ff4750}
+.prep-tag{padding:0 16px 10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 8px;border-radius:6px}
+.bloco{margin:0 16px 8px;border-radius:10px;background:#0d1117;border:1px solid #21262d;overflow:hidden;position:relative}
+.bloco-body{border-top:1px solid #21262d}
+.bloco-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #21262d}
+.bloco-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bloco-nome{font-size:13px;font-weight:500}
+.bloco-dur{font-size:10px;color:var(--text3);background:var(--bg3);padding:2px 8px;border-radius:10px;white-space:nowrap}
+.ex-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(45,55,72,0.5);cursor:pointer}
+.ex-item:last-child{border-bottom:none}
+.chk{width:18px;height:18px;border-radius:4px;border:1px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.15s}
+.chk.done{background:#b5ff47;border-color:#b5ff47;color:#080b0d}
+.ex-txt{font-size:13px;line-height:1.5;flex:1}
+.ex-txt.done{text-decoration:line-through;color:var(--text3)}
+.ex-txt.warn{color:var(--amber)}
+.ex-txt.info{color:var(--blue)}
+.ex-txt.rest{color:var(--purple);font-size:11px;font-style:italic}
+.ex-edit{display:none;width:100%;background:var(--bg3);border:1px solid var(--amber);border-radius:6px;color:var(--text);font-size:13px;padding:6px 8px;font-family:inherit;resize:vertical;margin-top:6px}
+.ex-edit.show{display:block}
+.edit-actions{display:none;gap:6px;margin-top:6px}
+.edit-actions.show{display:flex}
+.edit-actions button{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer}
+.edit-actions .save{border-color:var(--green);color:var(--green)}
+.edit-actions .del{border-color:var(--red);color:var(--red)}
+.add-ex-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:12px;color:var(--text3);cursor:pointer;border-top:1px solid var(--border);background:transparent;width:100%;text-align:left}
+.plus{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.add-bloco-btn{margin:0 16px 10px;padding:12px;border-radius:12px;border:1px dashed var(--border);background:transparent;color:var(--text3);font-size:13px;cursor:pointer;width:calc(100% - 32px);display:none}
+.add-bloco-btn.show{display:block}
+.metas{margin:4px 16px 16px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);padding:14px}
+.metas-title{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.metas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.meta-card{background:var(--bg3);border-radius:8px;padding:10px;text-align:center}
+.meta-label{font-size:10px;color:var(--text3)}
+.meta-hoje{font-size:10px;color:var(--text3);margin:2px 0}
+.meta-val{font-size:13px;font-weight:600;color:var(--green)}
+.bottomnav{flex-shrink:0;background:#0d1117;border-top:1px solid #b5ff4720;display:flex;padding:8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;cursor:pointer;color:#484f58;font-size:9px;border:none;background:transparent;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
+.nav-item.active{color:var(--lime)}
+.nav-icon{font-size:18px}
+.info-section{padding:16px}
+.info-card{background:#0d1117;border:1px solid #21262d;border-radius:12px;padding:14px;margin-bottom:12px}
+.info-card-title{font-size:13px;font-weight:600;margin-bottom:10px;color:var(--amber)}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(45,55,72,0.5);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-val{color:var(--green);font-weight:500;font-size:13px}
+.reset-btn{margin:0 0 10px;padding:14px;border-radius:12px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:var(--red);font-size:13px;cursor:pointer;width:100%}
+.changes-card{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:14px;margin-bottom:12px}
+.changes-title{font-size:13px;font-weight:600;color:var(--green);margin-bottom:10px}
+.change-item{font-size:12px;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(45,55,72,0.3)}
+.change-item:last-child{border-bottom:none}
+.badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 8px;border-radius:6px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:0 16px 12px}
+.card-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.card-head-left{display:flex;align-items:center;gap:10px}
+.card-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-title{font-size:14px;font-weight:600}
+.card-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.card-body{padding:14px}
+.macros-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px}
+.macro-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(45,55,72,0.5);font-size:13px}
+.macro-row:last-child{border-bottom:none}
+.macro-val{font-weight:600}
+.alimento-row{padding:10px 0;border-bottom:1px solid rgba(45,55,72,0.4)}
+.alimento-row:last-child{border-bottom:none}
+.alimento-nome{font-size:13px;font-weight:500}
+.alimento-qtd{font-size:12px;color:var(--amber);margin-top:2px}
+.alimento-macros{font-size:11px;color:var(--text3);margin-top:2px}
+.alimento-prep{font-size:11px;color:var(--blue);margin-top:2px}
+.sub-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.sub-title{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.sub-item{font-size:12px;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(45,55,72,0.3);display:flex;gap:8px;align-items:flex-start}
+.sub-item:last-child{border-bottom:none}
+.sub-dot{color:var(--green);flex-shrink:0}
+.toggle-btn{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;scrollbar-width:none}
+.toggle-btn::-webkit-scrollbar{display:none}
+.tbtn{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer}
+.tbtn.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.1)}
+.section-title{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:16px 16px 8px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 16px 12px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat-label{font-size:11px;color:var(--text3)}
+.stat-val{font-size:22px;font-weight:600;margin:4px 0}
+.stat-sub{font-size:10px;color:var(--text3)}
+.supl-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin:0 16px 10px;overflow:hidden}
+.supl-head{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.supl-body{padding:0 14px 14px;display:none}
+.supl-body.open{display:block}
+.supl-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(45,55,72,0.3);font-size:12px}
+.supl-row:last-child{border-bottom:none}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(45,55,72,0.4);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-val{color:var(--green);font-weight:500}
+.warn-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 14px;margin:0 16px 12px;font-size:12px;color:var(--amber)}
+
+.med-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:12px 16px 4px}
+.med-stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.med-stat-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.med-stat-val{font-size:20px;font-weight:600}
+.med-stat-diff{font-size:11px;margin-top:3px}
+.med-form{margin:0 16px 12px;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:14px}
+.med-form-title{font-size:13px;font-weight:800;color:#b5ff47;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.med-field{margin-bottom:12px}
+.med-field label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
+.med-field input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#f0f6fc;font-size:14px;padding:10px 12px;font-family:inherit}
+.med-field input:focus{outline:none;border-color:#b5ff47;box-shadow:0 0 0 2px #b5ff4720}
+.med-save-btn{width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#b5ff47,#39d353);color:#080b0d;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px;letter-spacing:0.5px;text-transform:uppercase}
+.med-save-btn:active{opacity:0.85}
+.med-card{margin:0 16px 10px;background:#0d1117;border:1px solid #21262d;border-radius:10px;overflow:hidden}
+.med-card-head{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.med-card-body{padding:0 14px 14px;display:none}
+.med-card-body.open{display:block}
+.med-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(45,55,72,0.4);font-size:13px}
+.med-row:last-child{border-bottom:none}
+.med-del-btn{margin-top:12px;padding:10px;width:100%;border-radius:8px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:var(--red);font-size:12px;cursor:pointer;font-family:inherit}
+.gordura-box{margin:0 16px 12px;padding:14px;border-radius:12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2)}
+.gordura-title{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.gordura-val{font-size:28px;font-weight:800;color:#b5ff47}
+.gordura-sub{font-size:11px;color:var(--text2);margin-top:4px}
+.gordura-formula{font-size:10px;color:var(--text3);margin-top:6px}
+.section-header{font-size:10px;color:#484f58;letter-spacing:3px;text-transform:uppercase;padding:12px 16px 8px;font-weight:700}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.ex-detail-btn{background:none;border:none;cursor:pointer;padding:0 0 0 6px;color:#484f58;font-size:11px;flex-shrink:0;line-height:1}
+.ex-detail-btn:hover{color:#b5ff47}
+.ex-panel{display:none;margin:6px 0 2px 28px;background:#161b22;border-radius:8px;border:1px solid #30363d;overflow:hidden}
+.ex-panel.open{display:block}
+.ex-panel-loading{padding:12px 14px;font-size:12px;color:var(--text3);display:flex;align-items:center;gap:8px}
+.ex-panel-content{padding:12px 14px;background:#0d1117}
+.ex-info-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid rgba(45,55,72,0.4);font-size:12px}
+.ex-info-row:last-child{border-bottom:none}
+.ex-info-icon{flex-shrink:0;width:18px;text-align:center}
+.ex-info-label{color:#8b949e;flex-shrink:0;width:70px;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+.ex-info-val{color:var(--text);flex:1;line-height:1.5}
+.ex-erro{padding:10px 14px;font-size:12px;color:var(--red)}
+.bib-card{margin:0 16px 6px;background:#0d1117;border:1px solid #21262d;border-radius:10px;overflow:hidden}
+.bib-head{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.bib-nome{font-size:13px;font-weight:600}
+.bib-body{display:none;padding:0 14px 12px;border-top:1px solid var(--border)}
+.bib-section{margin-top:10px}
+.bib-label{font-size:10px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.bib-text{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* MOBILIDADE */
+.mob-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:12px 16px}
+.mob-day-btn{padding:8px 4px;border-radius:8px;border:1px solid #21262d;background:#0d1117;color:#484f58;font-size:9px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;text-transform:uppercase}
+.mob-day-btn.active{border-color:#b5ff47;color:#b5ff47;background:#b5ff4712}
+.mob-day-btn.today{border-color:var(--amber);color:var(--amber)}
+.mob-day-btn.today.active{background:rgba(245,158,11,0.12)}
+.mob-focus{margin:0 16px 12px;padding:14px;border-radius:12px}
+.mob-focus-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.mob-focus-sub{font-size:12px;opacity:0.8;margin-top:3px}
+.mob-exercise{margin:0 16px 8px;background:#0d1117;border:1px solid #21262d;border-radius:10px;overflow:hidden}
+.mob-ex-head{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.mob-ex-left{display:flex;align-items:center;gap:10px}
+.mob-ex-icon{font-size:16px;width:28px;text-align:center}
+.mob-ex-name{font-size:13px;font-weight:700}
+.mob-ex-time{font-size:10px;color:var(--text3);background:var(--bg3);padding:2px 8px;border-radius:8px;white-space:nowrap}
+.mob-ex-body{display:none;padding:0 14px 12px;border-top:1px solid var(--border)}
+.mob-ex-body.open{display:block}
+.mob-ex-how{font-size:12px;color:var(--text2);line-height:1.6;margin-top:10px}
+.mob-ex-tip{font-size:11px;color:var(--amber);margin-top:8px;padding:8px 10px;background:rgba(245,158,11,0.08);border-radius:6px}
+.mob-ex-lpo{font-size:11px;color:var(--blue);margin-top:6px;padding:6px 10px;background:rgba(96,165,250,0.08);border-radius:6px}
+.mob-why{margin:0 16px 20px;padding:14px;background:#0d1117;border:1px solid #21262d;border-radius:10px}
+.mob-why-title{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.mob-why-row{font-size:12px;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(45,55,72,0.3);display:flex;gap:8px}
+.mob-why-row:last-child{border-bottom:none}
+.mob-total-time{text-align:center;padding:8px 16px 4px;font-size:11px;color:var(--text3)}
+
+/* HERO ACCENTS */
+.page.active .topbar{position:relative}
+.sem-btn.active .sem-num{color:#b5ff47;font-weight:900}
+.bloco:hover{border-color:#30363d}
+.ex-item:active{background:#161b22}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 4px #b5ff4780)}
+/* Neon glow on checked items */
+.chk.done{box-shadow:0 0 6px #b5ff4760}
+/* Type badge enhanced contrast */
+.badge{box-shadow:inset 0 0 0 1px rgba(255,255,255,0.05)}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<!-- PAGINA TREINO -->
+<div id="page-treino" class="page active">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Fase 1 — Base v2</div>
+      <div class="topbar-sub">Mar · Abr · TACF + CrossFit</div>
+    </div>
+    <button class="edit-btn" id="edit-toggle" onclick="toggleEdit()">Editar</button>
+  </div>
+  <div class="page-scroll">
+    <div class="sem-scroll" id="sem-tabs"></div>
+    <div class="desc-box" id="sem-desc"></div>
+    <div class="logic-box" id="sem-logic"></div>
+    <div class="dia-scroll" id="dia-tabs"></div>
+    <div class="prog-bar-wrap">
+      <div class="prog-label"><span>Progresso do dia</span><span id="pct-lbl" style="color:var(--green)">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="pct-fill" style="width:0%"></div></div>
+    </div>
+    <div class="prep-tag" id="prep-tag"></div>
+    <div id="blocos-list"></div>
+    <button class="add-bloco-btn" id="add-bloco-btn" onclick="addBloco()">+ Adicionar bloco</button>
+    <div class="metas">
+      <div class="metas-title">Metas — Fim da Fase 1</div>
+      <div class="metas-grid">
+        <div class="meta-card"><div class="meta-label">Corrida</div><div class="meta-hoje">2.650m</div><div class="meta-val">2.800m</div></div>
+        <div class="meta-card"><div class="meta-label">Flexoes</div><div class="meta-hoje">46</div><div class="meta-val">52+</div></div>
+        <div class="meta-card"><div class="meta-label">Abdominal</div><div class="meta-hoje">55/min</div><div class="meta-val">58+</div></div>
+        <div class="meta-card"><div class="meta-label">Pull-up</div><div class="meta-hoje">5</div><div class="meta-val">8+</div></div>
+        <div class="meta-card"><div class="meta-label">Ring dip</div><div class="meta-hoje">—</div><div class="meta-val">8+</div></div>
+        <div class="meta-card"><div class="meta-label">OHS</div><div class="meta-hoje">tecnica</div><div class="meta-val">40kg</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MOBILIDADE -->
+<div id="page-mobilidade" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Mobilidade</div>
+    <div class="topbar-sub">10min ao acordar — todo dia</div>
+  </div>
+  <div class="page-scroll">
+    <div id="mob-day-selector"></div>
+    <div id="mob-focus-box"></div>
+    <div id="mob-protocol"></div>
+    <div id="mob-why-box"></div>
+  </div>
+</div>
+
+<!-- BIBLIOTECA -->
+<div id="page-biblioteca" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Biblioteca</div>
+    <div class="topbar-sub">Exercicios em ordem alfabetica</div>
+  </div>
+  <div class="page-scroll">
+    <div style="padding:10px 16px 4px">
+      <input id="bib-search" type="text" placeholder="Buscar exercicio..."
+        style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 14px;font-family:inherit"
+        oninput="filterBiblioteca(this.value)">
+    </div>
+    <div id="bib-list"></div>
+  </div>
+</div>
+
+<!-- PAGINA CONFIG -->
+<div id="page-config" class="page">
+  <div class="topbar"><div><div class="topbar-title">Configuracoes</div></div></div>
+  <div class="page-scroll">
+    <div class="info-section">
+      <div class="changes-card">
+        <div class="changes-title">Atualizacoes v2</div>
+        <div class="change-item">✅ 2 sessoes de corrida por semana (Seg zona 2 + Qua intervalado)</div>
+        <div class="change-item">✅ Complexes postergados — fortalecimento isolado nas semanas 1-4</div>
+        <div class="change-item">✅ Peito e bracos: floor press, fly, curl, triceps inseridos</div>
+        <div class="change-item">✅ Tempo de descanso em todos os exercicios</div>
+        <div class="change-item">✅ Bike erg aumentada para 30min zona 2 real</div>
+        <div class="change-item">✅ Natacao movida para domingo como recuperacao ativa</div>
+        <div class="change-item">✅ Reabilitacao joelho reduzida (sem dor) — mantida como prevencao</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Guia de descanso</div>
+        <div class="info-row"><span>Forca / LPO pesado</span><span class="info-val">3-5min</span></div>
+        <div class="info-row"><span>Hipertrofia (peito, bracos)</span><span class="info-val">60-90seg</span></div>
+        <div class="info-row"><span>Resistencia muscular</span><span class="info-val">45-60seg</span></div>
+        <div class="info-row"><span>Core de ginastica</span><span class="info-val">40-60seg</span></div>
+        <div class="info-row"><span>Reabilitacao</span><span class="info-val">45seg</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Perfil</div>
+        <div class="info-row"><span>Peso</span><span class="info-val">88kg</span></div>
+        <div class="info-row"><span>Altura</span><span class="info-val">1,84m</span></div>
+        <div class="info-row"><span>% Gordura</span><span class="info-val">15-20%</span></div>
+        <div class="info-row"><span>Massa magra</span><span class="info-val">~73kg</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Diagnostico inicial</div>
+        <div class="info-row"><span>Corrida 12min</span><span class="info-val">2.650m</span></div>
+        <div class="info-row"><span>Flexoes</span><span class="info-val">46</span></div>
+        <div class="info-row"><span>Abdominais</span><span class="info-val">55/min</span></div>
+        <div class="info-row"><span>Pull-up estrito</span><span class="info-val">5</span></div>
+        <div class="info-row"><span>Joelho direito</span><span class="info-val" style="color:var(--green)">Sem dor</span></div>
+        <div class="info-row"><span>Ombro direito</span><span class="info-val" style="color:var(--amber)">Monitorar</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Gerenciar dados</div>
+        <button class="reset-btn" onclick="resetDia()">Resetar progresso do dia atual</button>
+        <button class="reset-btn" onclick="resetSemana()">Resetar progresso da semana atual</button>
+        <button class="reset-btn" onclick="resetTudo()" style="border-color:rgba(239,68,68,0.6)">Resetar TUDO</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- CARDAPIO -->
+<div id="page-cardapio" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Cardapio</div>
+    <div class="topbar-sub">88kg · 1,84m · Recomposicao</div>
+  </div>
+  <div class="page-scroll">
+    <div class="toggle-btn" id="dia-toggle"></div>
+    <div class="stat-grid" id="macro-stats"></div>
+    <div id="refeicoes-list"></div>
+  </div>
+</div>
+
+<!-- MEDIDAS -->
+<div id="page-medidas" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Medidas</div>
+    <div class="topbar-sub">Registro antropometrico — a cada 4 semanas</div>
+  </div>
+  <div class="page-scroll">
+    <div id="med-current-stats"></div>
+    <div id="med-gordura-box"></div>
+    <div id="med-form-section"></div>
+    <div id="med-history-section"></div>
+  </div>
+</div>
+
+<!-- SUPLEMENTACAO -->
+<div id="page-suplem" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Suplementacao</div>
+    <div class="topbar-sub">Por prioridade e horario</div>
+  </div>
+  <div class="page-scroll">
+    <div class="warn-box">Consulte um nutricionista esportivo antes de iniciar. Exames de sangue de base sao recomendados.</div>
+    <div class="section-title">Essenciais</div>
+    <div id="supl-essencial"></div>
+    <div class="section-title">Saude e Recuperacao</div>
+    <div id="supl-saude"></div>
+    <div class="section-title">Performance — Fase 2+</div>
+    <div id="supl-perf"></div>
+  </div>
+</div>
+
+<!-- HIDRATACAO -->
+<div id="page-hidrat" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Hidratacao</div>
+    <div class="topbar-sub">Meta: 3,5 a 4 litros por dia</div>
+  </div>
+  <div class="page-scroll">
+    <div class="stat-grid" style="padding-top:16px">
+      <div class="stat-card">
+        <div class="stat-label">Meta diaria</div>
+        <div class="stat-val" style="color:var(--blue)">4L</div>
+        <div class="stat-sub">35ml/kg + treino</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Durante treino</div>
+        <div class="stat-val" style="color:var(--blue)">750ml</div>
+        <div class="stat-sub">por hora</div>
+      </div>
+    </div>
+    <div class="section-title">Protocolo por momento</div>
+    <div class="card" style="margin-top:0">
+      <div class="card-body" id="hidrat-list"></div>
+    </div>
+    <div class="section-title">Eletrolitos</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="alimento-row">
+          <div class="alimento-nome">Sodio</div>
+          <div class="alimento-prep">Pitada de sal na agua intra-treino em sessoes acima de 60min. Evita caimbras.</div>
+        </div>
+        <div class="alimento-row">
+          <div class="alimento-nome">Potassio</div>
+          <div class="alimento-prep">Coberto pela dieta: banana, batata-doce, aveia. Sem suplementar.</div>
+        </div>
+        <div class="alimento-row">
+          <div class="alimento-nome">Magnesio</div>
+          <div class="alimento-prep">Suplementado a noite (ver suplementacao). Fundamental para alto volume.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="bottomnav">
+  <button class="nav-item active" id="nav-treino" onclick="showPage('treino',this)">
+    <div class="nav-icon">&#127947;</div><span>Treino</span>
+  </button>
+  <button class="nav-item" id="nav-cardapio" onclick="showPage('cardapio',this);initNutri()">
+    <div class="nav-icon">&#127869;</div><span>Cardapio</span>
+  </button>
+  <button class="nav-item" id="nav-suplem" onclick="showPage('suplem',this);initNutri()">
+    <div class="nav-icon">&#128138;</div><span>Suplem</span>
+  </button>
+  <button class="nav-item" id="nav-medidas" onclick="showPage('medidas',this);initMedidas()">
+    <div class="nav-icon">&#128200;</div><span>Medidas</span>
+  </button>
+  <button class="nav-item" id="nav-mobilidade" onclick="showPage('mobilidade',this);renderMobilidade()">
+    <div class="nav-icon">&#129340;</div><span>Mobil</span>
+  </button>
+  <button class="nav-item" id="nav-biblioteca" onclick="showPage('biblioteca',this);initBiblioteca()">
+    <div class="nav-icon">&#128218;</div><span>Biblio</span>
+  </button>
+  <button class="nav-item" id="nav-config" onclick="showPage('config',this)">
+    <div class="nav-icon">&#9881;</div><span>Config</span>
+  </button>
+</nav>
+<script>
+// DESCANSO = linha roxa exibida abaixo do exercicio
+// Formato do exercicio: texto normal
+// Formato descanso: comecar com "⏱" para aparecer roxo
+
+const S=[
+//==================== SEMANA 1 — 19 a 25/mai ====================
+{num:1,tema:"Reativacao",
+desc:"Acordar o corpo. Tecnica acima de tudo. Zero falha muscular. Ombro protegido. Home gym como base de forca.",
+logic:"Seg: argola + core + wall ball intro. Ter: corrida progressivo 45min (plano corrida) + home gym peito/costas. Ter noite: LPO academia tecnica. Qua: reab + core anti-rot. Qui: corrida Z2 40min + home gym perna/ombro. Sex box: ginastica + WOD Hyrox. Sab: longo Z2 50min.",
+dias:[
+{dia:"Seg",local:"Casa",prep:"Argola + Core + Wall Ball intro — 60min",
+blocos:[
+  {n:"Ativacao Ombro — PRIMEIRO",tipo:"rehab",dur:"8min",ex:[
+    "Rotacao externa elastico: 3x15 cada lado",
+    "⏱ Descanso: 45seg",
+    "Y-T-W halteres 4kg: 3x10",
+    "⏱ Descanso: 45seg",
+    "Face pull elastico: 3x15",
+    "⏱ Descanso: 45seg",
+    "⚠️ Sempre antes de qualquer trabalho em argola"
+  ]},
+  {n:"Argola Baixa — Programa RMU Base",tipo:"gin",dur:"22min",ex:[
+    "False grip ring hang: 4x15seg",
+    "⏱ Descanso: 60seg",
+    "Ring row horizontal: 4x8 — peito toca a argola",
+    "⏱ Descanso: 75seg",
+    "Ring dip estrito: 4x5",
+    "⏱ Descanso: 90seg",
+    "Ring support hold: 4x10seg",
+    "⏱ Descanso: 60seg",
+    "Transicao assistida pe no chao: 4x4",
+    "⏱ Descanso: 90seg"
+  ]},
+  {n:"Core de Ginastica",tipo:"gin",dur:"12min",ex:[
+    "Hollow body hold: 4x20seg",
+    "⏱ Descanso: 40seg",
+    "Hollow rocks: 3x10",
+    "⏱ Descanso: 40seg",
+    "Dragon flag excentrico: 3x5 (5seg descendo)",
+    "⏱ Descanso: 60seg",
+    "L-sit barra (joelhos dobrados): 4x8seg",
+    "⏱ Descanso: 40seg"
+  ]},
+  {n:"Wall Ball — Introducao Hyrox",tipo:"wod",dur:"12min",ex:[
+    "⚠️ Wall ball 10kg — introducao ao movimento Hyrox",
+    "Tecnica: squat profundo + extensao completa + alvo 3m na parede",
+    "3x15 wall ball shots — foco em forma",
+    "⏱ Descanso: 90seg",
+    "Farmer carry DB 20kg: 3x30m (ida e volta 15m)",
+    "⏱ Descanso: 60seg",
+    "⚠️ Farmer carry e estacao Hyrox — grip e postura ereta"
+  ]},
+  {n:"Acessorios DB",tipo:"hiper",dur:"8min",ex:[
+    "DB Row 20kg: 3x10 cada lado",
+    "⏱ Descanso: 75seg",
+    "Triceps overhead DB 12kg: 3x12",
+    "⏱ Descanso: 60seg"
+  ]}
+]},
+{dia:"Ter",local:"Casa+Academia",prep:"Manha: Corrida Progressivo 45min | Home gym peito/costas | Noite: LPO academia",
+blocos:[
+  {n:"MANHA 08h — Corrida Progressivo",tipo:"tacf",dur:"45min",ex:[
+    "⚠️ COMER antes: banana + cafe 30min antes — progressivo exige energia",
+    "Aquecimento: 10min Z2 pace 5:45-6:00/km FC 120-132bpm",
+    "20min corrida continua Z2-Z3 FC 132-145bpm",
+    "10min pace alvo: 5:30/km FC Z3",
+    "Resfriamento: 5min muito leve",
+    "⚠️ Z2 correta = 120-132bpm (nao 110 — zonas recalibradas)",
+    "⚠️ BIKE ERG alternativa: Aquec 10min D3 75rpm | 20min D4 80rpm FC132-145 | 10min D4-5 85rpm | Cool 5min D3"
+  ]},
+  {n:"HOME GYM pos-corrida — Peito",tipo:"hiper",dur:"20min",ex:[
+    "⚠️ 15-20min apos a corrida — corpo aquecido",
+    "DB Floor press 16kg: 4x10",
+    "⏱ Descanso: 75seg",
+    "DB Fly 12kg: 3x12",
+    "⏱ Descanso: 60seg",
+    "Flexoes submax: 4x20 — parar 4 antes da falha",
+    "⏱ Descanso: 90seg",
+    "Flexoes com pausa 2seg: 3x8",
+    "⏱ Descanso: 75seg"
+  ]},
+  {n:"HOME GYM pos-corrida — Costas + Pull",tipo:"hiper",dur:"18min",ex:[
+    "DB Row 20kg: 4x10 cada lado",
+    "⏱ Descanso: 75seg",
+    "Pull-up estrito barra fixa: 4x4",
+    "⏱ Descanso: 90seg",
+    "Pull-up iso hold no topo: 3x8seg",
+    "⏱ Descanso: 60seg",
+    "DB Curl martelo 16kg: 3x10",
+    "⏱ Descanso: 60seg"
+  ]},
+  {n:"NOITE — LPO Academia — Tecnica + Carga",tipo:"lpo",dur:"60min",ex:[
+    "ORDEM FIXA: aquecimento → snatch → clean → jerk",
+    "Aquecimento: 10min bike leve + OHS barra vazia 3x5",
+    "⏱ Descanso: 90seg",
+    "Snatch tecnico: 2x5 barra vazia + 3x3 40% 1RM",
+    "⏱ Descanso: 2min",
+    "Hang Snatch: 4x3 45-50% 1RM — foco na posicao de saida",
+    "⏱ Descanso: 2min",
+    "Clean tecnico: 2x5 barra vazia + 3x3 40% 1RM",
+    "⏱ Descanso: 2min",
+    "Push Jerk: 4x4 50% 1RM — dip e drive explosivo",
+    "⏱ Descanso: 2min",
+    "OHS: 3x5 progressivo — barra vazia ate 30kg",
+    "⏱ Descanso: 90seg",
+    "⚠️ Tecnica > carga — se o padrao quebrar reduce 10%"
+  ]}
+]},
+{dia:"Qua",local:"Casa",prep:"Reabilitacao + Core Anti-rotacao + DB",
+blocos:[
+  {n:"Reabilitacao Joelho",tipo:"rehab",dur:"10min",ex:[
+    "⚠️ Sem dor mas tendao se beneficia do excentrico",
+    "Decline squat excentrico unilateral: 3x12 (3seg descendo) — peso corporal",
+    "⏱ Descanso: 60seg",
+    "Terminal knee extension elastico: 3x15 cada lado",
+    "⏱ Descanso: 45seg"
+  ]},
+  {n:"Reabilitacao Ombro",tipo:"rehab",dur:"8min",ex:[
+    "Rotacao externa elastico: 3x15",
+    "⏱ Descanso: 45seg",
+    "Y-T-W 4kg: 3x10",
+    "⏱ Descanso: 45seg"
+  ]},
+  {n:"Core Anti-rotacao + Hyrox",tipo:"gin",dur:"25min",ex:[
+    "Prancha lateral: 3x30seg cada lado",
+    "⏱ Descanso: 40seg",
+    "Dead bug: 3x8 cada lado — lombar colada no chao",
+    "⏱ Descanso: 45seg",
+    "Abdominal TACF: 3x30 ritmo 1/seg",
+    "⏱ Descanso: 60seg",
+    "Wall ball shots: 3x20 — ritmo constante",
+    "⏱ Descanso: 90seg",
+    "Burpee Broad Jump: 3x8 — estacao Hyrox",
+    "⏱ Descanso: 90seg",
+    "⚠️ Burpee broad jump: no chao + salto horizontal maximo + dois pes juntos"
+  ]},
+  {n:"Acessorios DB",tipo:"hiper",dur:"12min",ex:[
+    "DB RDL 20kg: 3x12",
+    "⏱ Descanso: 75seg",
+    "DB Farmer Hold 20kg: 3x40seg — grip LPO",
+    "⏱ Descanso: 60seg",
+    "Triceps overhead DB 12kg: 3x12",
+    "⏱ Descanso: 60seg"
+  ]}
+]},
+{dia:"Qui",local:"Casa",prep:"Manha: Corrida Z2 40min | Home gym perna/ombro",
+blocos:[
+  {n:"MANHA 08h — Corrida Zona 2",tipo:"tacf",dur:"45min",ex:[
+    "⚠️ Z2 correta = 120-132bpm — nao 110bpm",
+    "⚠️ Sem alimentacao — Z2 tolera jejum",
+    "Aquecimento: 5min caminhada",
+    "35min corrida continua Z2 FC 120-132bpm",
+    "Pace alvo: 5:30-6:00/km — se FC sobe acima de 132 reduza",
+    "Resfriamento: 5min caminhada",
+    "Drill cadencia: nos ultimos 5min alvo 84-86ppm unilateral",
+    "⚠️ BIKE ERG: 40min D3-4 75-80rpm FC 120-132bpm"
+  ]},
+  {n:"HOME GYM pos-corrida — Perna",tipo:"forca",dur:"25min",ex:[
+    "⚠️ 15min apos a corrida — alongar quadriceps antes",
+    "DB Goblet Squat 20kg: 4x12",
+    "⏱ Descanso: 90seg",
+    "DB Bulgarian split squat 16kg: 3x10 cada lado",
+    "⏱ Descanso: 90seg",
+    "Hip thrust DB 20kg (par): 4x10",
+    "⏱ Descanso: 90seg",
+    "DB RDL 20kg: 3x12",
+    "⏱ Descanso: 75seg",
+    "Panturrilha degrau: 3x20",
+    "⏱ Descanso: 30seg"
+  ]},
+  {n:"HOME GYM pos-corrida — Ombro",tipo:"hiper",dur:"15min",ex:[
+    "DB Desenvolvimento 16kg: 4x10",
+    "⏱ Descanso: 75seg",
+    "Lateral raise DB 8kg: 3x15",
+    "⏱ Descanso: 60seg",
+    "Face pull elastico: 3x15",
+    "⏱ Descanso: 45seg",
+    "Rotacao externa elastico: 2x15",
+    "⏱ Descanso: 45seg"
+  ]}
+]},
+{dia:"Sex",local:"Box",prep:"Ginastica avancada + WOD Hyrox — 90min",
+blocos:[
+  {n:"Ativacao Ombro — PRIMEIRO",tipo:"rehab",dur:"5min",ex:[
+    "Rotacao externa: 2x15",
+    "⏱ Descanso: 45seg",
+    "Face pull: 2x15",
+    "⏱ Descanso: 45seg"
+  ]},
+  {n:"Ginastica — Fortalecimento Isolado",tipo:"gin",dur:"30min",ex:[
+    "ORDEM FIXA: Ginastica primeiro — SNC fresco",
+    "Pull-up estrito barra alta: 5x4",
+    "⏱ Descanso: 90seg",
+    "Negativas lentas barra: 4x3 (6seg descendo)",
+    "⏱ Descanso: 90seg",
+    "TTB estrito: 4x4",
+    "⏱ Descanso: 60seg",
+    "Box BMU assistido: 4x3",
+    "⏱ Descanso: 90seg",
+    "HSPU pike push-up: 4x8",
+    "⏱ Descanso: 75seg",
+    "Ring dip argola alta: 4x5",
+    "⏱ Descanso: 90seg"
+  ]},
+  {n:"Deadlift — Forca Base",tipo:"forca",dur:"15min",ex:[
+    "Deadlift: 4x5 — Sem1: 70% 1RM",
+    "⏱ Descanso: 2min",
+    "⚠️ Padrao de saida da barra e a base do clean e snatch"
+  ]},
+  {n:"WOD — Estilo Hyrox",tipo:"wod",dur:"25min",ex:[
+    "⚠️ WOD com elementos Hyrox — condicionar o motor para o TACF e CrossFit",
+    "For Time 20min:",
+    "4 rounds: 200m corrida + 20 wall ball 10kg + 10 burpee broad jump + 30m farmer carry 20kg",
+    "Intensidade 70-75% — ritmo constante, nao sprint",
+    "⚠️ Wall ball: squat profundo + extensao completa + alvo 3m",
+    "⚠️ Farmer carry: postura ereta, passos controlados"
+  ]}
+]},
+{dia:"Sab",local:"Rua",prep:"Corrida Longa Z2 50min — Plano corrida 23/mai",
+blocos:[
+  {n:"Corrida Longa Z2",tipo:"tacf",dur:"55min",ex:[
+    "⚠️ Z2 = 120-132bpm — calibrado por FC de reserva",
+    "Aquecimento: 5min caminhada rapida",
+    "40min corrida continua Z2 FC 120-132bpm",
+    "Pace alvo: 5:30-6:00/km — se FC subir acima de 132 reduza o pace",
+    "Resfriamento: 5min caminhada",
+    "Drill cadencia: ao longo da corrida alvo 84-86ppm unilateral",
+    "Registrar: distancia total, pace medio, FC media e maxima"
+  ]}
+]},
+{dia:"Dom",local:"Casa",prep:"Rest Total",
+blocos:[
+  {n:"Descanso Ativo",tipo:"rec",dur:"20min",ex:[
+    "⚠️ Rest total — sem treino estruturado",
+    "Mobilidade suave opcional: 10-15min foam roller + alongamento",
+    "Hidratacao: 3L minimo",
+    "⚠️ A adaptacao acontece no repouso — o domingo e tao importante quanto o treino"
+  ]}
+]}
+]},
+
+//==================== SEMANA 2 — 26/mai a 1/jun ====================
+{num:2,tema:"Consolidacao",
+desc:"Volume corrida sobe. Home gym carga +5%. Wall ball volume aumenta. LPO carga sobe levemente.",
+logic:"Corrida: progressivo 50min + Z2 45min + longo 60min. Home gym: carga +5% nos principais. Wall ball sobe para 25 reps. LPO: carga sobe 5% no snatch e clean.",
+dias:[
+{dia:"Seg",local:"Casa",prep:"Argola + Core + Wall Ball — volume sobe",
+blocos:[
+  {n:"Ativacao Ombro",tipo:"rehab",dur:"8min",ex:[
+    "Rotacao externa: 3x15","⏱ Descanso: 45seg",
+    "Y-T-W 4kg: 3x12","⏱ Descanso: 45seg",
+    "Face pull: 3x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Argola Baixa",tipo:"gin",dur:"22min",ex:[
+    "False grip ring hang: 4x18seg","⏱ Descanso: 60seg",
+    "Ring row horizontal: 4x9","⏱ Descanso: 75seg",
+    "Ring dip estrito: 4x6","⏱ Descanso: 90seg",
+    "Ring support hold: 4x12seg","⏱ Descanso: 60seg",
+    "Transicao assistida: 4x5","⏱ Descanso: 90seg"
+  ]},
+  {n:"Core de Ginastica",tipo:"gin",dur:"12min",ex:[
+    "Hollow body: 4x25seg","⏱ Descanso: 40seg",
+    "Hollow rocks: 3x12","⏱ Descanso: 40seg",
+    "Dragon flag: 3x6","⏱ Descanso: 60seg",
+    "L-sit: 4x10seg","⏱ Descanso: 40seg"
+  ]},
+  {n:"Wall Ball + Farmer Carry — Hyrox",tipo:"wod",dur:"12min",ex:[
+    "Wall ball shots 10kg: 3x20 — ritmo 1/seg alvo",
+    "⏱ Descanso: 90seg",
+    "Farmer carry DB 20kg: 3x40m",
+    "⏱ Descanso: 75seg",
+    "⚠️ Sem pausa entre wall ball e carry em cada serie — simula transicao Hyrox"
+  ]},
+  {n:"Acessorios DB",tipo:"hiper",dur:"8min",ex:[
+    "DB Row 20kg: 3x12","⏱ Descanso: 75seg",
+    "Triceps overhead DB 12kg: 3x12","⏱ Descanso: 60seg"
+  ]}
+]},
+{dia:"Ter",local:"Casa",prep:"Manha: Corrida Progressivo 50min | Home gym peito/costas | Noite: LPO academia",
+blocos:[
+  {n:"MANHA 08h — Corrida Progressivo 50min",tipo:"tacf",dur:"50min",ex:[
+    "⚠️ COMER antes: banana + cafe 30min antes",
+    "Aquecimento: 10min Z2 FC 120-132bpm",
+    "20min corrida Z2-Z3 FC 132-145bpm",
+    "15min pace 5:15/km FC Z3",
+    "Resfriamento: 5min leve",
+    "⚠️ BIKE ERG: Aquec 10min D3 | 20min D4 80rpm | 15min D4-5 83rpm | Cool 5min"
+  ]},
+  {n:"HOME GYM — Peito + Flexoes",tipo:"hiper",dur:"22min",ex:[
+    "Flexoes submax: 4x22","⏱ Descanso: 90seg",
+    "Flexoes pausa 2seg: 3x9","⏱ Descanso: 75seg",
+    "DB Floor press 16kg: 4x10 — carga mantem","⏱ Descanso: 75seg",
+    "DB Fly 12kg: 3x12","⏱ Descanso: 60seg"
+  ]},
+  {n:"HOME GYM — Costas + Pull",tipo:"hiper",dur:"18min",ex:[
+    "DB Row 20kg: 4x10","⏱ Descanso: 75seg",
+    "Pull-up estrito: 4x5 — uma rep a mais","⏱ Descanso: 90seg",
+    "Pull-up iso hold: 3x10seg","⏱ Descanso: 60seg",
+    "DB Curl martelo 16kg: 3x10","⏱ Descanso: 60seg"
+  ]},
+  {n:"NOITE — LPO Academia",tipo:"lpo",dur:"60min",ex:[
+    "Aquecimento: 10min bike + OHS barra vazia 3x5",
+    "⏱ Descanso: 90seg",
+    "Snatch tecnico: 3x3 45% + 3x2 50% 1RM — carga sobe vs Sem1",
+    "⏱ Descanso: 2min",
+    "Hang Snatch: 4x3 50% 1RM",
+    "⏱ Descanso: 2min",
+    "Clean: 3x3 45% + 3x2 50% 1RM",
+    "⏱ Descanso: 2min",
+    "Push Jerk: 4x4 52% 1RM",
+    "⏱ Descanso: 2min",
+    "OHS progressivo: 4x5 ate 35kg",
+    "⏱ Descanso: 90seg"
+  ]}
+]},
+{dia:"Qua",local:"Casa",prep:"Reabilitacao + Core + Hyrox conditioning",
+blocos:[
+  {n:"Reabilitacao Joelho + Ombro",tipo:"rehab",dur:"15min",ex:[
+    "Decline squat excentrico: 3x13 (3seg)","⏱ Descanso: 60seg",
+    "TKE elastico: 3x15","⏱ Descanso: 45seg",
+    "Rotacao externa: 3x15","⏱ Descanso: 45seg",
+    "Y-T-W: 3x12","⏱ Descanso: 45seg"
+  ]},
+  {n:"Core Anti-rotacao + Hyrox",tipo:"gin",dur:"25min",ex:[
+    "Prancha lateral: 3x35seg cada lado","⏱ Descanso: 40seg",
+    "Dead bug: 3x9 cada lado","⏱ Descanso: 45seg",
+    "Abdominal TACF: 3x32 ritmo 1/seg","⏱ Descanso: 60seg",
+    "Wall ball shots: 3x25","⏱ Descanso: 90seg",
+    "Burpee Broad Jump: 3x10","⏱ Descanso: 90seg"
+  ]},
+  {n:"Acessorios DB",tipo:"hiper",dur:"12min",ex:[
+    "DB RDL 20kg: 3x12","⏱ Descanso: 75seg",
+    "DB Farmer Hold 20kg: 3x45seg","⏱ Descanso: 60seg",
+    "Triceps overhead: 3x12","⏱ Descanso: 60seg"
+  ]}
+]},
+{dia:"Qui",local:"Casa",prep:"Manha: Corrida Z2 45min | Home gym perna/ombro",
+blocos:[
+  {n:"MANHA 08h — Corrida Zona 2",tipo:"tacf",dur:"50min",ex:[
+    "⚠️ Z2 = 120-132bpm",
+    "Aquecimento: 5min caminhada",
+    "35min corrida Z2 FC 120-132bpm — Sem2: ritmo deve parecer mais natural",
+    "Resfriamento: 5min caminhada",
+    "Drill cadencia: alvo 85-87ppm unilateral",
+    "⚠️ BIKE ERG: 45min D3-4 75-80rpm FC 120-132bpm"
+  ]},
+  {n:"HOME GYM — Perna",tipo:"forca",dur:"25min",ex:[
+    "DB Goblet Squat 20kg: 4x12","⏱ Descanso: 90seg",
+    "DB Bulgarian split squat 16kg: 3x10 cada","⏱ Descanso: 90seg",
+    "Hip thrust DB: 4x10 — carga +5%","⏱ Descanso: 90seg",
+    "DB RDL 20kg: 3x12","⏱ Descanso: 75seg",
+    "Panturrilha: 3x20","⏱ Descanso: 30seg"
+  ]},
+  {n:"HOME GYM — Ombro",tipo:"hiper",dur:"15min",ex:[
+    "DB Desenvolvimento 16kg: 4x10","⏱ Descanso: 75seg",
+    "Lateral raise: 3x15","⏱ Descanso: 60seg",
+    "Face pull: 3x15","⏱ Descanso: 45seg",
+    "Rotacao externa: 2x15","⏱ Descanso: 45seg"
+  ]}
+]},
+{dia:"Sex",local:"Box",prep:"Ginastica + Deadlift + WOD Hyrox",
+blocos:[
+  {n:"Ativacao Ombro",tipo:"rehab",dur:"5min",ex:[
+    "Rotacao externa: 2x15","⏱ Descanso: 45seg",
+    "Face pull: 2x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Ginastica — Combinacoes 2 movimentos",tipo:"gin",dur:"28min",ex:[
+    "ORDEM FIXA: Ginastica primeiro",
+    "3x [3 pull-up estrito + 3 TTB]","⏱ Descanso: 90seg",
+    "Negativas lentas: 4x3 (6seg)","⏱ Descanso: 90seg",
+    "3x [5 ring dip + 5 ring row argola alta]","⏱ Descanso: 90seg",
+    "Box BMU assistido: 4x4","⏱ Descanso: 90seg",
+    "HSPU pike: 4x10","⏱ Descanso: 75seg"
+  ]},
+  {n:"Deadlift — Forca Base",tipo:"forca",dur:"15min",ex:[
+    "Deadlift: 4x5 — Sem2: 72% 1RM",
+    "⏱ Descanso: 2min",
+    "⚠️ Qualidade maxima — barra proxima ao corpo"
+  ]},
+  {n:"WOD Hyrox",tipo:"wod",dur:"22min",ex:[
+    "For Time 20min:",
+    "5 rounds: 150m corrida + 20 wall ball + 8 burpee broad jump + 20m DB lunges 16kg",
+    "⚠️ DB lunges: estacao Hyrox sandbag lunge — mantém postura ereta",
+    "Intensidade 70-75% — ritmo constante"
+  ]}
+]},
+{dia:"Sab",local:"Rua",prep:"Corrida Longa Z2 60min — Plano corrida 30/mai",
+blocos:[
+  {n:"Corrida Longa Z2",tipo:"tacf",dur:"65min",ex:[
+    "⚠️ Z2 = 120-132bpm — longo mais demorado esta semana",
+    "Aquecimento: 5min caminhada",
+    "50min corrida continua Z2 FC 120-132bpm",
+    "Resfriamento: 5min caminhada",
+    "Drill cadencia: ao longo da corrida 85-87ppm",
+    "Registrar distancia, pace medio, FC media"
+  ]}
+]},
+{dia:"Dom",local:"Casa",prep:"Rest Total",
+blocos:[
+  {n:"Descanso",tipo:"rec",dur:"15min",ex:[
+    "⚠️ Rest total",
+    "Foam roller suave 10min se necessario",
+    "Hidratacao: 3L minimo"
+  ]}
+]}
+]},
+
+//==================== SEMANA 3 — 2 a 8/jun ====================
+{num:3,tema:"Progressao",
+desc:"Volume sobe. Corrida progressivo 50min pace 5:05. LPO 55% 1RM. WOD Hyrox mais denso.",
+logic:"Corrida: progressivo com pace 5:05 no final + Z2 45min + longo 60min. Home gym: carga +10% vs Sem1. LPO: 55% 1RM. Wall ball: 30 reps. Burpee broad jump: 12 reps.",
+dias:[
+{dia:"Seg",local:"Casa",prep:"Argola + Core + Wall Ball — pico volume Fase 1",
+blocos:[
+  {n:"Ativacao Ombro",tipo:"rehab",dur:"8min",ex:[
+    "Rotacao externa: 3x15","⏱ Descanso: 45seg",
+    "Y-T-W: 3x12","⏱ Descanso: 45seg",
+    "Face pull: 3x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Argola Baixa — Volume",tipo:"gin",dur:"22min",ex:[
+    "False grip ring hang: 4x20seg","⏱ Descanso: 60seg",
+    "Ring row: 4x10","⏱ Descanso: 75seg",
+    "Ring dip estrito: 4x7","⏱ Descanso: 90seg",
+    "Ring dip negativo 5seg: 3x4","⏱ Descanso: 90seg",
+    "Transicao assistida: 4x5","⏱ Descanso: 90seg"
+  ]},
+  {n:"Core de Ginastica",tipo:"gin",dur:"12min",ex:[
+    "Hollow body: 4x30seg","⏱ Descanso: 40seg",
+    "Hollow rocks: 3x15","⏱ Descanso: 40seg",
+    "Dragon flag: 3x7","⏱ Descanso: 60seg",
+    "Box V-sit: 3x10","⏱ Descanso: 50seg"
+  ]},
+  {n:"Wall Ball + Hyrox conditioning",tipo:"wod",dur:"15min",ex:[
+    "Wall ball shots: 4x25 — volume sobe","⏱ Descanso: 90seg",
+    "Farmer carry DB 20kg: 4x40m","⏱ Descanso: 75seg",
+    "⚠️ Sem pausa entre wall ball e carry — transicao Hyrox"
+  ]},
+  {n:"Acessorios DB",tipo:"hiper",dur:"8min",ex:[
+    "DB Row 20kg: 4x10 — serie extra","⏱ Descanso: 75seg",
+    "Triceps overhead 16kg: 3x10 — carga sobe","⏱ Descanso: 60seg"
+  ]}
+]},
+{dia:"Ter",local:"Casa",prep:"Manha: Corrida Progressivo 50min pace 5:05 | Home gym | Noite: LPO 55%",
+blocos:[
+  {n:"MANHA 08h — Corrida Progressivo 50min",tipo:"tacf",dur:"50min",ex:[
+    "⚠️ COMER antes: banana + cafe 30min antes",
+    "Aquecimento: 10min Z2",
+    "20min Z2-Z3 FC 132-145bpm",
+    "15min pace 5:05/km — mais rapido que Sem2",
+    "Resfriamento: 5min",
+    "⚠️ BIKE ERG: Aquec 10min | 20min D4 82rpm | 15min D5 86rpm | Cool 5min"
+  ]},
+  {n:"HOME GYM — Peito + Flexoes volume maximo",tipo:"hiper",dur:"22min",ex:[
+    "Flexoes submax: 4x24","⏱ Descanso: 90seg",
+    "Flexoes pausa 2seg: 3x10","⏱ Descanso: 75seg",
+    "DB Floor press 20kg: 4x10 — carga sobe +10%","⏱ Descanso: 75seg",
+    "DB Fly 16kg: 3x10","⏱ Descanso: 60seg"
+  ]},
+  {n:"HOME GYM — Costas + Pull",tipo:"hiper",dur:"18min",ex:[
+    "DB Row 20kg: 4x12 — reps sobem","⏱ Descanso: 75seg",
+    "Pull-up estrito: 4x5","⏱ Descanso: 90seg",
+    "TTB barra fixa: 3x6","⏱ Descanso: 60seg",
+    "DB Curl martelo 16kg: 3x12","⏱ Descanso: 60seg"
+  ]},
+  {n:"NOITE — LPO Academia 55% 1RM",tipo:"lpo",dur:"60min",ex:[
+    "Aquecimento: 10min bike + OHS progressivo",
+    "⏱ Descanso: 90seg",
+    "Snatch: 3x3 50% + 3x2 55% — carga +10% vs Sem1",
+    "⏱ Descanso: 2min",
+    "Hang Snatch: 4x3 55%",
+    "⏱ Descanso: 2min",
+    "Clean: 3x3 50% + 3x2 55%",
+    "⏱ Descanso: 2min",
+    "Push Jerk: 4x3 55%",
+    "⏱ Descanso: 2min",
+    "OHS: 4x5 ate 40kg — meta tecnica Fase 1",
+    "⏱ Descanso: 90seg",
+    "⚠️ Registrar cargas — referencia para Fase 2"
+  ]}
+]},
+{dia:"Qua",local:"Casa",prep:"Reabilitacao + Core + Hyrox volume maximo",
+blocos:[
+  {n:"Reabilitacao",tipo:"rehab",dur:"15min",ex:[
+    "Decline squat excentrico: 3x14","⏱ Descanso: 60seg",
+    "TKE: 3x15","⏱ Descanso: 45seg",
+    "Rotacao externa: 3x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Core Anti-rotacao + Hyrox",tipo:"gin",dur:"28min",ex:[
+    "Prancha lateral: 3x40seg cada lado","⏱ Descanso: 40seg",
+    "Dead bug: 3x10 cada lado","⏱ Descanso: 45seg",
+    "Abdominal TACF: 3x35 ritmo 1/seg","⏱ Descanso: 60seg",
+    "Wall ball shots: 3x30 — pico Fase 1","⏱ Descanso: 90seg",
+    "Burpee Broad Jump: 3x12","⏱ Descanso: 90seg"
+  ]},
+  {n:"Acessorios DB",tipo:"hiper",dur:"12min",ex:[
+    "DB RDL 20kg: 4x12 — serie extra","⏱ Descanso: 75seg",
+    "DB Farmer Hold 20kg: 3x50seg","⏱ Descanso: 60seg"
+  ]}
+]},
+{dia:"Qui",local:"Casa",prep:"Manha: Corrida Z2 45min | Home gym perna/ombro volume maximo",
+blocos:[
+  {n:"MANHA 08h — Corrida Zona 2",tipo:"tacf",dur:"50min",ex:[
+    "⚠️ Z2 = 120-132bpm",
+    "Aquecimento: 5min caminhada",
+    "35min corrida Z2 — Sem3: pace deve ser mais rapido que Sem1 mesma FC",
+    "Resfriamento: 5min",
+    "Drill cadencia: 87-89ppm unilateral",
+    "⚠️ BIKE ERG: 45min D3-4 78-82rpm FC 120-132bpm"
+  ]},
+  {n:"HOME GYM — Perna volume maximo",tipo:"forca",dur:"28min",ex:[
+    "DB Goblet Squat 20kg: 4x12","⏱ Descanso: 90seg",
+    "DB Bulgarian split squat 20kg: 4x10 cada — carga sobe","⏱ Descanso: 90seg",
+    "Hip thrust DB: 4x10 — carga +10%","⏱ Descanso: 90seg",
+    "DB RDL 20kg: 4x12 — serie extra","⏱ Descanso: 75seg",
+    "Panturrilha: 3x20","⏱ Descanso: 30seg"
+  ]},
+  {n:"HOME GYM — Ombro",tipo:"hiper",dur:"12min",ex:[
+    "DB Desenvolvimento 20kg: 4x10 — carga sobe","⏱ Descanso: 75seg",
+    "Lateral raise: 3x15","⏱ Descanso: 60seg",
+    "Face pull: 3x15","⏱ Descanso: 45seg"
+  ]}
+]},
+{dia:"Sex",local:"Box",prep:"Ginastica 3 movimentos + Deadlift 75% + WOD Hyrox denso",
+blocos:[
+  {n:"Ativacao Ombro",tipo:"rehab",dur:"5min",ex:[
+    "Rotacao externa: 2x15","⏱ Descanso: 45seg",
+    "Face pull: 2x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Ginastica — 3 movimentos",tipo:"gin",dur:"28min",ex:[
+    "ORDEM FIXA: Ginastica primeiro",
+    "4x [2 pull-up + 2 TTB + 2 bar dip]","⏱ Descanso: 90seg",
+    "4x [3 ring row alto + 1 transicao + 2 ring dip]","⏱ Descanso: 90seg",
+    "Box BMU: 5x4","⏱ Descanso: 90seg",
+    "HSPU kipping intro: 3x5","⏱ Descanso: 75seg"
+  ]},
+  {n:"Deadlift 75%",tipo:"forca",dur:"15min",ex:[
+    "Deadlift: 4x5 — Sem3: 75% 1RM",
+    "⏱ Descanso: 2min",
+    "⚠️ Registrar carga — referencia Fase 2"
+  ]},
+  {n:"WOD Hyrox Benchmark",tipo:"wod",dur:"25min",ex:[
+    "⚠️ Registrar tempo — comparar na Fase 2",
+    "For Time:",
+    "1km corrida + 50 wall ball 10kg + 1km corrida + 30 burpee broad jump + 1km corrida + 40m farmer carry 20kg",
+    "Intensidade 75-80% — ritmo forte controlado",
+    "⚠️ Este e o WOD benchmark Hyrox da Fase 1"
+  ]}
+]},
+{dia:"Sab",local:"Rua",prep:"Corrida Longa Z2 60min — Plano corrida 06/jun",
+blocos:[
+  {n:"Corrida Longa Z2",tipo:"tacf",dur:"65min",ex:[
+    "⚠️ Z2 = 120-132bpm",
+    "Aquecimento: 5min caminhada",
+    "50min corrida continua Z2",
+    "Resfriamento: 5min caminhada",
+    "Drill cadencia: 87-89ppm",
+    "Registrar distancia, pace, FC"
+  ]}
+]},
+{dia:"Dom",local:"Casa",prep:"Rest Total",
+blocos:[
+  {n:"Descanso",tipo:"rec",dur:"15min",ex:[
+    "⚠️ Rest total",
+    "Foam roller suave opcional"
+  ]}
+]}
+]},
+
+//==================== SEMANA 4 — 9 a 15/jun ====================
+{num:4,tema:"Pico Fase 1 + Avaliacao",
+desc:"Progressivo mais longo 55min pace 4:55. Longo Z2 65min. LPO 60%. WOD Hyrox pico. Avaliacao TACF no sabado.",
+logic:"Semana de pico da Fase 1 — maior volume de corrida e maior carga de LPO. Avaliacao TACF completa no sabado substitui o longo. Deadlift 78%.",
+dias:[
+{dia:"Seg",local:"Casa",prep:"Argola + Core + Wall Ball pico",
+blocos:[
+  {n:"Ativacao Ombro",tipo:"rehab",dur:"8min",ex:[
+    "Rotacao externa: 3x15","⏱ Descanso: 45seg",
+    "Y-T-W: 3x12","⏱ Descanso: 45seg",
+    "Face pull: 3x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Argola Baixa Pico",tipo:"gin",dur:"22min",ex:[
+    "False grip ring hang: 4x22seg","⏱ Descanso: 60seg",
+    "Ring row: 4x10","⏱ Descanso: 75seg",
+    "Ring dip estrito: 4x8","⏱ Descanso: 90seg",
+    "Ring dip negativo: 3x5","⏱ Descanso: 90seg",
+    "Transicao assistida: 5x5","⏱ Descanso: 90seg"
+  ]},
+  {n:"Core de Ginastica Pico",tipo:"gin",dur:"12min",ex:[
+    "Hollow body: 4x35seg","⏱ Descanso: 40seg",
+    "Dragon flag: 3x8","⏱ Descanso: 60seg",
+    "L-sit: 4x12seg","⏱ Descanso: 40seg",
+    "Box V-sit: 3x12","⏱ Descanso: 50seg"
+  ]},
+  {n:"Wall Ball + Farmer Carry Pico",tipo:"wod",dur:"15min",ex:[
+    "Wall ball shots: 4x30","⏱ Descanso: 90seg",
+    "Farmer carry: 4x40m","⏱ Descanso: 75seg",
+    "Burpee Broad Jump: 3x12","⏱ Descanso: 90seg"
+  ]}
+]},
+{dia:"Ter",local:"Casa",prep:"Manha: Corrida Progressivo 55min | Home gym | Noite: LPO 60%",
+blocos:[
+  {n:"MANHA 08h — Corrida Progressivo 55min",tipo:"tacf",dur:"55min",ex:[
+    "⚠️ COMER antes obrigatorio",
+    "Aquecimento: 10min Z2",
+    "20min Z2-Z3",
+    "20min pace 4:55/km — mais rapido da Fase 1",
+    "Resfriamento: 5min",
+    "⚠️ Estrategia pace: conservador nos primeiros 10min + progressivo nos ultimos 10min"
+  ]},
+  {n:"HOME GYM — Peito + Flexoes pico",tipo:"hiper",dur:"22min",ex:[
+    "Flexoes submax: 4x26","⏱ Descanso: 90seg",
+    "Flexoes pausa 2seg: 3x10","⏱ Descanso: 75seg",
+    "DB Floor press 20kg: 4x12","⏱ Descanso: 75seg",
+    "DB Fly 16kg: 3x12","⏱ Descanso: 60seg"
+  ]},
+  {n:"HOME GYM — Costas + Pull pico",tipo:"hiper",dur:"18min",ex:[
+    "DB Row 20kg: 4x12","⏱ Descanso: 75seg",
+    "Pull-up estrito: 5x5 — meta 8+ total","⏱ Descanso: 90seg",
+    "TTB barra fixa: 3x7","⏱ Descanso: 60seg",
+    "DB Curl: 3x12","⏱ Descanso: 60seg"
+  ]},
+  {n:"NOITE — LPO Academia 60% 1RM",tipo:"lpo",dur:"60min",ex:[
+    "Aquecimento: bike + OHS progressivo",
+    "Snatch: 3x3 55% + 3x2 60% 1RM",
+    "⏱ Descanso: 2min",
+    "Hang Snatch: 4x2 60%","⏱ Descanso: 2min",
+    "Clean: 3x3 55% + 3x2 60%","⏱ Descanso: 2min",
+    "Push Jerk: 4x3 58%","⏱ Descanso: 2min",
+    "OHS: 4x5 40kg solidificando","⏱ Descanso: 90seg",
+    "⚠️ Pico de carga da Fase 1 — registrar todos os numeros"
+  ]}
+]},
+{dia:"Qua",local:"Casa",prep:"Reabilitacao + Core + Deload condicao",
+blocos:[
+  {n:"Reabilitacao Completa",tipo:"rehab",dur:"20min",ex:[
+    "Decline squat excentrico: 3x12","⏱ Descanso: 60seg",
+    "TKE: 3x15","⏱ Descanso: 45seg",
+    "Rotacao externa: 3x15","⏱ Descanso: 45seg",
+    "Y-T-W: 3x10","⏱ Descanso: 45seg",
+    "Foam roller completo: 10min"
+  ]},
+  {n:"Core + Wall Ball moderado",tipo:"gin",dur:"20min",ex:[
+    "Prancha lateral: 3x35seg","⏱ Descanso: 40seg",
+    "Dead bug: 3x8 cada","⏱ Descanso: 45seg",
+    "Abdominal TACF: 3x33","⏱ Descanso: 60seg",
+    "Wall ball shots: 3x20 — moderado preservar energia","⏱ Descanso: 90seg"
+  ]}
+]},
+{dia:"Qui",local:"Casa",prep:"Manha: Corrida Z2 45min | Home gym perna moderado",
+blocos:[
+  {n:"MANHA 08h — Corrida Z2 45min",tipo:"tacf",dur:"50min",ex:[
+    "⚠️ Z2 = 120-132bpm",
+    "Aquecimento: 5min",
+    "35min Z2 — preservar energia para avaliacao TACF do sabado",
+    "Resfriamento: 5min",
+    "⚠️ Nao forcear pace — descanso ativo pre-avaliacao"
+  ]},
+  {n:"HOME GYM — Perna moderado",tipo:"forca",dur:"22min",ex:[
+    "DB Goblet Squat 20kg: 3x10","⏱ Descanso: 90seg",
+    "Bulgarian split squat: 3x8 cada","⏱ Descanso: 90seg",
+    "Hip thrust: 3x10","⏱ Descanso: 90seg",
+    "⚠️ Volume -20% — preservar para avaliacao TACF sabado"
+  ]},
+  {n:"HOME GYM — Ombro leve",tipo:"hiper",dur:"12min",ex:[
+    "DB Desenvolvimento 16kg: 3x10","⏱ Descanso: 75seg",
+    "Lateral raise: 3x12","⏱ Descanso: 60seg",
+    "Face pull: 3x15","⏱ Descanso: 45seg"
+  ]}
+]},
+{dia:"Sex",local:"Box",prep:"Ginastica + Deadlift 78% + WOD leve pre-avaliacao",
+blocos:[
+  {n:"Ativacao Ombro",tipo:"rehab",dur:"5min",ex:[
+    "Rotacao externa: 2x15","⏱ Descanso: 45seg",
+    "Face pull: 2x15","⏱ Descanso: 45seg"
+  ]},
+  {n:"Ginastica Revisao",tipo:"gin",dur:"22min",ex:[
+    "Pull-up estrito: 4x5","⏱ Descanso: 90seg",
+    "TTB: 3x6","⏱ Descanso: 60seg",
+    "Box BMU: 3x4","⏱ Descanso: 90seg",
+    "Ring dip: 3x6","⏱ Descanso: 90seg",
+    "⚠️ Pre-avaliacao — sentir os movimentos bem, nao forcear"
+  ]},
+  {n:"Deadlift 78%",tipo:"forca",dur:"15min",ex:[
+    "Deadlift: 4x5 — Sem4: 78% 1RM",
+    "⏱ Descanso: 2min",
+    "⚠️ Pico de carga deadlift Fase 1"
+  ]},
+  {n:"WOD Curto leve",tipo:"wod",dur:"12min",ex:[
+    "For time: 3 rounds de 10 wall ball + 5 burpee broad jump + 20m farmer carry",
+    "Intensidade 65% — ativacao sem fadiga",
+    "⚠️ Amanha e avaliacao TACF — preservar"
+  ]}
+]},
+{dia:"Sab",local:"Rua",prep:"SIMULADO TACF COMPLETO — Avaliacao Fase 1 + Corrida plano 13/jun",
+blocos:[
+  {n:"SIMULADO TACF COMPLETO",tipo:"tacf",dur:"50min",ex:[
+    "⚠️ Avaliacao oficial — descanso COMPLETO 10min entre provas",
+    "Aquecimento: 10min corrida leve",
+    "1. Abdominais: maximo em 1 minuto (base: 55 / meta: 58+)",
+    "⏱ Descanso: 10min",
+    "2. Flexoes: maximo ininterrupto (base: 46 / meta: 52+)",
+    "⏱ Descanso: 10min",
+    "3. Corrida 12min: medir distancia (base: 2.650m / meta: 2.800m)",
+    "Estrategia corrida: 0-4min pace 4:20 conservador / 4-8min manter / 8-12min tudo",
+    "Registrar tudo. Comparar. Planejar Fase 2."
+  ]},
+  {n:"Corrida Longa Z2 — Plano 13/jun",tipo:"tacf",dur:"70min",ex:[
+    "⚠️ Apenas se o simulado for realizado cedo e houver recuperacao suficiente",
+    "⚠️ Se nao sobrar energia — pule e descanse",
+    "50min Z2 FC 120-132bpm pace suave",
+    "Resfriamento: 5min caminhada"
+  ]}
+]},
+{dia:"Dom",local:"Casa",prep:"Rest Total",
+blocos:[
+  {n:"Descanso",tipo:"rec",dur:"15min",ex:[
+    "⚠️ Rest total pos-avaliacao",
+    "Foam roller suave se necessario"
+  ]}
+]}
+]}
+];
+
+
+const TC={rehab:"#f85149",gin:"#b5ff47",lpo:"#ffab00",tacf:"#58a6ff",wod:"#ff6b35",hiper:"#d2a8ff",forca:"#79c0ff",cardio:"#58a6ff",rec:"#484f58"};
+const TL={rehab:"Reab",gin:"Gin",lpo:"LPO",tacf:"TACF",wod:"WOD",hiper:"Hiper",forca:"Forca",cardio:"Cardio",rec:"Rec"};
+const TPSE={rehab:"PSE 2-3",gin:"PSE 6-8",lpo:"PSE 6-8",tacf:"PSE 7-9",wod:"PSE 7-8",hiper:"PSE 6-7",forca:"PSE 7-8",cardio:"PSE 4-6",rec:"PSE 1-2"};
+let blocoOpen={};
+
+let curS=0,curD=0,editMode=false,checked={},editData={};
+
+function load(){
+  try{const c=localStorage.getItem('chk_v2');if(c)checked=JSON.parse(c);}catch(e){}
+  try{const d=localStorage.getItem('edt_v2');if(d)editData=JSON.parse(d);}catch(e){}
+}
+function saveChk(){try{localStorage.setItem('chk_v2',JSON.stringify(checked));}catch(e){}}
+function saveEdt(){try{localStorage.setItem('edt_v2',JSON.stringify(editData));}catch(e){}}
+
+function getEx(s,d,b,e){
+  try{if(editData[s][d][b][e]!==undefined)return editData[s][d][b][e];}catch(x){}
+  return S[s].dias[d].blocos[b].ex[e];
+}
+function setEx(s,d,b,e,v){
+  if(!editData[s])editData[s]={};
+  if(!editData[s][d])editData[s][d]={};
+  if(!editData[s][d][b])editData[s][d][b]={};
+  editData[s][d][b][e]=v;saveEdt();
+}
+function getAdded(s,d,b){
+  const r=[];
+  try{Object.keys(editData[s][d][b]).forEach(k=>{if(k.startsWith('a_')&&editData[s][d][b][k]!=='__del__')r.push({k,v:editData[s][d][b][k]});});}catch(x){}
+  return r;
+}
+function key(s,d,b,e){return s+'-'+d+'-'+b+'-'+e}
+
+function isCheckable(val, blocoTipo){
+  if(!val||val==='__del__')return false;
+  if(val.startsWith('⏱'))return false;
+  if(val.startsWith('⚠️'))return false;
+  if(val.startsWith('ORDEM'))return false;
+  // Em blocos de corrida: so aquecimento, atividade principal e volta tem checkbox
+  if(blocoTipo==='tacf'){
+    const v=val.toLowerCase();
+    // Linhas informativas de corrida — sem checkbox
+    if(v.startsWith('fc '))return false;
+    if(v.startsWith('pace alvo'))return false;
+    if(v.startsWith('drill'))return false;
+    if(v.startsWith('nao consegue'))return false;
+    if(v.startsWith('teste da conversa'))return false;
+    if(v.startsWith('sem 2:'))return false;
+    if(v.startsWith('sem 3:'))return false;
+    if(v.startsWith('ritmo confort'))return false;
+    if(v.startsWith('frequencia cardiaca'))return false;
+    if(v.startsWith('meta realista'))return false;
+    if(v.startsWith('registrar:'))return false;
+  }
+  return true;
+}
+function allKeys(){
+  const ks=[];
+  S[curS].dias[curD].blocos.forEach((b,bi)=>{
+    b.ex.forEach((e,ei)=>{
+      const v=getEx(curS,curD,bi,ei);
+      if(isCheckable(v,b.tipo))ks.push(key(curS,curD,bi,ei));
+    });
+    getAdded(curS,curD,bi).forEach(({k,v})=>{if(isCheckable(v,b.tipo))ks.push(key(curS,curD,bi,k));});
+  });
+  return ks;
+}
+function getPct(){
+  const a=allKeys();if(!a.length)return 0;
+  return Math.round(a.filter(k=>checked[k]).length/a.length*100);
+}
+
+function toggleEdit(){
+  editMode=!editMode;
+  const btn=document.getElementById('edit-toggle');
+  btn.textContent=editMode?'Concluir':'Editar';
+  btn.className='edit-btn'+(editMode?' active':'');
+  document.getElementById('add-bloco-btn').className='add-bloco-btn'+(editMode?' show':'');
+  renderBlocos();
+}
+
+function renderSemTabs(){
+  document.getElementById('sem-tabs').innerHTML=S.map((s,i)=>`
+    <div class="sem-chip${curS===i?' active':''}" onclick="setSem(${i})">
+      <div>Semana ${s.num}</div><div class="sem-chip-sub">${s.tema}</div>
+    </div>`).join('');
+}
+
+function renderDiaTabs(){
+  document.getElementById('dia-tabs').innerHTML=S[curS].dias.map((d,i)=>`
+    <div class="dia-btn${curD===i?' active':''}" onclick="setDia(${i})">
+      <div>${d.dia}</div><div class="dia-btn-sub">${d.local.split('+')[0].replace('Academia','Gym').replace('Rua','Rua')}</div>
+    </div>`).join('');
+}
+
+function toggleBloco(bi){
+  const bk='b'+curS+'_'+curD+'_'+bi;
+  blocoOpen[bk]=!blocoOpen[bk];
+  renderBlocos();
+}
+
+function renderBlocos(){
+  const s=S[curS],d=s.dias[curD];
+  document.getElementById('sem-desc').textContent=s.desc;
+  document.getElementById('sem-logic').textContent=s.logic;
+  const p=getPct();
+  document.getElementById('pct-fill').style.width=p+'%';
+  document.getElementById('pct-lbl').textContent=p+'%';
+  document.getElementById('prep-tag').innerHTML=
+    `<span style="font-size:15px;font-weight:600">${d.dia}</span>
+     <span class="badge" style="background:#161b22;color:#8b949e">${d.local}</span>
+     <span class="badge" style="background:#161b22;color:#484f58;font-size:10px">${d.prep}</span>`;
+
+  let html='';
+  d.blocos.forEach((b,bi)=>{
+    const c=TC[b.tipo]||'#94a3b8',l=TL[b.tipo]||'';
+    const pse=TPSE[b.tipo]||'';
+    const bk='b'+curS+'_'+curD+'_'+bi;
+    const isOpen=blocoOpen[bk]!==false; // default open
+    const chevron=isOpen?'&#9650;':'&#9660;';
+    // Count done exercises in this bloco
+    let doneCount=0,totalCount=0;
+    b.ex.forEach((e,ei)=>{
+      const v=getEx(curS,curD,bi,ei);
+      if(v==='__del__'||v.startsWith('⏱')||v.startsWith('⚠️')||v.startsWith('ORDEM'))return;
+      if(!isCheckable(v,b.tipo))return;
+      totalCount++;
+      if(checked[key(curS,curD,bi,ei)])doneCount++;
+    });
+    const progTxt=totalCount>0?`${doneCount}/${totalCount}`:'';
+    html+=`<div class="bloco">
+      <div class="bloco-head" onclick="toggleBloco(${bi})" style="cursor:pointer">
+        <div class="bloco-left">
+          <span class="badge" style="background:${c}22;color:${c}">${l}</span>
+          <span class="bloco-nome">${b.n}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${pse?`<span style="font-size:9px;color:${c};background:${c}15;padding:2px 6px;border-radius:8px">${pse}</span>`:''}
+          ${progTxt?`<span style="font-size:10px;color:var(--text3)">${progTxt}</span>`:''}
+          <span class="bloco-dur">${b.dur}</span>
+          <span style="font-size:10px;color:var(--text3)">${chevron}</span>
+        </div>
+      </div>`;
+    if(isOpen){
+      html+='<div class="bloco-body">';
+      // Build exercise lines — merge ⏱ rest into previous exercise line
+      const exLines=[];
+      b.ex.forEach((e,ei)=>{
+        const val=getEx(curS,curD,bi,ei);
+        if(val==='__del__')return;
+        exLines.push({val,bi,ei,tipo:'orig'});
+      });
+      getAdded(curS,curD,bi).forEach(({k,v})=>{
+        exLines.push({val:v,bi,k,tipo:'add'});
+      });
+      // Merge rest lines into previous exercise
+      const merged=[];
+      exLines.forEach((item,idx)=>{
+        if(item.val.startsWith('⏱')){
+          // Attach to previous
+          if(merged.length>0){
+            merged[merged.length-1].rest=item.val.replace('⏱ ','').replace('⏱','').trim();
+          }
+        } else {
+          merged.push({...item,rest:null});
+        }
+      });
+      merged.forEach(item=>{
+        const k=item.tipo==='orig'?key(curS,curD,item.bi,item.ei):key(curS,curD,item.bi,item.k);
+        html+=buildExHtml(k,item.val,item.bi,item.tipo==='orig'?item.ei:item.k,item.tipo,b.tipo,item.rest);
+      });
+      if(editMode)html+=`<button class="add-ex-btn" onclick="addEx(${bi})"><div class="plus">+</div>Adicionar exercicio</button>`;
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('blocos-list').innerHTML=html;
+  // Attach detail button listeners after DOM update
+  S[curS].dias[curD].blocos.forEach((b,bi)=>{
+    b.ex.forEach((e,ei)=>{
+      const v=getEx(curS,curD,bi,ei);
+      if(v==='__del__'||!isCheckable(v,b.tipo))return;
+      const k=key(curS,curD,bi,ei);
+      const btn=document.getElementById('ibtn-'+k);
+      if(btn) btn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+        toggleExPanel(k,v,b.n);
+      });
+    });
+    getAdded(curS,curD,bi).forEach(({k:ek,v})=>{
+      if(!isCheckable(v,b.tipo))return;
+      const k=key(curS,curD,bi,ek);
+      const btn=document.getElementById('ibtn-'+k);
+      if(btn) btn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+        toggleExPanel(k,v,b.n);
+      });
+    });
+  });
+}
+
+function buildExHtml(k,val,bi,ei,type,blocoTipo,inlineRest){
+  const done=!!checked[k];
+  const isRest=val.startsWith('⏱');
+  const isWarn=val.startsWith('⚠️');
+  const isInfo=val.startsWith('ORDEM');
+  // Linhas nao-exercicio: sem checkbox, sem clique, sem contagem
+  const noCheck=!isCheckable(val,blocoTipo);
+  const cls=`ex-txt${done?' done':''}${isRest?' rest':''}${isWarn?' warn':''}${isInfo?' info':''}`;
+  if(noCheck){
+    // Linha informativa — sem checkbox, sem interacao
+    return `<div class="ex-item" style="cursor:default;opacity:0.75">
+      <div style="width:18px;flex-shrink:0"></div>
+      <div style="flex:1"><span class="${cls}">${val}</span></div></div>`;
+  }
+  let edit='';
+  if(editMode){
+    const sc=type==='orig'?`saveEx('${k}',${bi},'${ei}')`:`saveAdd('${k}',${bi},'${ei}')`;
+    const dc=type==='orig'?`delEx('${k}',${bi},'${ei}')`:`delAdd('${k}',${bi},'${ei}')`;
+    edit=`<textarea class="ex-edit" id="edt-${k}" rows="2">${val}</textarea>
+      <div class="edit-actions" id="ea-${k}">
+        <button class="save" onclick="${sc}">Salvar</button>
+        <button class="del" onclick="${dc}">Remover</button>
+      </div>`;
+  }
+  const click=editMode?`toggleField('${k}')`:`togChk('${k}')`;
+  const safeVal = val.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
+  const detailBtn = !editMode ? `<button class="ex-detail-btn" id="ibtn-${k}" title="Ver detalhes">&#9432;</button>` : '';
+  const restTag = inlineRest ? `<span style="color:var(--purple);font-size:10px;font-style:italic;margin-left:6px;white-space:nowrap">⏱ ${inlineRest}</span>` : '';
+  // Panel is OUTSIDE the clickable row to avoid event conflict
+  return `<div class="ex-item" onclick="${click}">
+    <div class="chk${done?' done':''}">${done?'&#10003;':''}</div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:flex-start;gap:4px;flex-wrap:wrap">
+        <span class="${cls}" style="flex:1">${val}</span>${restTag}${detailBtn}
+      </div>
+      ${edit}
+    </div>
+  </div><div class="ex-panel" id="exp-${k}"></div>`;
+}
+
+function toggleField(k){
+  const e=document.getElementById('edt-'+k),a=document.getElementById('ea-'+k);
+  if(!e)return;
+  const s=e.className.includes('show');
+  e.className='ex-edit'+(s?'':' show');
+  a.className='edit-actions'+(s?'':' show');
+}
+function togChk(k){checked[k]=!checked[k];saveChk();renderBlocos();}
+function saveEx(k,bi,ei){const e=document.getElementById('edt-'+k);if(e){setEx(curS,curD,bi,ei,e.value.trim());renderBlocos();}}
+function delEx(k,bi,ei){setEx(curS,curD,bi,ei,'__del__');delete checked[k];saveChk();renderBlocos();}
+function saveAdd(k,bi,ek){
+  const e=document.getElementById('edt-'+k);if(!e)return;
+  if(!editData[curS])editData[curS]={};if(!editData[curS][curD])editData[curS][curD]={};
+  if(!editData[curS][curD][bi])editData[curS][curD][bi]={};
+  editData[curS][curD][bi][ek]=e.value.trim();saveEdt();renderBlocos();
+}
+function delAdd(k,bi,ek){
+  if(!editData[curS])editData[curS]={};if(!editData[curS][curD])editData[curS][curD]={};
+  if(!editData[curS][curD][bi])editData[curS][curD][bi]={};
+  editData[curS][curD][bi][ek]='__del__';delete checked[k];saveChk();saveEdt();renderBlocos();
+}
+function addEx(bi){
+  const t=prompt('Novo exercicio:');if(!t||!t.trim())return;
+  if(!editData[curS])editData[curS]={};if(!editData[curS][curD])editData[curS][curD]={};
+  if(!editData[curS][curD][bi])editData[curS][curD][bi]={};
+  editData[curS][curD][bi]['a_'+Date.now()]=t.trim();saveEdt();renderBlocos();
+}
+function addBloco(){
+  const n=prompt('Nome do bloco:');if(!n)return;
+  S[curS].dias[curD].blocos.push({n,tipo:'forca',dur:'—',ex:[]});renderBlocos();
+}
+function resetDia(){
+  if(!confirm('Resetar progresso de hoje?'))return;
+  allKeys().forEach(k=>delete checked[k]);saveChk();renderBlocos();
+}
+function resetSemana(){
+  if(!confirm('Resetar semana '+S[curS].num+'?'))return;
+  Object.keys(checked).forEach(k=>{if(k.startsWith(curS+'-'))delete checked[k];});
+  saveChk();renderBlocos();
+}
+function resetTudo(){
+  if(!confirm('Resetar TUDO incluindo edicoes?'))return;
+  checked={};editData={};
+  try{localStorage.removeItem('chk_v2');localStorage.removeItem('edt_v2');}catch(e){}
+  renderBlocos();
+}
+function setSem(i){curS=i;curD=0;renderSemTabs();renderDiaTabs();renderBlocos();}
+function setDia(i){curD=i;renderDiaTabs();renderBlocos();}
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+window.addEventListener("DOMContentLoaded",function(){load();setSem(0);});
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  });
+}
+
+// ========= NUTRICAO =========
+let nutriInited=false;
+function initNutri(){
+  if(nutriInited)return;
+  nutriInited=true;
+  renderDiaToggle();
+  renderCardapio();
+  renderSupl();
+  renderHidrat();
+}
+const CARDAPIO={
+  duplo:{
+    label:"Terca — Duplo Turno + LPO Noite",
+    calorias:3200,p:185,c:400,g:88,
+    refeicoes:[
+      {
+        hora:"07h30",nome:"Pos-Corrida Imediato",icone:"⚡",cor:"#b5ff47",
+        tempo:"3min",
+        objetivo:"Janela anabolica pos-corrida. Glicogenio e proteina rapidos antes do home gym.",
+        alimentos:[
+          {nome:"Whey protein",qtd:"1 dose (30g)",p:24,c:3,g:2,kcal:126,
+           prep:"Misturar com 300ml agua. Consumir imediatamente ao chegar em casa."},
+          {nome:"Banana madura",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Comer junto com o whey. Carboidrato rapido para o home gym em sequencia."},
+          {nome:"Creatina monoidratada",qtd:"5g",p:0,c:0,g:0,kcal:0,
+           prep:"Misturar no whey."},
+        ],
+        subs:["Whey: substitua por iogurte grego 200g + fruta","Banana: substitua por 1 fatia pao integral com mel"]
+      },
+      {
+        hora:"08h30",nome:"Cafe da Manha — Durante ou apos home gym",icone:"🍳",cor:"#ffab00",
+        tempo:"10min",
+        objetivo:"Refeicao completa enquanto faz home gym ou logo apos. Sustenta ate o almoco.",
+        alimentos:[
+          {nome:"Ovos mexidos",qtd:"3 unidades (150g)",p:18,c:1,g:15,kcal:215,
+           prep:"Frigideira 2min. Fazer antes de comecar o home gym — comer durante o descanso das series."},
+          {nome:"Aveia em flocos",qtd:"60g",p:6,c:36,g:3,kcal:195,
+           prep:"Mingau: 60g + 200ml agua + banana amassada. Microondas 2min."},
+          {nome:"Fruta variada",qtd:"1 unidade (120g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto para consumo."},
+        ],
+        subs:["Aveia: substitua por 3 fatias pao integral","Ovos: substitua por 4 claras + 1 ovo inteiro"]
+      },
+      {
+        hora:"12h30",nome:"Almoco — Maior carbo do dia",icone:"🍽️",cor:"#ff6b35",
+        tempo:"20min",
+        objetivo:"Principal refeicao do dia. Carbo alto para recarregar glicogenio e preparar o LPO da noite.",
+        alimentos:[
+          {nome:"Frango ou atum",qtd:"200g",p:48,c:0,g:5,kcal:233,
+           prep:"Do lote pre-feito."},
+          {nome:"Arroz branco cozido",qtd:"220g cozido",p:4,c:48,g:0,kcal:208,
+           prep:"Carbo alto — dia de duplo turno exige mais glicogenio."},
+          {nome:"Feijao cozido",qtd:"80g",p:5,c:12,g:1,kcal:77,
+           prep:"Lote ou lata."},
+          {nome:"Salada verde",qtd:"150g a vontade",p:2,c:5,g:0,kcal:28,
+           prep:"Montar na hora."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Arroz: substitua por 250g batata doce cozida","Frango: substitua por 200g tilapia"]
+      },
+      {
+        hora:"16h30",nome:"Lanche da Tarde",icone:"🥚",cor:"#58a6ff",
+        tempo:"3min",
+        objetivo:"Manter energia e proteina ate o pre-LPO. Nao chegar com fome no treino das 20h.",
+        alimentos:[
+          {nome:"Iogurte grego integral",qtd:"200g",p:18,c:8,g:6,kcal:158,
+           prep:"Direto da embalagem."},
+          {nome:"Aveia",qtd:"30g",p:3,c:18,g:1,kcal:93,
+           prep:"Misturar no iogurte."},
+          {nome:"Fruta",qtd:"1 unidade (100g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Substitua por sanduiche integral com proteina magra","Substitua por whey + banana + castanhas 20g"]
+      },
+      {
+        hora:"19h00",nome:"Pre-LPO",icone:"🔥",cor:"#f85149",
+        tempo:"3min",
+        objetivo:"Combustivel para o LPO das 20h. Carboidrato rapido + cafeina. 45-60min antes.",
+        alimentos:[
+          {nome:"Banana madura",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Carboidrato de absorcao rapida — ideal pre-LPO."},
+          {nome:"Palatinose ou mel",qtd:"15g",p:0,c:15,g:0,kcal:60,
+           prep:"Misturar em 200ml agua ou comer direto o mel."},
+          {nome:"Cafe preto",qtd:"1 xicara",p:0,c:0,g:0,kcal:5,
+           prep:"Sem acucar. Cafeina como ergogenico para o LPO."},
+        ],
+        subs:["Sem palatinose: banana + mel + cafe","Sem cafe: so banana + mel — nao pular o pre-LPO"]
+      },
+      {
+        hora:"21h30",nome:"Pos-LPO — Jantar",icone:"💪",cor:"#d2a8ff",
+        tempo:"15min",
+        objetivo:"Janela anabolica pos-LPO. Proteina + carbo para recuperacao do triplo estimulo do dia.",
+        alimentos:[
+          {nome:"Whey protein",qtd:"30g",p:24,c:3,g:2,kcal:126,
+           prep:"Misturar ao chegar em casa — nao esperar o jantar."},
+          {nome:"Arroz branco cozido",qtd:"150g cozido",p:3,c:33,g:0,kcal:144,
+           prep:"Do lote. Microondas rapido."},
+          {nome:"Frango grelhado",qtd:"180g",p:43,c:0,g:4,kcal:208,
+           prep:"Do lote pre-feito."},
+          {nome:"Legumes refogados",qtd:"100g",p:2,c:7,g:1,kcal:45,
+           prep:"Abobrinha ou brocolis com azeite."},
+        ],
+        subs:["Whey: substitua por 4 claras extras","Arroz: substitua por 150g batata doce","Frango: substitua por 200g atum lata"]
+      },
+      {
+        hora:"22h30",nome:"Ceia",icone:"✨",cor:"#d2a8ff",
+        tempo:"2min",
+        objetivo:"Proteina lenta para sintese noturna. Essencial no dia mais exigente da semana.",
+        alimentos:[
+          {nome:"Cottage ou ricota",qtd:"100g",p:12,c:3,g:4,kcal:96,
+           prep:"Direto. Caseina de digestao lenta."},
+          {nome:"Castanha do Para",qtd:"2 unidades (10g)",p:1,c:1,g:7,kcal:70,
+           prep:"Selenio + gordura para recuperacao hormonal."},
+        ],
+        subs:["Substitua por 150g iogurte grego natural","Substitua por 1 scoop whey com agua se nao tiver cottage"]
+      }
+    ]
+  },
+  corrida_forca:{
+    label:"Quinta — Corrida + Forca",
+    calorias:2950,p:180,c:365,g:85,
+    refeicoes:[
+      {
+        hora:"07h30",nome:"Transicao Corrida → Perna",icone:"⚡",cor:"#b5ff47",
+        tempo:"2min",
+        objetivo:"Janela critica entre corrida e home gym de perna. Carboidrato rapido para manter glicogenio.",
+        alimentos:[
+          {nome:"Banana madura",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Comer imediatamente ao parar a corrida — antes de comecar o home gym."},
+          {nome:"Whey protein",qtd:"30g",p:24,c:3,g:2,kcal:126,
+           prep:"Misturar com 200ml agua. Proteina para preservar musculo durante a perna."},
+          {nome:"Creatina",qtd:"5g",p:0,c:0,g:0,kcal:0,
+           prep:"Misturar no whey."},
+        ],
+        subs:["Sem whey: iogurte grego 150g + banana","Substitua banana por 1 fatia pao integral com mel"]
+      },
+      {
+        hora:"09h30",nome:"Cafe da Manha — Pos home gym",icone:"🍳",cor:"#ffab00",
+        tempo:"10min",
+        objetivo:"Refeicao completa apos duplo estimulo. Proteina e carbo para recuperacao.",
+        alimentos:[
+          {nome:"Ovos mexidos",qtd:"4 unidades (200g)",p:24,c:1,g:20,kcal:288,
+           prep:"Frigideira 2-3min."},
+          {nome:"Aveia",qtd:"60g",p:6,c:36,g:3,kcal:195,
+           prep:"Mingau com banana ou fruta."},
+          {nome:"Fruta",qtd:"1 unidade (120g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["4 ovos: substitua por 200g iogurte grego + 1 scoop whey","Aveia: substitua por 3 fatias pao integral"]
+      },
+      {
+        hora:"12h30",nome:"Almoco",icone:"🍽️",cor:"#ff6b35",
+        tempo:"20min",
+        objetivo:"Recuperacao pos-duplo treino. Proteina alta e carbo moderado.",
+        alimentos:[
+          {nome:"Frango ou tilapia",qtd:"200g",p:48,c:0,g:5,kcal:233,
+           prep:"Do lote."},
+          {nome:"Arroz integral cozido",qtd:"180g cozido",p:3,c:38,g:1,kcal:173,
+           prep:"Mais saciante — sem mais treino hoje."},
+          {nome:"Feijao",qtd:"80g",p:5,c:12,g:1,kcal:77,
+           prep:"Lote ou lata."},
+          {nome:"Salada verde",qtd:"150g a vontade",p:2,c:5,g:0,kcal:28,
+           prep:"Montar na hora."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Arroz: substitua por 150g batata doce","Frango: substitua por omelete 4 ovos + feijao"]
+      },
+      {
+        hora:"16h00",nome:"Lanche da Tarde",icone:"🍎",cor:"#58a6ff",
+        tempo:"3min",
+        objetivo:"Manter saciedade e sintese proteica. Dia sem mais treinos — moderado.",
+        alimentos:[
+          {nome:"Iogurte grego",qtd:"200g",p:18,c:8,g:6,kcal:158,
+           prep:"Direto."},
+          {nome:"Castanhas",qtd:"20g",p:3,c:3,g:12,kcal:130,
+           prep:"Porcao pre-separada."},
+          {nome:"Fruta",qtd:"1 unidade (100g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Substitua por 2 ovos cozidos + fruta","Substitua por whey 25g + castanhas + fruta"]
+      },
+      {
+        hora:"20h00",nome:"Jantar",icone:"🌙",cor:"#6366f1",
+        tempo:"20min",
+        objetivo:"Recuperacao noturna. Proteina lenta + gordura moderada. Carbo reduzido — sem treino a noite.",
+        alimentos:[
+          {nome:"Salmao ou frango",qtd:"200g",p:40,c:0,g:12,kcal:264,
+           prep:"Salmao: frigideira 4min cada lado."},
+          {nome:"Legumes assados",qtd:"200g",p:3,c:12,g:2,kcal:76,
+           prep:"Abobrinha, cenoura, brocolis."},
+          {nome:"Salada verde",qtd:"100g a vontade",p:1,c:3,g:0,kcal:16,
+           prep:"Montar na hora."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Salmao: substitua por 200g frango grelhado","Adicionar 100g batata doce se sentir muita fome"]
+      },
+      {
+        hora:"22h00",nome:"Ceia",icone:"✨",cor:"#d2a8ff",
+        tempo:"2min",
+        objetivo:"Proteina lenta para sintese noturna pos-perna.",
+        alimentos:[
+          {nome:"Cottage",qtd:"100g",p:12,c:3,g:4,kcal:96,
+           prep:"Direto."},
+          {nome:"Castanha do Para",qtd:"2 unidades (10g)",p:1,c:1,g:7,kcal:70,
+           prep:"Selenio para recuperacao."},
+        ],
+        subs:["Substitua por 150g iogurte grego"]
+      }
+    ]
+  },
+  noturno:{
+    label:"Seg / Qua — Treino Noturno 20h",
+    calorias:2700,p:176,c:320,g:85,
+    refeicoes:[
+      {
+        hora:"07h00",nome:"Cafe da Manha",icone:"🌅",cor:"#ffab00",
+        tempo:"10min",
+        objetivo:"Quebrar o jejum. Dia sem treino matinal — sem urgencia de carbo rapido.",
+        alimentos:[
+          {nome:"Ovos mexidos",qtd:"3 unidades (150g)",p:18,c:1,g:15,kcal:215,
+           prep:"Frigideira 2min."},
+          {nome:"Aveia",qtd:"50g",p:5,c:30,g:3,kcal:167,
+           prep:"Mingau com banana amassada."},
+          {nome:"Banana",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Amassada no mingau ou inteira."},
+        ],
+        subs:["Aveia: substitua por 2 fatias pao integral","Ovos: substitua por 200g iogurte grego + 1 scoop whey"]
+      },
+      {
+        hora:"10h00",nome:"Lanche da Manha",icone:"🍎",cor:"#39d353",
+        tempo:"3min",
+        objetivo:"Manter saciedade. Proteina para preservar massa magra.",
+        alimentos:[
+          {nome:"Iogurte grego",qtd:"200g",p:18,c:8,g:6,kcal:158,
+           prep:"Direto."},
+          {nome:"Fruta",qtd:"1 unidade (150g)",p:1,c:20,g:0,kcal:84,
+           prep:"Maca, pera, mamao."},
+          {nome:"Castanhas",qtd:"20g",p:3,c:3,g:12,kcal:130,
+           prep:"Porcao pre-separada."},
+        ],
+        subs:["Substitua por 3 ovos cozidos + fruta","Substitua por whey 25g + fruta"]
+      },
+      {
+        hora:"12h30",nome:"Almoco",icone:"🍽️",cor:"#ff6b35",
+        tempo:"20min",
+        objetivo:"Principal refeicao do dia. Proteina alta, carbo moderado.",
+        alimentos:[
+          {nome:"Frango ou atum",qtd:"180g",p:43,c:0,g:4,kcal:208,
+           prep:"Do lote."},
+          {nome:"Arroz integral cozido",qtd:"150g cozido",p:2,c:31,g:1,kcal:141,
+           prep:"Cozinhar em lote."},
+          {nome:"Feijao",qtd:"80g",p:5,c:12,g:1,kcal:77,
+           prep:"Lote ou lata."},
+          {nome:"Salada verde",qtd:"150g a vontade",p:2,c:5,g:0,kcal:28,
+           prep:"Montar na hora."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Frango: substitua por 200g tilapia ou 2 latas atum","Feijao: substitua por lentilha"]
+      },
+      {
+        hora:"16h00",nome:"Lanche da Tarde",icone:"🥚",cor:"#58a6ff",
+        tempo:"3min",
+        objetivo:"Manter energia ate o pre-treino das 18h.",
+        alimentos:[
+          {nome:"Cottage ou ricota",qtd:"150g",p:18,c:4,g:6,kcal:142,
+           prep:"Direto."},
+          {nome:"Fruta",qtd:"1 unidade (120g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Substitua por 200g iogurte grego","Substitua por omelete 2 ovos + fruta"]
+      },
+      {
+        hora:"18h00",nome:"Pre-Treino Noturno",icone:"🔥",cor:"#f85149",
+        tempo:"3min",
+        objetivo:"Combustivel para o treino das 20h. Leve — 2h antes. Carboidrato de absorcao media.",
+        alimentos:[
+          {nome:"Banana",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Pronto. Carboidrato de absorcao media — ideal 2h antes."},
+          {nome:"Cafe preto",qtd:"1 xicara",p:0,c:0,g:0,kcal:5,
+           prep:"Sem acucar. Cafeina ergogenica."},
+        ],
+        subs:["Sem cafe: so banana","Substitua banana por 1 fatia pao integral com mel + cafe"]
+      },
+      {
+        hora:"21h30",nome:"Pos-Treino — Jantar",icone:"💪",cor:"#d2a8ff",
+        tempo:"15min",
+        objetivo:"Janela anabolica pos-treino noturno. Proteina rapida + carbo moderado.",
+        alimentos:[
+          {nome:"Whey protein",qtd:"30g",p:24,c:3,g:2,kcal:126,
+           prep:"Misturar com agua ao chegar em casa."},
+          {nome:"Arroz branco cozido",qtd:"120g cozido",p:2,c:26,g:0,kcal:112,
+           prep:"Do lote. Microondas rapido."},
+          {nome:"Frango grelhado",qtd:"150g",p:36,c:0,g:3,kcal:171,
+           prep:"Do lote."},
+          {nome:"Legumes refogados",qtd:"100g",p:2,c:7,g:1,kcal:45,
+           prep:"Rapido no microondas."},
+        ],
+        subs:["Whey: substitua por 3 ovos extras","Arroz: substitua por 100g batata doce"]
+      },
+      {
+        hora:"22h30",nome:"Ceia",icone:"✨",cor:"#d2a8ff",
+        tempo:"2min",
+        objetivo:"Proteina lenta para sintese noturna.",
+        alimentos:[
+          {nome:"Cottage",qtd:"100g",p:12,c:3,g:4,kcal:96,
+           prep:"Direto."},
+          {nome:"Castanha do Para",qtd:"2 unidades (10g)",p:1,c:1,g:7,kcal:70,
+           prep:"Selenio para recuperacao hormonal."},
+        ],
+        subs:["Substitua por 150g iogurte grego"]
+      }
+    ]
+  },
+  box_tarde:{
+    label:"Sexta — Box 15h (Hyrox WOD)",
+    calorias:2950,p:180,c:370,g:85,
+    refeicoes:[
+      {
+        hora:"07h00",nome:"Cafe da Manha",icone:"🌅",cor:"#ffab00",
+        tempo:"10min",
+        objetivo:"Quebrar o jejum. Dia de box a tarde — construir glicogenio ao longo da manha.",
+        alimentos:[
+          {nome:"Ovos mexidos",qtd:"4 unidades (200g)",p:24,c:1,g:20,kcal:288,
+           prep:"Frigideira 3min."},
+          {nome:"Aveia",qtd:"70g",p:7,c:42,g:3,kcal:227,
+           prep:"Mingau com fruta."},
+          {nome:"Fruta",qtd:"1 unidade (120g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Aveia: substitua por 3 fatias pao integral","Cafe preto sem acucar — sempre"]
+      },
+      {
+        hora:"10h00",nome:"Lanche da Manha",icone:"🍎",cor:"#39d353",
+        tempo:"3min",
+        objetivo:"Energia continua ate o almoco. Proteina para sintese.",
+        alimentos:[
+          {nome:"Iogurte grego",qtd:"200g",p:18,c:8,g:6,kcal:158,
+           prep:"Direto."},
+          {nome:"Fruta",qtd:"1 unidade (100g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Substitua por whey 25g + banana","Substitua por 3 ovos cozidos + fruta"]
+      },
+      {
+        hora:"12h30",nome:"Almoco Estrategico — Carga pre-Box",icone:"⚡",cor:"#b5ff47",
+        tempo:"20min",
+        objetivo:"Refeicao mais importante do dia. Carbo alto para carregar glicogenio para o WOD Hyrox das 15h.",
+        alimentos:[
+          {nome:"Frango grelhado",qtd:"200g",p:48,c:0,g:5,kcal:233,
+           prep:"Do lote."},
+          {nome:"Arroz branco cozido",qtd:"230g cozido",p:4,c:50,g:0,kcal:216,
+           prep:"Carbo alto — carga para o box."},
+          {nome:"Feijao",qtd:"80g",p:5,c:12,g:1,kcal:77,
+           prep:"Lote."},
+          {nome:"Salada",qtd:"100g",p:1,c:3,g:0,kcal:16,
+           prep:"Leve — digestao facil antes do box."},
+        ],
+        subs:["Arroz: substitua por 280g batata doce cozida","Frango: substitua por 200g atum em lata"]
+      },
+      {
+        hora:"14h00",nome:"Pre-Box",icone:"🔥",cor:"#f85149",
+        tempo:"3min",
+        objetivo:"Ultimo combustivel antes do box das 15h. Leve e rapido — 60min antes.",
+        alimentos:[
+          {nome:"Banana",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Pronto."},
+          {nome:"Palatinose ou mel",qtd:"20g",p:0,c:20,g:0,kcal:80,
+           prep:"Dissolver em agua ou mel direto."},
+          {nome:"Cafe preto",qtd:"1 xicara",p:0,c:0,g:0,kcal:5,
+           prep:"Sem acucar. Cafeina para o WOD."},
+        ],
+        subs:["Sem palatinose: banana + mel + cafe","Sem cafe: so banana + mel — nao pular"]
+      },
+      {
+        hora:"17h30",nome:"Pos-Box Imediato",icone:"💪",cor:"#d2a8ff",
+        tempo:"5min",
+        objetivo:"Janela anabolica pos-WOD Hyrox. Proteina + carbo rapidamente.",
+        alimentos:[
+          {nome:"Whey protein",qtd:"30g",p:24,c:3,g:2,kcal:126,
+           prep:"Misturar com agua. Consumir ao sair do box."},
+          {nome:"Banana ou fruta",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"Junto com o whey."},
+          {nome:"Creatina",qtd:"5g",p:0,c:0,g:0,kcal:0,
+           prep:"Misturar no whey."},
+        ],
+        subs:["Sem whey: iogurte grego 200g + banana","Substitua banana por qualquer fruta disponivel"]
+      },
+      {
+        hora:"20h00",nome:"Jantar",icone:"🌙",cor:"#6366f1",
+        tempo:"20min",
+        objetivo:"Recuperacao completa pos-box. Proteina alta + carbo moderado + legumes.",
+        alimentos:[
+          {nome:"Salmao ou frango",qtd:"200g",p:40,c:0,g:12,kcal:264,
+           prep:"Salmao: frigideira 4min cada lado."},
+          {nome:"Arroz integral ou batata doce",qtd:"150g cozido",p:2,c:31,g:1,kcal:141,
+           prep:"Do lote."},
+          {nome:"Legumes refogados",qtd:"150g",p:2,c:9,g:2,kcal:58,
+           prep:"Abobrinha, brocolis, cenoura."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Salmao: substitua por frango + ovo cozido","Arroz: substitua por 150g batata doce"]
+      },
+      {
+        hora:"22h00",nome:"Ceia",icone:"✨",cor:"#d2a8ff",
+        tempo:"2min",
+        objetivo:"Proteina lenta para sintese noturna pos-Hyrox.",
+        alimentos:[
+          {nome:"Cottage",qtd:"100g",p:12,c:3,g:4,kcal:96,
+           prep:"Direto."},
+          {nome:"Castanha do Para",qtd:"2 unidades (10g)",p:1,c:1,g:7,kcal:70,
+           prep:"Selenio."},
+        ],
+        subs:["Substitua por 150g iogurte grego"]
+      }
+    ]
+  },
+  corrida_longa:{
+    label:"Sabado — Corrida Longa Z2",
+    calorias:2600,p:170,c:310,g:82,
+    refeicoes:[
+      {
+        hora:"05h00",nome:"Pre-Corrida (Sem 3+)",icone:"🌙",cor:"#484f58",
+        tempo:"2min",
+        objetivo:"Sem 1-2: jejum tolerado para Z2 ate 50min. Sem 3-4: banana obrigatoria — corrida passa de 50min.",
+        alimentos:[
+          {nome:"Banana pequena",qtd:"1/2 unidade (60g)",p:0,c:14,g:0,kcal:58,
+           prep:"Sem 1-2: pular esta refeicao. Sem 3-4: comer 15min antes de sair."},
+        ],
+        subs:["Sem 1-2: so agua — Z2 tolera jejum","Sem 3+: banana obrigatoria — corrida acima de 50min usa mais glicogenio"]
+      },
+      {
+        hora:"06h30",nome:"Pos-Corrida — Cafe da Manha",icone:"🌅",cor:"#ffab00",
+        tempo:"10min",
+        objetivo:"Quebrar o jejum e repor glicogenio apos o longo Z2.",
+        alimentos:[
+          {nome:"Ovos mexidos",qtd:"3 unidades (150g)",p:18,c:1,g:15,kcal:215,
+           prep:"Frigideira 2min."},
+          {nome:"Aveia",qtd:"60g",p:6,c:36,g:3,kcal:195,
+           prep:"Mingau com banana."},
+          {nome:"Banana",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"No mingau ou inteira."},
+        ],
+        subs:["Aveia: substitua por 3 fatias pao integral","Adicionar whey 25g para mais proteina"]
+      },
+      {
+        hora:"10h00",nome:"Lanche da Manha",icone:"🍎",cor:"#39d353",
+        tempo:"3min",
+        objetivo:"Manter saciedade. Dia leve — sem treino previsto.",
+        alimentos:[
+          {nome:"Iogurte grego",qtd:"200g",p:18,c:8,g:6,kcal:158,
+           prep:"Direto."},
+          {nome:"Castanhas",qtd:"30g",p:4,c:5,g:18,kcal:194,
+           prep:"Gordura boa para saciedade."},
+        ],
+        subs:["Substitua por 2 ovos cozidos + fruta + castanhas"]
+      },
+      {
+        hora:"12h30",nome:"Almoco",icone:"🍽️",cor:"#ff6b35",
+        tempo:"20min",
+        objetivo:"Refeicao completa. Proteina alta, carbo moderado — dia mais leve.",
+        alimentos:[
+          {nome:"Frango ou salmao",qtd:"200g",p:40,c:0,g:8,kcal:232,
+           prep:"Grelhar ou do lote."},
+          {nome:"Arroz integral",qtd:"150g cozido",p:2,c:31,g:1,kcal:141,
+           prep:"Do lote."},
+          {nome:"Feijao",qtd:"80g",p:5,c:12,g:1,kcal:77,
+           prep:"Lote."},
+          {nome:"Salada verde",qtd:"150g a vontade",p:2,c:5,g:0,kcal:28,
+           prep:"Montar."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Frango: substitua por atum + ovo cozido"]
+      },
+      {
+        hora:"16h00",nome:"Lanche",icone:"🥚",cor:"#58a6ff",
+        tempo:"3min",
+        objetivo:"Saciedade e proteina para o restante do dia.",
+        alimentos:[
+          {nome:"Ovos cozidos",qtd:"2 unidades (100g)",p:12,c:1,g:10,kcal:144,
+           prep:"Do lote. Geladeira por 5 dias."},
+          {nome:"Fruta",qtd:"1 unidade (120g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Substitua por iogurte grego 200g + fruta"]
+      },
+      {
+        hora:"19h30",nome:"Jantar",icone:"🌙",cor:"#6366f1",
+        tempo:"20min",
+        objetivo:"Refeicao leve. Sabado sem segundo treino — carbo reduzido.",
+        alimentos:[
+          {nome:"Frango ou peixe",qtd:"200g",p:40,c:0,g:8,kcal:232,
+           prep:"Grelhar."},
+          {nome:"Legumes assados",qtd:"200g",p:3,c:12,g:2,kcal:76,
+           prep:"Forno ou frigideira."},
+          {nome:"Salada verde",qtd:"100g a vontade",p:1,c:3,g:0,kcal:16,
+           prep:"Montar."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Substitua por omelete 3 ovos + salada + legumes","Adicionar 100g batata doce se sentir fome"]
+      },
+      {
+        hora:"21h30",nome:"Ceia",icone:"✨",cor:"#d2a8ff",
+        tempo:"2min",
+        objetivo:"Opcional — so se houver fome real.",
+        alimentos:[
+          {nome:"Cottage",qtd:"80g",p:10,c:2,g:3,kcal:77,
+           prep:"Direto. So se sentir fome real."},
+        ],
+        subs:["Se nao tiver fome: pule sem culpa"]
+      }
+    ]
+  },
+  descanso:{
+    label:"Domingo — Rest Total",
+    calorias:2500,p:170,c:285,g:82,
+    refeicoes:[
+      {
+        hora:"07h30",nome:"Cafe da Manha",icone:"🌅",cor:"#ffab00",
+        tempo:"10min",
+        objetivo:"Quebrar o jejum. Sem pressa — dia de descanso total.",
+        alimentos:[
+          {nome:"Ovos mexidos",qtd:"3 unidades (150g)",p:18,c:1,g:15,kcal:215,
+           prep:"Frigideira 2min. Sem pressa hoje."},
+          {nome:"Aveia",qtd:"50g",p:5,c:30,g:3,kcal:167,
+           prep:"Mingau com banana."},
+          {nome:"Banana",qtd:"1 unidade (100g)",p:1,c:23,g:0,kcal:96,
+           prep:"No mingau."},
+          {nome:"Cafe preto",qtd:"1 xicara",p:0,c:0,g:0,kcal:5,
+           prep:"Sem acucar."},
+        ],
+        subs:["Aveia: substitua por 2 fatias pao integral com pasta de amendoim"]
+      },
+      {
+        hora:"10h30",nome:"Lanche da Manha",icone:"🍎",cor:"#39d353",
+        tempo:"3min",
+        objetivo:"Saciedade. Sem treino — sem urgencia de carboidrato.",
+        alimentos:[
+          {nome:"Iogurte grego",qtd:"200g",p:18,c:8,g:6,kcal:158,
+           prep:"Direto."},
+          {nome:"Castanhas",qtd:"30g",p:4,c:5,g:18,kcal:194,
+           prep:"Gordura boa para saciedade."},
+          {nome:"Fruta",qtd:"1 unidade (120g)",p:1,c:20,g:0,kcal:84,
+           prep:"Pronto."},
+        ],
+        subs:["Substitua por 2 ovos cozidos + castanhas + fruta"]
+      },
+      {
+        hora:"13h00",nome:"Almoco",icone:"🍽️",cor:"#ff6b35",
+        tempo:"20min",
+        objetivo:"Refeicao principal. Proteina alta, carbo moderado-baixo.",
+        alimentos:[
+          {nome:"Frango ou carne",qtd:"200g",p:48,c:0,g:5,kcal:233,
+           prep:"Grelhar ou do lote."},
+          {nome:"Arroz integral",qtd:"130g cozido",p:2,c:27,g:1,kcal:125,
+           prep:"Do lote."},
+          {nome:"Feijao",qtd:"80g",p:5,c:12,g:1,kcal:77,
+           prep:"Lote."},
+          {nome:"Salada verde abundante",qtd:"200g a vontade",p:2,c:6,g:0,kcal:32,
+           prep:"Montar."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Carne: substitua por 200g atum ou tilapia","Arroz: substitua por 100g batata doce"]
+      },
+      {
+        hora:"16h30",nome:"Lanche da Tarde",icone:"🥚",cor:"#58a6ff",
+        tempo:"3min",
+        objetivo:"Manter sintese proteica no dia de descanso. Nao pular.",
+        alimentos:[
+          {nome:"Ovos cozidos",qtd:"2 unidades (100g)",p:12,c:1,g:10,kcal:144,
+           prep:"Do lote."},
+          {nome:"Abacate",qtd:"80g",p:1,c:4,g:12,kcal:128,
+           prep:"Fatiar com sal e limao."},
+        ],
+        subs:["Substitua por cottage 150g + castanhas","Substitua por iogurte grego + fruta + castanhas"]
+      },
+      {
+        hora:"19h30",nome:"Jantar",icone:"🌙",cor:"#6366f1",
+        tempo:"20min",
+        objetivo:"Proteina lenta. Carbo reduzido — dia sem estimulo de treino.",
+        alimentos:[
+          {nome:"Salmao ou tilapia",qtd:"200g",p:40,c:0,g:12,kcal:264,
+           prep:"Salmao: frigideira 4min cada lado."},
+          {nome:"Legumes assados",qtd:"200g",p:3,c:12,g:2,kcal:76,
+           prep:"Forno ou frigideira."},
+          {nome:"Salada verde",qtd:"150g a vontade",p:2,c:4,g:0,kcal:24,
+           prep:"Montar."},
+          {nome:"Azeite",qtd:"1 col. sopa (15ml)",p:0,c:0,g:14,kcal:126,
+           prep:"Temperar."},
+        ],
+        subs:["Salmao: substitua por frango grelhado","Omelete 3 ovos + salada + legumes — opcao rapida"]
+      },
+      {
+        hora:"21h30",nome:"Ceia",icone:"✨",cor:"#d2a8ff",
+        tempo:"2min",
+        objetivo:"Opcional. Proteina lenta se houver fome.",
+        alimentos:[
+          {nome:"Cottage",qtd:"80g",p:10,c:2,g:3,kcal:77,
+           prep:"Direto."},
+          {nome:"Castanha do Para",qtd:"2 unidades (10g)",p:1,c:1,g:7,kcal:70,
+           prep:"Selenio."},
+        ],
+        subs:["Se nao tiver fome: pule","Substitua por 150g iogurte grego"]
+      }
+    ]
+  }
+};
+
+const SUPLEMENTOS={
+  essencial:[
+    {nome:"Whey Protein",prio:1,
+     dose:"25-30g (1 scoop)",quando:"Imediatamente pos-treino — ate 45min",
+     porq:"Absorção rapida. Fecha a janela anabolica. Dificil atingir 176g de proteina so com comida real.",
+     obs:"Concentrado se tolera lactose. Isolado se nao tolera. Evitar versoes com muito acucar.",
+     custo:"$$"},
+    {nome:"Creatina Monoidratada",prio:2,
+     dose:"5g por dia — sem fase de saturacao",quando:"Qualquer horario — consistencia e o que importa",
+     porq:"Melhor suplemento estudado. Forca, potencia, recuperacao. Impacto direto no CrossFit e TACF.",
+     obs:"Leva 3-4 semanas para saturar musculos. Nao interromper. Preferir Creapure (alemã).",
+     custo:"$"},
+  ],
+  saude:[
+    {nome:"Omega-3",prio:3,
+     dose:"2-3g EPA+DHA por dia (2-3 capsulas)",quando:"Com refeicao gordurosa — almoco ou jantar",
+     porq:"Anti-inflamatorio. Critico para suas tendinopatias de ombro e joelho. Melhora recuperacao.",
+     obs:"Buscar certificacao IFOS. Efeito perceptivel em 6-8 semanas.",
+     custo:"$"},
+    {nome:"Vitamina D3 + K2",prio:4,
+     dose:"2000-4000 UI D3 + 100mcg K2",quando:"Com refeicao que tenha gordura",
+     porq:"Deficit muito comum em brasileiros. Afeta forca, imunidade e saude ossea.",
+     obs:"Dosar 25-OH vitamina D no sangue antes de suplementar. Resultado ideal: 40-60 ng/mL.",
+     custo:"$"},
+    {nome:"Magnesio Glicinato",prio:5,
+     dose:"300-400mg",quando:"30-60min antes de dormir",
+     porq:"Atletas perdem magnesio pelo suor. Melhora sono, reduz caimbras e tensao muscular.",
+     obs:"Preferir glicinato ou malato. Evitar oxido — absorcao ruim. Efeito no sono em 1-2 semanas.",
+     custo:"$"},
+    {nome:"Colageno Tipo II + Vitamina C",prio:6,
+     dose:"10-15g colageno + 50mg Vit C",quando:"Em jejum, 30min antes do treino",
+     porq:"Evidencia crescente para saude de tendoes. Relevante para joelho e ombro.",
+     obs:"Tomar em jejum potencializa incorporacao nos tecidos conectivos. Efeito em 8-12 semanas.",
+     custo:"$"},
+  ],
+  perf:[
+    {nome:"Cafeina",prio:7,
+     dose:"200-300mg (2-3mg/kg)",quando:"30-45min antes do treino",
+     porq:"Aumenta foco, forca e endurance. Util em WODs longos e treinos matinais.",
+     obs:"Evitar apos 14h para nao prejudicar sono. Nao usar diariamente — perde efeito. 4-5x semana maximo.",
+     custo:"$"},
+    {nome:"Beta-Alanina",prio:8,
+     dose:"3,2-6,4g por dia",quando:"Pre-treino",
+     porq:"Retarda fadiga em esforcos de 1-4min — exatamente o pace da corrida TACF e dos WODs.",
+     obs:"Causa formigamento (parestesia) — normal e inofensivo. Introduzir apenas na Fase 2.",
+     custo:"$"},
+  ]
+};
+
+const HIDRATACAO=[
+  {momento:"Ao acordar",qtd:"500ml",tipo:"Agua pura",obs:"Reidratacao do periodo noturno"},
+  {momento:"Cafe da manha",qtd:"200ml",tipo:"Agua ou cafe",obs:""},
+  {momento:"Pre-treino — 1h antes",qtd:"500ml",tipo:"Agua pura",obs:"Chegar hidratado ao treino"},
+  {momento:"Durante treino",qtd:"500-750ml/h",tipo:"Agua + pitada de sal",obs:"Sal apenas em sessoes acima de 60min"},
+  {momento:"Pos-treino imediato",qtd:"500ml",tipo:"Agua ou agua de coco",obs:"Reposicao rapida de eletrolitos"},
+  {momento:"Almoco",qtd:"300ml",tipo:"Agua",obs:""},
+  {momento:"Lanche da tarde",qtd:"300ml",tipo:"Agua",obs:""},
+  {momento:"Jantar",qtd:"300ml",tipo:"Agua",obs:""},
+  {momento:"Noite",qtd:"200ml",tipo:"Agua",obs:"Nao exagerar para nao acordar a noite"},
+  {momento:"TOTAL DIARIO",qtd:"3,5 - 4L",tipo:"Incluindo agua dos alimentos",obs:"Urina clara = bem hidratado"},
+];
+
+let diaAtual='duplo';
+let suplAberto={};
+
+
+
+function setDiaNutri(tipo){
+  diaAtual=tipo;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tbtn-'+tipo).classList.add('active');
+  renderCardapio();
+}
+
+function renderDiaToggle(){
+  document.getElementById('dia-toggle').innerHTML=`
+    <button class="tbtn active" id="tbtn-duplo" onclick="setDiaNutri('duplo')">Ter — Duplo</button>
+    <button class="tbtn" id="tbtn-corrida_forca" onclick="setDiaNutri('corrida_forca')">Qui — C+F</button>
+    <button class="tbtn" id="tbtn-noturno" onclick="setDiaNutri('noturno')">Seg/Qua</button>
+    <button class="tbtn" id="tbtn-box_tarde" onclick="setDiaNutri('box_tarde')">Sex — Box</button>
+    <button class="tbtn" id="tbtn-corrida_longa" onclick="setDiaNutri('corrida_longa')">Sab — Z2</button>
+    <button class="tbtn" id="tbtn-descanso" onclick="setDiaNutri('descanso')">Dom — Rest</button>`;
+}
+
+function renderMacroStats(){
+  const d=CARDAPIO[diaAtual];
+  const pctC = diaAtual==='descanso'?'44%':diaAtual==='corrida_longa'?'48%':'50%';
+  const pctG = diaAtual==='descanso'?'30%':'26%';
+  document.getElementById('macro-stats').innerHTML=`
+    <div class="stat-card" style="grid-column:1/-1;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2)">
+      <div class="stat-label" style="color:var(--amber)">${d.label}</div>
+      <div style="font-size:18px;font-weight:600;color:var(--amber);margin:4px 0">${d.calorias} kcal</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Proteina</div>
+      <div class="stat-val" style="color:var(--red)">${d.p}g</div>
+      <div class="stat-sub">2,4g/kg MM</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Carboidrato</div>
+      <div class="stat-val" style="color:var(--amber)">${d.c}g</div>
+      <div class="stat-sub">${pctC} das kcal</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Gordura</div>
+      <div class="stat-val" style="color:var(--blue)">${d.g}g</div>
+      <div class="stat-sub">${pctG} das kcal</div>
+    </div>`;
+}
+
+function renderCardapio(){
+  renderMacroStats();
+  const d=CARDAPIO[diaAtual];
+  let html='';
+  d.refeicoes.forEach((r,ri)=>{
+    const tp=r.alimentos.reduce((a,x)=>a+x.p,0);
+    const tc=r.alimentos.reduce((a,x)=>a+x.c,0);
+    const tg=r.alimentos.reduce((a,x)=>a+x.g,0);
+    const tk=r.alimentos.reduce((a,x)=>a+x.kcal,0);
+    const open=suplAberto['r'+ri];
+    html+=`<div class="card">
+      <div class="card-head" onclick="toggleCard('r${ri}')">
+        <div class="card-head-left">
+          <div class="card-icon" style="background:${r.cor}20">${r.icone}</div>
+          <div>
+            <div class="card-title">${r.nome}</div>
+            <div class="card-sub">${r.hora} · ${r.tempo} de preparo</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px;font-weight:600;color:var(--green)">${tk} kcal</div>
+          <div style="font-size:10px;color:var(--text3)">P:${tp}g C:${tc}g G:${tg}g</div>
+        </div>
+      </div>`;
+    if(open){
+      html+=`<div class="card-body">
+        <div style="font-size:12px;color:var(--amber);margin-bottom:12px;padding:8px 10px;background:rgba(245,158,11,0.08);border-radius:8px">${r.objetivo}</div>`;
+      r.alimentos.forEach(a=>{
+        html+=`<div class="alimento-row">
+          <div class="alimento-nome">${a.nome}</div>
+          <div class="alimento-qtd">${a.qtd} · ${a.kcal} kcal</div>
+          <div class="alimento-macros">P: ${a.p}g · C: ${a.c}g · G: ${a.g}g</div>
+          <div class="alimento-prep">Como preparar: ${a.prep}</div>
+        </div>`;
+      });
+      html+=`<div class="sub-section">
+        <div class="sub-title">Substituicoes possiveis</div>`;
+      r.subs.forEach(s=>{
+        html+=`<div class="sub-item"><span class="sub-dot">→</span><span>${s}</span></div>`;
+      });
+      html+=`</div></div>`;
+    }
+    html+='</div>';
+  });
+  document.getElementById('refeicoes-list').innerHTML=html;
+}
+
+function toggleCard(id){
+  suplAberto[id]=!suplAberto[id];
+  renderCardapio();
+}
+
+function renderSupl(){
+  ['essencial','saude','perf'].forEach(cat=>{
+    const list=SUPLEMENTOS[cat];
+    const el=document.getElementById('supl-'+cat);
+    el.innerHTML=list.map((s,i)=>{
+      const open=suplAberto['s_'+cat+'_'+i];
+      return `<div class="supl-card">
+        <div class="supl-head" onclick="toggleSupl('s_${cat}_${i}')">
+          <div>
+            <div style="font-size:14px;font-weight:600">${s.nome}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${s.dose}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge" style="background:#161b22;color:#8b949e">#${s.prio}</span>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">${s.custo==='$'?'Acessivel':'Moderado'}</div>
+          </div>
+        </div>
+        ${open?`<div class="supl-body open">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px">${s.porq}</div>
+          <div class="supl-row"><span style="color:var(--text3)">Quando</span><span style="color:var(--blue);text-align:right;max-width:60%">${s.quando}</span></div>
+          <div class="supl-row" style="border-bottom:none"><span style="color:var(--text3)">Obs</span><span style="color:var(--amber);text-align:right;max-width:60%">${s.obs}</span></div>
+        </div>`:''}
+      </div>`;
+    }).join('');
+  });
+}
+
+function toggleSupl(id){
+  suplAberto[id]=!suplAberto[id];
+  renderSupl();
+}
+
+function renderHidrat(){
+  document.getElementById('hidrat-list').innerHTML=HIDRATACAO.map(h=>`
+    <div class="info-row">
+      <div>
+        <div style="font-size:13px">${h.momento}</div>
+        ${h.obs?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${h.obs}</div>`:''}
+      </div>
+      <div style="text-align:right">
+        <div class="info-val">${h.qtd}</div>
+        <div style="font-size:10px;color:var(--text3)">${h.tipo}</div>
+      </div>
+    </div>`).join('');
+}
+
+
+// ========= MEDIDAS =========
+let medidasInited = false;
+let medidasOpen = {};
+
+function initMedidas(){
+  if(medidasInited) return;
+  medidasInited = true;
+  renderMedidas();
+}
+
+function getMedidas(){
+  try{ return JSON.parse(localStorage.getItem('medidas_v1') || '[]'); }
+  catch(e){ return []; }
+}
+function saveMedidas(arr){
+  try{ localStorage.setItem('medidas_v1', JSON.stringify(arr)); }catch(e){}
+}
+
+// US Navy body fat formula
+function calcGordura(sexo, altura, cintura, pescoco, quadril){
+  // altura, cintura, pescoco, quadril in cm
+  if(!cintura || !pescoco || !altura) return null;
+  const h = parseFloat(altura), c = parseFloat(cintura);
+  const p = parseFloat(pescoco), q = parseFloat(quadril);
+  let bf;
+  // Male: %BF = 495 / (1.0324 - 0.19077*log10(cintura-pescoco) + 0.15456*log10(altura)) - 450
+  bf = 495 / (1.0324 - 0.19077 * Math.log10(c - p) + 0.15456 * Math.log10(h)) - 450;
+  return Math.round(bf * 10) / 10;
+}
+
+function calcMassaGorda(peso, bf){ return Math.round(peso * bf / 100 * 10)/10; }
+function calcMassaMagra(peso, mg){ return Math.round((peso - mg)*10)/10; }
+
+function formatDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+
+function diffBadge(cur, prev, unit, invertGood){
+  if(prev === undefined || prev === null) return '';
+  const diff = Math.round((cur - prev)*10)/10;
+  if(diff === 0) return '<span style="color:var(--text3);font-size:11px"> = </span>';
+  const good = invertGood ? diff < 0 : diff > 0;
+  const color = good ? 'var(--green)' : 'var(--red)';
+  const sign = diff > 0 ? '+' : '';
+  return `<span style="color:${color};font-size:11px"> ${sign}${diff}${unit}</span>`;
+}
+
+function renderMedidas(){
+  const all = getMedidas().sort((a,b) => new Date(b.data) - new Date(a.data));
+  const latest = all[0] || null;
+  const prev = all[1] || null;
+
+  // Current stats
+  let statsHtml = '<div class="med-stat-grid">';
+  if(latest){
+    const bf = calcGordura('M', latest.altura||184, latest.cintura, latest.pescoco, latest.quadril);
+    const mg = bf ? calcMassaGorda(latest.peso, bf) : null;
+    const mm = mg ? calcMassaMagra(latest.peso, mg) : null;
+    const prevBf = prev ? calcGordura('M', prev.altura||184, prev.cintura, prev.pescoco, prev.quadril) : null;
+
+    statsHtml += `
+      <div class="med-stat">
+        <div class="med-stat-label">Peso</div>
+        <div class="med-stat-val" style="color:var(--blue)">${latest.peso}kg</div>
+        <div class="med-stat-diff">${prev ? diffBadge(latest.peso, prev.peso, 'kg', false) : '<span style="color:var(--text3);font-size:11px">baseline</span>'}</div>
+      </div>
+      <div class="med-stat">
+        <div class="med-stat-label">Cintura</div>
+        <div class="med-stat-val" style="color:var(--amber)">${latest.cintura}cm</div>
+        <div class="med-stat-diff">${prev ? diffBadge(latest.cintura, prev.cintura, 'cm', false) : '<span style="color:var(--text3);font-size:11px">baseline</span>'}</div>
+      </div>
+      <div class="med-stat">
+        <div class="med-stat-label">Braco contraido</div>
+        <div class="med-stat-val" style="color:var(--green)">${latest.braco||'—'}cm</div>
+        <div class="med-stat-diff">${prev && latest.braco && prev.braco ? diffBadge(latest.braco, prev.braco, 'cm', true) : ''}</div>
+      </div>
+      <div class="med-stat">
+        <div class="med-stat-label">Coxa</div>
+        <div class="med-stat-val" style="color:var(--purple)">${latest.coxa||'—'}cm</div>
+        <div class="med-stat-diff">${prev && latest.coxa && prev.coxa ? diffBadge(latest.coxa, prev.coxa, 'cm', true) : ''}</div>
+      </div>`;
+
+    // Gordura box
+    if(bf !== null){
+      const massaMagra = mm || '—';
+      const massaGorda = mg || '—';
+      document.getElementById('med-gordura-box').innerHTML = `
+        <div class="gordura-box">
+          <div class="gordura-title">% Gordura Estimado — Marinha Americana</div>
+          <div class="gordura-val">${bf}%</div>
+          <div class="gordura-sub">Massa gorda: ~${massaGorda}kg · Massa magra: ~${massaMagra}kg</div>
+          ${prev && prevBf ? `<div class="gordura-sub" style="margin-top:4px">Anterior: ${prevBf}% ${diffBadge(bf, prevBf, '%', false)}</div>` : ''}
+          <div class="gordura-formula">Formula: Marinha US · Variaveis: altura, cintura, pescoco · Erro estimado: ±3%</div>
+        </div>`;
+    } else {
+      document.getElementById('med-gordura-box').innerHTML = `
+        <div class="gordura-box" style="background:rgba(245,158,11,0.06)">
+          <div class="gordura-title">% Gordura</div>
+          <div style="font-size:13px;color:var(--text2)">Preencha peso, altura, cintura e pescoco para calcular automaticamente.</div>
+        </div>`;
+    }
+  } else {
+    statsHtml += `<div class="med-stat" style="grid-column:1/-1"><div class="empty-state">Nenhuma medicao ainda.<br>Registre sua primeira abaixo.</div></div>`;
+    document.getElementById('med-gordura-box').innerHTML = '';
+  }
+  statsHtml += '</div>';
+  document.getElementById('med-current-stats').innerHTML = statsHtml;
+
+  // Form
+  document.getElementById('med-form-section').innerHTML = `
+    <div class="med-form">
+      <div class="med-form-title">Nova medicao</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="med-field" style="grid-column:1/-1">
+          <label>Data</label>
+          <input type="date" id="mf-data" value="${new Date().toISOString().split('T')[0]}" style="width:100%;max-width:200px">
+        </div>
+        <div class="med-field">
+          <label>Peso (kg)</label>
+          <input type="number" id="mf-peso" placeholder="88.0" step="0.1" min="50" max="200">
+        </div>
+        <div class="med-field">
+          <label>Cintura (cm)</label>
+          <input type="number" id="mf-cintura" placeholder="88" step="0.5">
+        </div>
+        <div class="med-field">
+          <label>Abdomen (cm)</label>
+          <input type="number" id="mf-abdomen" placeholder="90" step="0.5">
+        </div>
+        <div class="med-field">
+          <label>Pescoco (cm)</label>
+          <input type="number" id="mf-pescoco" placeholder="40" step="0.5">
+        </div>
+        <div class="med-field">
+          <label>Quadril (cm)</label>
+          <input type="number" id="mf-quadril" placeholder="100" step="0.5">
+        </div>
+        <div class="med-field">
+          <label>Braco contraido (cm)</label>
+          <input type="number" id="mf-braco" placeholder="38" step="0.5">
+        </div>
+        <div class="med-field">
+          <label>Coxa (cm)</label>
+          <input type="number" id="mf-coxa" placeholder="58" step="0.5">
+        </div>
+      </div>
+      <div class="med-field">
+        <label>Altura (cm) — so precisa preencher uma vez</label>
+        <input type="number" id="mf-altura" placeholder="184" step="1" value="${latest ? (latest.altura||184) : 184}">
+      </div>
+      <button class="med-save-btn" onclick="saveMedicao()">Salvar medicao</button>
+    </div>`;
+
+  // History
+  if(all.length > 0){
+    let histHtml = '<div class="section-header">Historico</div>';
+    all.forEach((m, i) => {
+      const bf = calcGordura('M', m.altura||184, m.cintura, m.pescoco, m.quadril);
+      const open = medidasOpen['m'+i];
+      histHtml += `
+        <div class="med-card">
+          <div class="med-card-head" onclick="toggleMedCard('m${i}')">
+            <div>
+              <div style="font-size:14px;font-weight:600">${formatDate(m.data)}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">${m.peso}kg · Cintura: ${m.cintura||'—'}cm${bf ? ' · Gordura: '+bf+'%' : ''}</div>
+            </div>
+            <div style="color:var(--text3);font-size:18px">${open ? '▲' : '▼'}</div>
+          </div>
+          ${open ? `<div class="med-card-body open">
+            <div class="med-row"><span style="color:var(--text3)">Peso</span><span>${m.peso} kg</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Altura</span><span>${m.altura||184} cm</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Cintura</span><span>${m.cintura||'—'} cm</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Abdomen</span><span>${m.abdomen||'—'} cm</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Pescoco</span><span>${m.pescoco||'—'} cm</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Quadril</span><span>${m.quadril||'—'} cm</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Braco contraido</span><span>${m.braco||'—'} cm</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Coxa</span><span>${m.coxa||'—'} cm</span></div>
+            ${bf ? `<div class="med-row"><span style="color:var(--text3)">% Gordura estimado</span><span style="color:var(--green)">${bf}%</span></div>
+            <div class="med-row"><span style="color:var(--text3)">Massa magra est.</span><span style="color:var(--green)">${calcMassaMagra(m.peso, calcMassaGorda(m.peso,bf))} kg</span></div>` : ''}
+            <button class="med-del-btn" onclick="deleteMedicao(${i})">Excluir esta medicao</button>
+          </div>` : ''}
+        </div>`;
+    });
+    document.getElementById('med-history-section').innerHTML = histHtml;
+  } else {
+    document.getElementById('med-history-section').innerHTML = '';
+  }
+}
+
+function saveMedicao(){
+  const data = document.getElementById('mf-data').value;
+  const peso = parseFloat(document.getElementById('mf-peso').value);
+  if(!data || !peso){ alert('Preencha pelo menos data e peso.'); return; }
+
+  const m = {
+    data,
+    peso,
+    altura: parseFloat(document.getElementById('mf-altura').value) || 184,
+    cintura: parseFloat(document.getElementById('mf-cintura').value) || null,
+    abdomen: parseFloat(document.getElementById('mf-abdomen').value) || null,
+    pescoco: parseFloat(document.getElementById('mf-pescoco').value) || null,
+    quadril: parseFloat(document.getElementById('mf-quadril').value) || null,
+    braco: parseFloat(document.getElementById('mf-braco').value) || null,
+    coxa: parseFloat(document.getElementById('mf-coxa').value) || null,
+  };
+
+  const all = getMedidas();
+  all.push(m);
+  saveMedidas(all);
+  renderMedidas();
+
+  // Clear number fields
+  ['peso','cintura','abdomen','pescoco','quadril','braco','coxa'].forEach(f => {
+    const el = document.getElementById('mf-'+f);
+    if(el && f !== 'altura') el.value = '';
+  });
+}
+
+function deleteMedicao(idx){
+  if(!confirm('Excluir esta medicao?')) return;
+  const all = getMedidas().sort((a,b) => new Date(b.data) - new Date(a.data));
+  all.splice(idx, 1);
+  saveMedidas(all);
+  medidasOpen = {};
+  renderMedidas();
+}
+
+function toggleMedCard(id){
+  medidasOpen[id] = !medidasOpen[id];
+  renderMedidas();
+}
+
+
+// ========= EXERCISE DETAIL API =========
+const exCache = {};
+let exPanelOpen = {};
+
+function toggleExPanel(k, val, blocoNome){
+  if(editMode) return;
+  const panel = document.getElementById('exp-'+k);
+  if(!panel) return;
+  const isOpen = panel.className.includes('open');
+  // Close all other panels
+  document.querySelectorAll('.ex-panel.open').forEach(p => {
+    if(p.id !== 'exp-'+k) p.className = 'ex-panel';
+  });
+  if(isOpen){
+    panel.className = 'ex-panel';
+    return;
+  }
+  panel.className = 'ex-panel open';
+  if(exCache[k]){
+    panel.innerHTML = exCache[k];
+    return;
+  }
+  panel.innerHTML = `<div class="ex-panel-loading"><span style="animation:spin 1s linear infinite;display:inline-block">&#9696;</span> Consultando...</div>`;
+  fetchExDetail(k, val, blocoNome);
+}
+
+async function fetchExDetail(k, val, blocoNome){
+  const panel = document.getElementById('exp-'+k);
+  if(!panel) return;
+  try{
+    const prompt = `Voce e um personal trainer e coach de CrossFit especializado. 
+Dado este exercicio de um plano de treino: "${val}"
+Contexto do bloco: "${blocoNome}"
+
+Responda APENAS com JSON valido, sem markdown, sem texto extra, exatamente neste formato:
+{
+  "material": "equipamentos necessarios (ex: halter 16kg, elastico, barra fixa, argolas)",
+  "carga": "peso sugerido ou % de 1RM com justificativa curta",
+  "descanso": "tempo de descanso recomendado entre series",
+  "execucao": "instrucoes tecnicas de execucao em 2-4 frases: posicao inicial, movimento, pontos de atencao"
+}
+Seja especifico para o nivel intermediario-avancado. Considere que o atleta tem 88kg, 1,84m, pratica CrossFit e se prepara para competicao amadora e teste militar (TACF).`;
+
+    const res = await fetch('/.netlify/functions/exercise', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({prompt})
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    const text = data.text || '';
+    let info;
+    try{
+      const clean = text.replace(/```json|```/g,'').trim();
+      info = JSON.parse(clean);
+    } catch(e){
+      throw new Error('Resposta invalida');
+    }
+    const html = `<div class="ex-panel-content">
+      <div class="ex-info-row">
+        <span class="ex-info-icon">&#128230;</span>
+        <span class="ex-info-label">Material</span>
+        <span class="ex-info-val">${info.material||'—'}</span>
+      </div>
+      <div class="ex-info-row">
+        <span class="ex-info-icon">&#9878;</span>
+        <span class="ex-info-label">Carga</span>
+        <span class="ex-info-val" style="color:var(--amber)">${info.carga||'—'}</span>
+      </div>
+      <div class="ex-info-row">
+        <span class="ex-info-icon">&#9201;</span>
+        <span class="ex-info-label">Descanso</span>
+        <span class="ex-info-val" style="color:var(--purple)">${info.descanso||'—'}</span>
+      </div>
+      <div class="ex-info-row">
+        <span class="ex-info-icon">&#128203;</span>
+        <span class="ex-info-label">Execucao</span>
+        <span class="ex-info-val" style="color:var(--blue)">${info.execucao||'—'}</span>
+      </div>
+    </div>`;
+    exCache[k] = html;
+    if(panel) panel.innerHTML = html;
+  } catch(err){
+    const isLocal = window.location.protocol === 'file:';
+    const msg = isLocal
+      ? 'Funciona apenas quando hospedado online (Netlify). Abra pelo link do Netlify para ver os detalhes.'
+      : 'Erro ao carregar. Verifique a conexao e tente novamente.';
+    if(panel) panel.innerHTML = `<div class="ex-erro">${msg}</div>`;
+  }
+}
+
+
+// ========= BIBLIOTECA =========
+let bibInited = false;
+
+const BIBLIOTECA = [
+  {n:"Arnold Press",exec:"Segure halteres na altura dos ombros com cotovelos a frente e palmas voltadas para voce. Ao pressionar para cima, rotacione os halteres ate as palmas ficarem para fora ao final. Desca na ordem inversa.",erros:"Arco lombar excessivo, nao completar a rotacao, usar impulso do corpo."},
+  {n:"Back Squat",exec:"Barra apoiada na trapezio superior ou inferior. Pes na largura dos ombros, pontas levemente abertas. Desca mantendo o peito alto, joelhos alinhados com os pes e quadril abaixo dos joelhos. Suba empurrando o chao.",erros:"Joelhos caindo para dentro, calcanhar saindo do chao, tronco colapsando para frente, agachamento raso."},
+  {n:"Bar Muscle Up",exec:"Balanco controlado do corpo (kipping). Na fase de pull, puxe a barra em direcao ao quadril com cotovelos altos. Na transicao, leve o peito sobre a barra girando os punhos. Estenda os cotovelos acima.",erros:"Pular a fase de kipping, nao elevar os cotovelos, fazer transicao com força em vez de tecnica, corpo nao reto no final."},
+  {n:"Bench Press",exec:"Deitado, barra alinhada com o peito medio. Pegada levemente mais larga que os ombros. Desca controlado ate tocar o peito, cotovelos a 45-75 graus do tronco. Empurre explosivamente para cima.",erros:"Tirar o quadril do banco, cotovelos excessivamente abertos, bounce no peito, nao completar a extensao."},
+  {n:"Box Jump",exec:"Posicao atletica a frente da caixa. Agache levemente balancando os bracos e salte para cima com extensao total de quadril, joelhos e tornozelos. Pouse suavemente com os joelhos levemente dobrados.",erros:"Pousar com joelhos totalmente estendidos, nao abrir o quadril no topo, saltar para frente em vez de para cima."},
+  {n:"Bulgarian Split Squat",exec:"Pe traseiro apoiado no banco, pe dianteiro a um passo a frente. Desca verticalmente mantendo o tronco ereto ate o joelho traseiro quase tocar o chao. Empurre pelo calcanhar dianteiro.",erros:"Joelho dianteiro passando muito a frente do pe, inclinacao excessiva do tronco, pe dianteiro muito proximo do banco."},
+  {n:"Burpee",exec:"Da posicao em pe, agache e apoie as maos no chao. Jogue os pes para tras ficando em posicao de prancha. Faca uma flexao (opcional). Puxe os pes de volta e salte com os bracos acima da cabeca.",erros:"Quadril caindo na prancha, nao estender completamente no salto, ritmo muito irregular que gera fadiga prematura."},
+  {n:"Clean and Jerk",exec:"CLEAN: puxada dupla da barra do chao ate os ombros com recepcao em agachamento frontal. JERK: flexao rapida dos joelhos (dip) e extensao explosiva para lancar a barra acima com recepcao em afundo ou agachamento.",erros:"Puxar cedo com os bracos no clean, nao abrir os cotovelos rapido, dip muito profundo no jerk, nao estabilizar antes de juntar os pes."},
+  {n:"Crossover Polia",exec:"Polias ajustadas acima da cabeca. Segure os cabos e incline levemente o tronco a frente. Com cotovelos levemente dobrados, feche os bracos em arco na frente do peito. Abra controlado.",erros:"Usar impulso do tronco, dobrar excessivamente os cotovelos transformando em rosca, nao sentir o peitoral ao fechar."},
+  {n:"C2B Pull-up",exec:"Igual ao pull-up estrito mas com o objetivo de tocar o peito abaixo da clavícula na barra. Exige maior forca de tracao e flexibilidade de ombro. Manter o corpo tenso em hollow.",erros:"Apenas tocar o queixo, deixar o core relaxar, nao controlar a descida, usar impulso excessivo do quadril."},
+  {n:"Dead Bug",exec:"Deitado de costas, bracos apontando para o teto e joelhos a 90 graus. Simultaneamente estenda o braco direito atras da cabeca e a perna esquerda em direcao ao chao sem tocar. Volte e alterne.",erros:"Deixar a lombar sair do chao, prender a respiracao, movimentos bruscos, nao fazer o movimento de forma simetrica."},
+  {n:"Deadlift",exec:"Pes na largura do quadril, barra sobre o mediotatarso. Agache segurando a barra com pegada dupla ou mista. Mantenha a barra proxima ao corpo, peito alto, ative o latissimo e empurre o chao com os pes.",erros:"Barra afastada do corpo, arredondar a lombar, nao ativar o core, puxar com os bracos antes das pernas empurrarem."},
+  {n:"Decline Squat Excentrico",exec:"Em plano inclinado (15-30 graus) com os calcanhares elevados. Agache lentamente em 3-5 segundos apenas em uma perna se possivel. Foco no excentrico — a subida pode ser assistida.",erros:"Fazer muito rapido anulando o beneficio excentrico, nao manter o joelho alinhado com o pe, fazer com dor aguda."},
+  {n:"Desenvolvimento",exec:"Barra ou halteres na altura dos ombros, cotovelos a frente. Pressione verticalmente acima da cabeca ate extensao total. Desca controlado ate a posicao inicial.",erros:"Arco excessivo na lombar, nao estabilizar o core, projetar a cabeca para frente, ceder o tronco para tras."},
+  {n:"Dip",exec:"Apoio nas barras paralelas ou argolas. Desca controlado ate os cotovelos atingirem 90 graus ou menos mantendo o tronco levemente inclinado para frente. Suba pelo triceps.",erros:"Descida muito superficial, cotovelos abrindo excessivamente, ombros subindo em direcao as orelhas, impulso com quadril."},
+  {n:"Double Under",exec:"Corda de pular com velocidade suficiente para passar duas vezes por baixo em cada salto. Pulsos rotacionam ativamente, salto unico e eficiente com ponta dos pes.",erros:"Saltos multiplos entre as passagens, rotacionar os bracos em vez dos pulsos, nao manter o tronco ereto."},
+  {n:"Dragon Flag",exec:"Deitado em banco, segure atras da cabeca. Levante o corpo em linha reta apoiando apenas nos ombros. Controle a descida (excentrico) mantendo o corpo rigido como uma prancha.",erros:"Dobrar no quadril quebrando a linha do corpo, descer muito rapido, nao manter o core ativado durante todo o movimento."},
+  {n:"Face Pull",exec:"Polia alta com corda. Puxe em direcao ao rosto com cotovelos altos, dividindo a corda e abrindo os bracos em rotacao externa. Foque em apertar os retratores escapulares.",erros:"Cotovelos baixos que transformam em remada, nao completar a rotacao externa, usar carga excessiva com tecnica comprometida."},
+  {n:"False Grip",exec:"Na argola, posicione o pulso sobre o anel com o apoio do osso pisiforme em vez das palmas. Isso encurta a alavanca e facilita a transicao no muscle up. Exige adaptacao progressiva do pulso.",erros:"Soltar o false grip durante o movimento, posicionar errado gerando dor no pulso, tentar cargas altas sem adaptacao."},
+  {n:"Flexoes",exec:"Posicao de prancha alta com maos levemente mais largas que os ombros. Desca mantendo o corpo rigido em linha reta ate o peito quase tocar o chao. Empurre explosivamente. Cotovelos a 45 graus.",erros:"Quadril muito alto ou baixo quebrando a linha, cotovelos excessivamente abertos, pescoço projetado para frente, extensao incompleta."},
+  {n:"Front Squat",exec:"Barra apoiada nos deltoides anteriores com pegada limpa (dedos embaixo) ou cruzada. Cotovelos altos o tempo todo. Agache mantendo o tronco vertical e os joelhos abertos.",erros:"Cotovelos caindo que causa queda da barra, tronco inclinando para frente, joelhos caindo para dentro, agachamento raso."},
+  {n:"GHD Sit-up",exec:"Na maquina GHD, quadril na almofada e pes presos. Hiperextenda o tronco para tras e volte tocando os pes ou o chao a frente. Movimento amplo ativando flexores do quadril e abdomen.",erros:"Fazer muito rapido sem controle, nao adaptar progressivamente pois pode causar DOMS severo, usar impulso excessivo."},
+  {n:"Goblet Squat",exec:"Segure um haltere ou kettlebell na altura do peito com ambas as maos. Agache com os cotovelos por dentro dos joelhos empurrando-os para fora. Peito alto e calcanhar no chao.",erros:"Cotovelos nao empurrando os joelhos para fora, perder a posicao do haltere, nao atingir profundidade adequada."},
+  {n:"Handstand Push-up",exec:"Parado de maos no chao com os pes na parede. Desca a cabeca em direcao ao chao mantendo o core ativado. Empurre de volta a extensao total. Versao kipping usa impulso das pernas.",erros:"Nao ativar o core causando colapso do tronco, cabeca tocando muito a frente ou atras, nao completar a extensao no topo."},
+  {n:"Handstand Walk",exec:"Parado de maos, desloque o peso para uma mao e mova a outra lateralmente. Mantenha o core rigido, ombros ativados e olhe levemente para frente entre os dedos.",erros:"Core relaxado que causa colapso, olhar muito para baixo ou para frente, passos irregulares, ombros sem ativacao."},
+  {n:"Hip Thrust",exec:"Costas apoiadas no banco com a barra sobre o quadril. Pess no chao a largura dos ombros. Empurre o quadril para cima ate alinhar com os joelhos e ombros. Aperte os gluteos no topo.",erros:"Nao estender completamente o quadril, deixar os joelhos caindo para dentro, usar a lombar em vez dos gluteos."},
+  {n:"Hollow Body Hold",exec:"Deitado de costas, contraia o abdomen achatando a lombar no chao. Levante os ombros e as pernas simultaneamente formando uma banana invertida. Bracos estendidos atras da cabeca.",erros:"Deixar a lombar arqueada saindo do chao, nao manter a posicao de banana, prender a respiracao."},
+  {n:"Hollow Rocks",exec:"Mesma posicao do hollow body hold mas balancando para frente e para tras mantendo a forma rigida. O corpo deve permanecer como uma casca rigida durante todo o movimento.",erros:"Perder a posicao de banana ao balancar, deixar os bracos ou pernas caindo, usar impulso em vez de controle."},
+  {n:"Kettlebell Swing",exec:"Pes um pouco mais abertos que os ombros. Hinge no quadril projetando o KB para tras entre as pernas. Extensao explosiva do quadril lanca o KB para frente. Bracos sao apenas guias.",erros:"Agachar em vez de hinge, usar os bracos para puxar em vez do quadril, nao controlar o KB na descida."},
+  {n:"L-sit",exec:"Nas barras ou argolas, levante as pernas estendidas a 90 graus com o tronco mantendo o corpo em forma de L. Ative o core, pressione para baixo com os ombros e mantenha os joelhos estendidos.",erros:"Dobrar os joelhos facilitando demais, nao pressionar os ombros para baixo, deixar o core relaxar."},
+  {n:"Lateral Raise",exec:"Em pe, halteres ao lado do corpo. Eleve os bracos lateralmente com cotovelos levemente dobrados ate a altura dos ombros. Desca controlado.",erros:"Usar impulso do tronco, subir acima da linha dos ombros, girar os pulsos (polegar acima) reduzindo a ativacao do medial."},
+  {n:"Muscle Up Argola",exec:"Parte do false grip hang. Pull explosivo com os cotovelos altos passando pelas argolas. Na transicao, gire os pulsos e leve o peito entre as argolas. Finalize com extensao total dos cotovelos.",erros:"Nao usar false grip, cotovelos nao subindo alto o suficiente, transicao sem rotacao dos pulsos, nao manter as argolas proximas ao corpo."},
+  {n:"OHS",exec:"Barra acima da cabeca com pegada larga. Ative os ombros empurrando a barra para o teto. Agache mantendo a barra alinhada sobre o mediotatarso, tronco o mais vertical possivel.",erros:"Barra indo para frente ou atras, nao ativar os ombros causando instabilidade, agachamento raso, cotovelos dobrados."},
+  {n:"Power Clean",exec:"Puxada da barra do chao com segunda puxada explosiva. Recepcao com cotovelos altos na postura de quartoagachamento — nao agachamento completo. Barra para os ombros rapidamente.",erros:"Puxar cedo com os bracos, nao completar a extensao do quadril antes de puxar os cotovelos, recepcao com cotovelos baixos."},
+  {n:"Power Snatch",exec:"Puxada da barra com recepcao acima da cabeca em postura de quartoagachamento. A barra vai direto do chao para cima em um movimento explosivo continuo.",erros:"Puxar com os bracos cedo, nao manter a barra proxima ao corpo, recepcao instavel com ombros sem ativacao."},
+  {n:"Prancha",exec:"Apoio nos antebracos ou maos estendidas. Corpo em linha reta da cabeca aos pes. Contraia o abdomen, gluteos e quadriceps simultaneamente. Respire normalmente.",erros:"Quadril muito alto ou baixo, cabeca caindo, nao ativar o core adequadamente, prender a respiracao."},
+  {n:"Pull-up",exec:"Pegada pronada acima da cabeca. Puxe o corpo para cima ate o queixo (pull-up) ou peito (C2B) passar a barra. Desca com controle ate a extensao total.",erros:"Nao chegar a extensao total embaixo, usar impulso excessivo sem base de forca, cabeca projetada para frente."},
+  {n:"Push Jerk",exec:"Barra nos ombros. Rapida flexao dos joelhos (dip) seguida de extensao explosiva. Lance a barra acima recebendo com os joelhos levemente dobrados e bracos totalmente estendidos.",erros:"Dip muito profundo perdendo elasticidade, nao terminar a extensao das pernas antes de receber, cotovelos nao lockando."},
+  {n:"Push Press",exec:"Barra nos ombros. Pequena flexao dos joelhos para gerar impulso e pressione a barra acima da cabeca ate a extensao total. Diferente do desenvolvimento — usa as pernas.",erros:"Dip muito profundo, nao transferir a forca das pernas para os bracos em tempo, nao lockarem os cotovelos no topo."},
+  {n:"Remada Curvada",exec:"Quadril inclinado a 45-70 graus. Puxe a barra em direcao ao abdomen inferior com cotovelos proximos ao corpo. Aperte as escapulas no topo. Desca controlado.",erros:"Tronco muito vertical transformando em desenvolvimento, arredondar a lombar, usar impulso do tronco para ajudar."},
+  {n:"Ring Dip",exec:"Nas argolas com suporte (rings turned out — argolas viradas para fora). Desca controlado ate os cotovelos atingirem 90 graus. Suba pela forca do triceps mantendo as argolas proximas ao corpo.",erros:"Nao virar as argolas no topo, cotovelos muito abertos, descida incontrolada, nao completar a extensao."},
+  {n:"Ring MU",exec:"Do hang, puxada explosiva com cotovelos altos. Na transicao, leve o peito entre as argolas girando os pulsos. Finalize em suporte com argolas viradas para fora e cotovelos estendidos.",erros:"Nao usar false grip para iniciantes, nao fazer a transicao de forma explosiva, argolas afastadas do corpo."},
+  {n:"Ring Row",exec:"Argolas ajustadas na altura desejada. Segure as argolas e incline o corpo para tras. Puxe o peito em direcao as argolas mantendo o corpo rigido. Quanto mais horizontal, mais dificil.",erros:"Deixar o quadril cair quebrando a linha do corpo, cotovelos muito abertos, nao completar o movimento tocando o peito."},
+  {n:"Romanian Deadlift",exec:"Em pe com a barra. Empurre o quadril para tras enquanto desca a barra pela frente das pernas com joelhos levemente dobrados. Desca ate sentir o alongamento dos posteriores. Volte pelo quadril.",erros:"Dobrar os joelhos excessivamente transformando em deadlift, arredondar a lombar na descida, barra afastando do corpo."},
+  {n:"Rotacao Externa Elastico",exec:"Cotovelo fixo ao lado do corpo a 90 graus. Com o elastico, rode o antebraco para fora ativando o manguito rotador. Movimento lento e controlado sem compensacao do ombro.",erros:"Deixar o cotovelo sair do corpo, fazer o movimento rapido sem controle, usar carga excessiva comprometendo a amplitude."},
+  {n:"Rope Climb",exec:"Salte e agarre a corda acima da cabeca. Use os pes para travar a corda (tecnica S ou J). Puxe com os bracos enquanto sobe os joelhos. Alterne bracadas e travamentos de pe.",erros:"Confiar apenas nos bracos sem usar as pernas, nao travar corretamente a corda nos pes, descer de forma descontrolada."},
+  {n:"Shoulder Press",exec:"Barra ou halteres na altura dos ombros sem impulso das pernas. Pressione verticalmente acima da cabeca. Mova levemente a cabeca para tras ao subir e volte ao passaar a barra pelo rosto.",erros:"Usar impulso das pernas (ai vira push press), nao mover a cabeca para dar espaco a barra, nao estabilizar o core."},
+  {n:"Snatch",exec:"Do chao, puxada continua com duas fases de aceleracao. Recepcao abaixo com a barra acima da cabeca em agachamento profundo. Levante e estabilize com cotovelos travados.",erros:"Puxar com bracos cedo, nao completar a extensao do quadril, barra afastada do corpo, recepcao com cotovelos dobrados."},
+  {n:"Snatch Balance",exec:"Barra nas costas, posicao de agachamento. Empurre a barra acima enquanto cai em agachamento completo recebendo com os bracos estendidos. Levante.",erros:"Nao empurrar ativamente a barra, receber com cotovelos dobrados, nao ativar os ombros na recepcao."},
+  {n:"Split Jerk",exec:"Da posicao de jerk, lance a barra acima e simultaneamente avance um pe e recue o outro em afundo. Receba com os bracos bloqueados. Junte os pes para finalizar.",erros:"Afundo muito estreito dando pouca estabilidade, bracos nao lockando antes de receber, nao juntar os pes no final."},
+  {n:"Squat Clean",exec:"Igual ao power clean mas recebe a barra em agachamento completo. Exige maior mobilidade de quadril, tornozelo e ombro. A recepcao mais baixa permite levantar cargas maiores.",erros:"Recepcao com cotovelos baixos, nao atingir agachamento completo, levantar antes de estabilizar a barra."},
+  {n:"T2B",exec:"Pendurado na barra, use o balanco do corpo (kipping) e suba os pes em direcao as maos tocando a barra com os dois pes simultaneamente. Core ativado durante todo o movimento.",erros:"Tocar com apenas um pe, nao usar o kipping eficientemente, nao controlar o retorno, desmanche do core."},
+  {n:"Thruster",exec:"Combinacao de front squat e push press. Desca em agachamento frontal e na subida use o impulso das pernas para lancar a barra acima em um movimento continuo.",erros:"Parar entre o squat e o press perdendo o impulso, nao completar o agachamento, cotovelos caindo na recepcao."},
+  {n:"Turkish Get-up",exec:"Deitado com o haltere acima da cabeca (cotovelo travado). Suba progressivamente passando por apoio lateral, joelho no chao e posicao de afundo ate ficar em pe. Reverta o movimento.",erros:"Dobrar o cotovelo em qualquer momento, olhar para baixo em vez de manter o olhar no haltere, pressa nas transicoes."},
+  {n:"Wall Ball",exec:"Segure a medicine ball ao peito. Agache em profundidade e na subida lance a bola acima atingindo o alvo (geralmente 3m). Receba a bola no retorno descendo ja para o proximo agachamento.",erros:"Agachamento raso, lancar antes de completar a extensao das pernas, receber a bola com os bracos estendidos."},
+  {n:"Wall Walk",exec:"Da posicao de prancha com os pes na parede, caminhe com as maos em direcao a parede enquanto os pes sobem. Chegue o mais proximo possivel da parede. Volte controlado.",erros:"Nao manter o core ativo causando colapso do abdomen, ombros sem ativacao, pressa na subida ou descida."},
+  {n:"Y-T-W",exec:"Deitado de brucos com os bracos estendidos. Faca o formato das letras com os bracos: Y (diagonal acima), T (lateral), W (cotovelos dobrados). Foco na contracao dos retratores da escapula.",erros:"Usar momentum em vez de contracao muscular, levantar demais a cabeca, nao manter a posicao de cada letra por 1-2 seg."}
+];
+
+function initBiblioteca(){
+  if(bibInited) return;
+  bibInited = true;
+  renderBiblioteca(BIBLIOTECA);
+}
+
+function filterBiblioteca(q){
+  const filtered = q.trim().length < 2
+    ? BIBLIOTECA
+    : BIBLIOTECA.filter(e => e.n.toLowerCase().includes(q.toLowerCase()) || e.exec.toLowerCase().includes(q.toLowerCase()));
+  renderBiblioteca(filtered);
+}
+
+function renderBiblioteca(list){
+  let html = '';
+  // Group by first letter
+  let lastLetter = '';
+  list.forEach(ex => {
+    const letter = ex.n[0].toUpperCase();
+    if(letter !== lastLetter){
+      lastLetter = letter;
+      html += `<div style="padding:8px 16px 4px;font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:600">${letter}</div>`;
+    }
+    html += `<div class="bib-card" onclick="toggleBibCard('bib-${ex.n.replace(/\s+/g,'_')}')">
+      <div class="bib-head">
+        <span class="bib-nome">${ex.n}</span>
+        <span style="color:var(--text3);font-size:12px">&#9660;</span>
+      </div>
+      <div class="bib-body" id="bib-${ex.n.replace(/\s+/g,'_')}">
+        <div class="bib-section">
+          <div class="bib-label">&#128203; Execucao</div>
+          <div class="bib-text">${ex.exec}</div>
+        </div>
+        <div class="bib-section" style="margin-top:8px">
+          <div class="bib-label" style="color:var(--red)">&#9888; Erros comuns</div>
+          <div class="bib-text" style="color:var(--text2)">${ex.erros}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  if(!list.length) html = '<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px">Nenhum exercicio encontrado</div>';
+  document.getElementById('bib-list').innerHTML = html;
+}
+
+function toggleBibCard(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+
+// ========= MOBILIDADE =========
+const DIAS_MOB = ['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+
+const MOB_PROTOCOLO = {
+  0: { // Segunda
+    foco:"Toracica + Overhead",
+    cor:"#f59e0b",
+    sub:"Destrava o OHS e o arch na barra",
+    exercicios:[
+      {
+        icon:"🔄", nome:"Foam Roller Toracica", tempo:"2min",
+        como:"Deite o foam roller perpendicular a coluna na altura da caixa toracica. Bracos cruzados no peito ou entrelaçados atras da cabeca. Role lentamente de T4 a T10 (entre as escapulas e a base das costelas). Em cada ponto sensivel, pause 5-10 segundos e deixe o peso do corpo abrir a extensao.",
+        dica:"Nao role na lombar — apenas toracica. Se ouvir estalos, e normal.",
+        lpo:"Toracica movel = barra estavel no OHS e posicao de recepcao no snatch."
+      },
+      {
+        icon:"🙏", nome:"Thread the Needle", tempo:"1min30s",
+        como:"Em 4 apoios, deslize um braco pelo chao sob o corpo ate o ombro tocar o chao. Mantenha o quadril nivelado. Segure 30 segundos cada lado, 3 series.",
+        dica:"O quadril nao deve rotar — o movimento e so do tronco e ombro.",
+        lpo:"Abre a rotacao toracica necessaria para o kipping e o arch controlado na barra."
+      },
+      {
+        icon:"🧘", nome:"Overhead Squat Wall Test", tempo:"2min",
+        como:"De costas para a parede a 15cm dela. Eleve os bracos acima da cabeca tocando a parede. Agache lentamente mantendo os bracos na parede e o calcanhar no chao. Identifique onde trava — ombro, toracica ou tornozelo.",
+        dica:"Use como diagnostico semanal. Se melhorou a profundidade sem os calcanhares saindo, o protocolo esta funcionando.",
+        lpo:"Teste direto do padrao OHS — o mais importante para o snatch."
+      },
+      {
+        icon:"💪", nome:"Rotacao Externa Passiva", tempo:"1min30s",
+        como:"Deite de lado com o braco problema em cima, cotovelo a 90 graus. Use a outra mao para empurrar suavemente o antebraco em direcao ao chao (rotacao externa). Segure 30-40 segundos. Respire fundo e relaxe.",
+        dica:"Nao force — pressao leve e constante funciona melhor que forca.",
+        lpo:"Rotacao externa e prerequisito para o overhead seguro com o ombro direito."
+      },
+      {
+        icon:"🏋️", nome:"Lat Stretch na Barra ou Porta", tempo:"1min30s",
+        como:"Segure a barra ou batente de porta na altura do peito com uma mao. Afaste o corpo criando angulo com o braco. Deixe o quadril ir para o lado oposto em arco lateral. Sinta o alongamento do latissimo. 45 segundos cada lado.",
+        dica:"O latissimo curto e a principal causa do arch travado ao se pendurar na barra.",
+        lpo:"Lat solto = arch livre = kipping eficiente = base do muscle up."
+      },
+      {
+        icon:"🌀", nome:"Cat Cow + Extension", tempo:"1min30s",
+        como:"Em 4 apoios, alterne entre arredondar (cat) e estender (cow) a coluna. Em cada cow, pause 2 segundos na extensao maxima. 10 repeticoes lentas.",
+        dica:"Foca na extensao da toracica — deixe a cabeca cair para tras no cow.",
+        lpo:"Ativa a mobilidade segmentada da coluna necessaria para a postura correta no LPO."
+      }
+    ],
+    porques:[
+      {area:"OHS / Snatch", motivo:"Toracica travada faz a barra ir para frente — maior limitador do seu OHS"},
+      {area:"Kipping / Arch", motivo:"Lat e toracica sao a base do arco controlado na barra"},
+      {area:"Ombro direito", motivo:"Rotacao externa passiva mantem a saude do manguito rotador"}
+    ]
+  },
+  1: { // Terca
+    foco:"Quadril — Abertura e Rotacao",
+    cor:"#22c55e",
+    sub:"Profundidade do agachamento e posicao de recepcao",
+    exercicios:[
+      {
+        icon:"🦵", nome:"90-90 Hip Stretch", tempo:"2min",
+        como:"Sentado no chao, coloque uma perna a 90 graus a frente e a outra a 90 graus atras. Incline o tronco sobre a perna dianteira mantendo as costas retas. 60 segundos de cada lado. Para intensificar, empurre o joelho traseiro para baixo.",
+        dica:"E o melhor alongamento de rotacao de quadril — paziente, respire profundo.",
+        lpo:"Rotacao interna e externa do quadril livres = agachamento mais profundo e confortavel."
+      },
+      {
+        icon:"🏃", nome:"Lunge com Rotacao Toracica", tempo:"1min30s",
+        como:"Passo largo a frente (afundo). Joelho traseiro toca o chao. Com a mao do lado da perna dianteira no chao, gire o tronco abrindo o braco para o teto. 5 repeticoes cada lado, controlado.",
+        dica:"Foca na abertura do quadril flexor (perna traseira) e rotacao do tronco simultaneamente.",
+        lpo:"Posicao identica ao bottom do split jerk — mobilidade direta para o LPO."
+      },
+      {
+        icon:"🔄", nome:"Foam Roller Gluteo e IT Band", tempo:"2min",
+        como:"Sente no foam roller com um pe cruzado sobre o joelho oposto (figura 4). Role o gluteo do lado do pe cruzado. Pause nos pontos sensiveis 10 segundos. 1 minuto cada lado.",
+        dica:"O gluteo tenso puxa o femur para dentro prejudicando o agachamento.",
+        lpo:"Gluteo livre = joelhos abertos no agachamento = padrao correto no clean e snatch."
+      },
+      {
+        icon:"🧎", nome:"Pigeon Pose", tempo:"2min",
+        como:"Da posicao de 4 apoios, traga a perna direita a frente posicionando o joelho atras do pulso direito. Estenda a perna esquerda para tras. Incline o tronco para frente apoiando os antebracos. Mantenha 60 segundos cada lado.",
+        dica:"Para iniciantes, use um suporte (dobrex, toalha) sob o quadril do lado dianteiro.",
+        lpo:"Abertura de quadril necessaria para recepcao do squat clean e agachamento profundo."
+      },
+      {
+        icon:"💫", nome:"Hip CARs (Controlled Articular Rotations)", tempo:"1min30s",
+        como:"Em pe apoiado na parede, levante um joelho a 90 graus. Faca uma rotacao ampla do quadril para fora (abertura) e depois para dentro. Movimento lento e controlado — 5 rotacoes cada direcao, cada lado.",
+        dica:"CARs mantem a saude articular e expande a amplitude ativa — diferente do alongamento passivo.",
+        lpo:"Quadril com boa amplitude ativa = estabilidade na recepcao dos levantamentos."
+      },
+      {
+        icon:"🌊", nome:"Deep Squat Hold", tempo:"1min",
+        como:"Agache o mais profundo possivel com os pes paralelos ou levemente abertos. Use uma barra, porta ou banda para suporte se necessario. Mantenha 60 segundos empurrando os joelhos para fora com os cotovelos.",
+        dica:"Este e o padrao final que queremos — use como termometro de evolucao.",
+        lpo:"Posicao de recepcao do squat clean e squat snatch — quanto mais confortavel aqui, melhor o LPO."
+      }
+    ],
+    porques:[
+      {area:"Squat Clean / Snatch", motivo:"Recepcao profunda exige quadril movel em rotacao e abertura"},
+      {area:"Front Squat", motivo:"Quadril aberto = tronco vertical = cotovelos altos naturalmente"},
+      {area:"Agachamento geral", motivo:"Gluteo e rotadores do quadril sao a base de toda a forca de pernas"}
+    ]
+  },
+  2: { // Quarta
+    foco:"Tornozelo + Flexores do Quadril",
+    cor:"#60a5fa",
+    sub:"Calcanhar no chao e core neutro",
+    exercicios:[
+      {
+        icon:"🦶", nome:"Dorsiflexao na Parede", tempo:"2min",
+        como:"Em pe a 10cm da parede, tente tocar o joelho na parede sem tirar o calcanhar do chao. Se conseguir, afaste mais o pe. Registre a distancia maxima — meta e 12-15cm. 10 repeticoes cada lado com 2 segundos de pausa no toque.",
+        dica:"Este e o teste e o treino ao mesmo tempo. A limitacao aqui explica o calcanhar subindo.",
+        lpo:"Cada centimetro de dorsiflexao ganho = agachamento mais profundo com calcanhares no chao."
+      },
+      {
+        icon:"⚽", nome:"Mobilizacao do Tornozelo com Banda", tempo:"1min30s",
+        como:"Prenda uma banda resistente no tornozelo na altura do talo. Empurre o joelho a frente por cima do dedinho do pe enquanto mantem o calcanhar no chao. A banda cria forca de distracao articular. 10 repeticoes lentas cada lado.",
+        dica:"A banda e opcional — sem ela funciona mas com ela acelera os resultados.",
+        lpo:"Tornozelo com boa dorsiflexao = posicao ideal no jerk e no fundo do clean."
+      },
+      {
+        icon:"🏃", nome:"Half Kneeling Hip Flexor Stretch", tempo:"2min",
+        como:"Joelho traseiro no chao, pe dianteiro a frente formando 90-90. Empurre o quadril levemente para frente ate sentir o alongamento na frente da coxa traseira. Aperte o gluteo traseiro. Segure 60 segundos cada lado.",
+        dica:"Apertar o gluteo traseiro intensifica o alongamento — e a chave deste movimento.",
+        lpo:"Flexor do quadril curto causa anteversao pelvica = lombar em extensao = instabilidade no LPO."
+      },
+      {
+        icon:"🌀", nome:"World's Greatest Stretch", tempo:"2min",
+        como:"Passo largo a frente. Mao do lado dianteiro no chao ao lado do pe. Gire o braco oposto para o teto abrindo o tronco. Depois deixe o cotovelo dianteiro ir em direcao ao chao. 5 repeticoes lentas cada lado.",
+        dica:"E chamado de 'o melhor alongamento do mundo' por ativar tornozelo, quadril, toracica e ombro simultaneamente.",
+        lpo:"Padrao de movimento que prepara o corpo para todos os levantamentos olimpicos."
+      },
+      {
+        icon:"🔄", nome:"Foam Roller Quadriceps e IT Band", tempo:"1min30s",
+        como:"Deitado de brucos, foam roller sob um quadriceps. Role da virilha ate acima do joelho pausando nos pontos sensiveis. 45 segundos cada perna.",
+        dica:"Quadriceps solto reduz o estico do joelho e melhora a flexao profunda.",
+        lpo:"Quadriceps e IT band soltos = joelho saudavel = treino consistente sem interrupcao."
+      },
+      {
+        icon:"⬆️", nome:"Squat to Stand", tempo:"1min",
+        como:"Em pe, incline o tronco e agarre os dedoes dos pes. Mantenha os joelhos estendidos por 2 segundos (posterior). Dobre os joelhos e desca para o agachamento profundo. Levante os cotovelos e aponte para cima. Suba. Repita 8 vezes.",
+        dica:"Combina posterior de coxa, tornozelo e abertura de quadril em um movimento fluido.",
+        lpo:"Replicar o padrao de saida da barra do chao no deadlift e no clean."
+      }
+    ],
+    porques:[
+      {area:"Todo agachamento", motivo:"Dorsiflexao limitada e a causa numero 1 do calcanhar saindo do chao"},
+      {area:"Hollow body / L-sit", motivo:"Flexor do quadril curto impede o hollow e o L-sit — core aparentemente fraco"},
+      {area:"Postura geral", motivo:"Flexor do quadril curto anterioriza a pelve comprometendo toda a cadeia posterior"}
+    ]
+  },
+  3: { // Quinta
+    foco:"Posterior de Coxa + Lombar",
+    cor:"#a78bfa",
+    sub:"Posicao de primeira puxada no clean e snatch",
+    exercicios:[
+      {
+        icon:"🦵", nome:"PNF Posterior de Coxa", tempo:"2min",
+        como:"Deitado de costas, levante uma perna estendida ate o limite do alongamento. Segure com as maos ou uma banda. Contraia o posterior contra a resistencia por 5 segundos (como se quisesse empurrar a perna para baixo). Relaxe e empurre a perna um pouco mais. 3 ciclos cada perna.",
+        dica:"PNF (facilitacao proprioceptiva) ganha amplitude 2x mais rapido que alongamento estatico puro.",
+        lpo:"Posterior longo = posicao de saida da barra mais eficiente sem arredondar a lombar."
+      },
+      {
+        icon:"🔄", nome:"Foam Roller Posterior de Coxa", tempo:"1min30s",
+        como:"Sentado com o foam roller sob uma coxa traseira, apoie as maos no chao. Role da sitbone (ossso isquio) ate acima do joelho. Pause nos nos. 45 segundos cada lado.",
+        dica:"Adicione rotacao interna e externa da perna durante o roll para atingir diferentes feixes.",
+        lpo:"Posterior solto = maior amplitude na primeira puxada do snatch e clean."
+      },
+      {
+        icon:"🏋️", nome:"Jefferson Curl (sem carga ou minima)", tempo:"1min30s",
+        como:"Em pe em uma caixa ou step. Incline lentamente a cabeca, depois o pescoco, depois cada vertebra toracica e lombar em sequencia. Deixe os bracos pendurados. Chegue o mais baixo possivel de forma controlada. Suba vertebra por vertebra.",
+        dica:"Comece sem carga — o peso do corpo ja e suficiente. Movimento muito lento.",
+        lpo:"Mobilidade ativa da cadeia posterior — directamente relacionada a primeira puxada do deadlift e clean."
+      },
+      {
+        icon:"🌀", nome:"Child's Pose com Distracao Lateral", tempo:"1min30s",
+        como:"Posicao de criança com os joelhos abertos. Caminha as maos para a direita ate sentir o alongamento no lado esquerdo (lat e lombar). Segure 30 segundos. Repita para o outro lado. Volte ao centro.",
+        dica:"A variacao lateral atinge o latissimo e o quadrado lombar — frequentemente ignorados.",
+        lpo:"Lat e lombar soltam = overhead mais estavel = posicao de jerk mais segura."
+      },
+      {
+        icon:"🔀", nome:"Dead Bug Respiratorio", tempo:"2min",
+        como:"Deitado de costas, joelhos a 90 graus, bracos para o teto. Inspire profundo. Na expiracao, achate a lombar no chao e estenda o braco direito e perna esquerda simultaneamente sem perder o contato da lombar. 8 repeticoes alternadas.",
+        dica:"O objetivo e a estabilidade lombar — nao a amplitude. Lombar colada o tempo todo.",
+        lpo:"Ativa o padrao de estabilizacao da lombar necessario na recepcao dos levantamentos."
+      },
+      {
+        icon:"⚖️", nome:"Spiderman Stretch", tempo:"1min30s",
+        como:"Da posicao de prancha, avance o pe direito ate fora da mao direita. Abaixe o quadril. Opcional: gire o braco direito para o teto. 30 segundos cada lado.",
+        dica:"Atinge o flexor do quadril, adutor e rotacao toracica simultaneamente.",
+        lpo:"Padrao de movimento do split jerk e posicao de afundo nos lunges do treino."
+      }
+    ],
+    porques:[
+      {area:"Primeira puxada do clean/snatch", motivo:"Posterior curto = lombar arredondada = forca perdida e risco de lesao"},
+      {area:"Deadlift", motivo:"Cadeia posterior longa permite posicao inicial mais segura com carga alta"},
+      {area:"Core stability", motivo:"Dead bug ensina o padrao de estabilizacao lombar — base de todo o LPO"}
+    ]
+  },
+  4: { // Sexta
+    foco:"Ombro — Capsula e Rotacao",
+    cor:"#ef4444",
+    sub:"Saude e amplitude do ombro direito",
+    exercicios:[
+      {
+        icon:"🔄", nome:"Sleeper Stretch", tempo:"2min",
+        como:"Deite de lado com o ombro direito embaixo, cotovelo a 90 graus apontando para cima. Use a mao oposta para empurrar suavemente o antebraco em direcao ao chao (rotacao interna). Segure 30-40 segundos. Respire e relaxe progressivamente. 3 series.",
+        dica:"Atua na capsula posterior do ombro — frequentemente tensa em quem treina muita puxada.",
+        lpo:"Capsula posterior solta = overhead mais amplo = menor compensacao no ombro direito."
+      },
+      {
+        icon:"🤲", nome:"Cross Body Stretch", tempo:"1min30s",
+        como:"Traga o braco direito horizontalmente na frente do peito. Use o braco esquerdo para empurra-lo em direcao ao corpo. Mantenha o ombro direito para baixo — nao deixe subir em direcao a orelha. 45 segundos cada lado.",
+        dica:"Complementa o sleeper stretch — juntos cobrem toda a capsula do ombro.",
+        lpo:"Ombro com capsula saudavel = menor risco de tendinopatia recorrente."
+      },
+      {
+        icon:"🏋️", nome:"Band Shoulder Distraction", tempo:"1min30s",
+        como:"Prenda uma banda resistente em algo fixo na altura do quadril. Encaixe o pulso na banda com o braco estendido para o lado. Afaste-se criando tracao. Incline e rode o tronco para diferentes angulos sentindo a abertura do ombro. 45 segundos cada lado.",
+        dica:"A tracao cria espaco na articulacao — especialmente util para o ombro direito com tendinopatia.",
+        lpo:"Direto para o overhead — cria espaco articular para o snatch e OHS."
+      },
+      {
+        icon:"🧘", nome:"Bretzel Stretch", tempo:"2min",
+        como:"Deitado de lado, joelho superior dobrado e segurado pela mao inferior. Estenda o braco superior para o alto e deixe-o cair para atras em rotacao. Olhe na direcao do braco. Respire e afunde progressivamente. 60 segundos cada lado.",
+        dica:"Combina abertura de quadril, rotacao toracica e abertura de ombro — excelente custo-beneficio.",
+        lpo:"Abre o complexo toracica-ombro necessario para a posicao de recepcao overhead."
+      },
+      {
+        icon:"💪", nome:"Wall Angel", tempo:"1min30s",
+        como:"De costas na parede com lombar, toracica, cabeca e bracos tocando a parede. Cotovelos a 90 graus. Deslize os bracos para cima como um anjo da neve mantendo todo o contato com a parede. Desça. 10 repeticoes lentas.",
+        dica:"Se os bracos saem da parede ao subir, sua toracica e ombro ainda tem limitacao — e normal no inicio.",
+        lpo:"Padrao motor do overhead — treina o caminho ideal da barra no snatch e jerk."
+      },
+      {
+        icon:"🌀", nome:"PVC Pass Through", tempo:"1min30s",
+        como:"Segure um cabo de vassoura ou PVC com pegada bem larga. Com os bracos estendidos, passe o bastao da frente para atras do corpo em arco. Estreite progressivamente a pegada conforme a amplitude aumenta.",
+        dica:"Diagnostic tool: a largura maxima da pegada antes de travar mostra sua mobilidade atual de ombro.",
+        lpo:"Movimento identico ao overhead do snatch — mobilidade direta."
+      }
+    ],
+    porques:[
+      {area:"Ombro direito", motivo:"Tendinopatia exige trabalho regular de capsula para nao regredir"},
+      {area:"OHS / Snatch", motivo:"Rotacao externa e abertura de ombro sao prerequisito para overhead seguro"},
+      {area:"Ring MU / HSPU", motivo:"Capsula saudavel = menor risco em movimentos de alta demanda"}
+    ]
+  },
+  5: { // Sabado
+    foco:"Full Body Leve — Pre TACF",
+    cor:"#64748b",
+    sub:"Preparar o corpo para o simulado sem gastar energia",
+    exercicios:[
+      {
+        icon:"🌊", nome:"Foam Roller Full Body", tempo:"3min",
+        como:"Passe rapidamente pelo foam roller em toracica (1min), gluteos (30s cada lado) e quadriceps (30s cada lado). Ritmo fluido, pausas curtas nos nos.",
+        dica:"Dia de simulado: foco em ativar, nao em alongar profundamente.",
+        lpo:"Ativa a circulacao e remove tensoes residuais dos treinos da semana."
+      },
+      {
+        icon:"🔄", nome:"Cat Cow + Rotacao Toracica", tempo:"1min30s",
+        como:"10 cat-cows lentos. Depois, em 4 apoios, deslize um braco sob o corpo em thread the needle 3 vezes cada lado.",
+        dica:"Aquecimento toracico rapido — prepara a coluna para qualquer movimento.",
+        lpo:"Coluna movel = melhor postura durante os 12 minutos de corrida e os movimentos do TACF."
+      },
+      {
+        icon:"🦵", nome:"Hip 90-90 Rapido", tempo:"1min30s",
+        como:"30 segundos de cada posicao 90-90 — sem aprofundar muito. So soltar a tensao do quadril.",
+        dica:"Pre-simulado: manutencao, nao ganho de amplitude.",
+        lpo:"Quadril solto = passada mais ampla na corrida = melhor economia de movimento."
+      },
+      {
+        icon:"🦶", nome:"Dorsiflexao Rapida", tempo:"1min",
+        como:"10 repeticoes rapidas de dorsiflexao contra a parede cada lado. Dinamico, nao estatico.",
+        dica:"Ativa o tornozelo para a corrida sem gastar energia com alongamento profundo.",
+        lpo:"Tornozelo ativado = menor impacto e melhor propulsao na corrida do TACF."
+      },
+      {
+        icon:"💪", nome:"Shoulder Circles + Pass Through", tempo:"1min",
+        como:"10 circulos de ombro grandes para frente e para tras. 5 pass throughs com pegada larga.",
+        dica:"Ativa o complexo do ombro sem sobrecarregar — manutencao pre-esforco.",
+        lpo:"Ombro ativado = snatch e jerk mais seguros se houver treino de LPO na sexta."
+      },
+      {
+        icon:"🌀", nome:"Inchworm", tempo:"1min",
+        como:"Em pe, incline para frente andando com as maos ate a posicao de prancha. Pause 1 segundo. Ande de volta com os pes ate as maos. Repita 5 vezes.",
+        dica:"Ativa toda a cadeia posterior e anterior de forma dinamica — otimo aquecimento geral.",
+        lpo:"Prepara o corpo para os tiros de corrida e flexoes do simulado TACF."
+      }
+    ],
+    porques:[
+      {area:"Corrida TACF", motivo:"Tornozelo e quadril ativados melhoram a economia de corrida"},
+      {area:"Flexoes TACF", motivo:"Ombro e toracica aquecidos = mais reps com menos fadiga"},
+      {area:"Recuperacao semanal", motivo:"Mobilidade leve no sabado remove tensao acumulada da semana"}
+    ]
+  },
+  6: { // Domingo
+    foco:"Recuperacao Passiva",
+    cor:"#22c55e",
+    sub:"Ganho de amplitude com relaxamento total",
+    exercicios:[
+      {
+        icon:"🧘", nome:"Legs up the Wall", tempo:"3min",
+        como:"Deite de costas com as pernas apoiadas verticalmente na parede. Relaxe completamente por 3 minutos. Respire profundo. Opcional: abra as pernas em V para alongar adutores.",
+        dica:"Reverte o efeito da gravidade nas pernas — excelente recuperacao circulatoria.",
+        lpo:"Recuperacao vascular otimiza a absorcao dos estimulos de treino da semana."
+      },
+      {
+        icon:"🌊", nome:"Pigeon Pose Longo", tempo:"2min",
+        como:"Pigeon pose com 60 segundos cada lado. Hoje e domingo — use o tempo extra para aprofundar. Coloque a testa no chao ou nos antebracos.",
+        dica:"Domingo e o dia de usar o maior tempo disponivel nos alongamentos.",
+        lpo:"Sesao longa de abertura de quadril consolida os ganhos da semana."
+      },
+      {
+        icon:"🔄", nome:"Supine Twist", tempo:"1min30s",
+        como:"Deitado de costas, traga o joelho direito ao peito e deixe-o cair para o lado esquerdo. Braco direito estendido para o lado. Olhe para a direita. 45 segundos cada lado. Sem forccar — peso gravitacional apenas.",
+        dica:"Descomprime as facetas articulares da lombar — muito bem após uma semana de treinos.",
+        lpo:"Lombar descomprimida = padrao de levantamento mais seguro na semana seguinte."
+      },
+      {
+        icon:"🌿", nome:"PNF Posterior de Coxa Longo", tempo:"2min",
+        como:"Mesmo protocolo de quinta mas com 60 segundos de hold passivo apos a contracao. Hoje tem tempo.",
+        dica:"Domingo e o melhor dia para PNF longo — corpo mais relaxado, maior ganho de amplitude.",
+        lpo:"Consolida o ganho de posterior da quinta — adaptacao tecidual acontece no repouso."
+      },
+      {
+        icon:"💫", nome:"Box Breathing + Relaxamento", tempo:"1min30s",
+        como:"Inspire 4 segundos, segure 4 segundos, expire 4 segundos, segure 4 segundos. 5 ciclos na posicao de child's pose. Finaliza o protocolo com o sistema nervoso parasimpatico ativado.",
+        dica:"O sistema nervoso precisa de recuperacao tanto quanto os musculos.",
+        lpo:"Recuperacao total do SNC = maior qualidade de movimento nos treinos da semana seguinte."
+      }
+    ],
+    porques:[
+      {area:"Recuperacao geral", motivo:"Domingo passivo consolida todas as adaptacoes da semana"},
+      {area:"Saude articular", motivo:"Alongamentos longos em tecido relaxado dao os maiores ganhos de amplitude"},
+      {area:"Sistema nervoso", motivo:"Recuperacao do SNC e tao importante quanto a muscular para performance"}
+    ]
+  }
+};
+
+function renderMobilidade(){
+  const today = new Date().getDay(); // 0=Dom, 1=Seg...
+  const todayMob = today === 0 ? 6 : today - 1; // convert to Mon=0 index
+
+  // Day selector
+  let dayHtml = '<div class="mob-day-grid">';
+  DIAS_MOB.forEach((d,i) => {
+    const isToday = i === todayMob;
+    dayHtml += `<button class="mob-day-btn${mobDay===i?' active':''}${isToday?' today':''}"
+      onclick="setMobDay(${i})">${d}${isToday?'<br>●':''}</button>`;
+  });
+  dayHtml += '</div>';
+  document.getElementById('mob-day-selector').innerHTML = dayHtml;
+
+  const proto = MOB_PROTOCOLO[mobDay];
+  if(!proto) return;
+
+  // Focus box
+  document.getElementById('mob-focus-box').innerHTML = `
+    <div class="mob-focus" style="background:${proto.cor}18;border:1px solid ${proto.cor}33">
+      <div class="mob-focus-title" style="color:${proto.cor}">&#127919; ${proto.foco}</div>
+      <div class="mob-focus-sub" style="color:${proto.cor}">${proto.sub}</div>
+    </div>`;
+
+  // Total time
+  const totalSegs = proto.exercicios.reduce((acc, ex) => {
+    const m = ex.tempo.match(/(\d+)min(?:(\d+)s)?/);
+    if(!m) return acc;
+    return acc + parseInt(m[1])*60 + (m[2] ? parseInt(m[2]) : 0);
+  }, 0);
+  const totalMin = Math.round(totalSegs/60);
+
+  document.getElementById('mob-total-time') && (document.getElementById('mob-total-time').innerHTML = '');
+
+  // Exercises
+  let exHtml = `<div class="mob-total-time">&#9200; ${totalMin} minutos no total — ao acordar, antes de tomar cafe</div>`;
+  proto.exercicios.forEach((ex, i) => {
+    const eid = 'mobex-'+mobDay+'-'+i;
+    exHtml += `<div class="mob-exercise">
+      <div class="mob-ex-head" onclick="toggleMobEx('${eid}')">
+        <div class="mob-ex-left">
+          <span class="mob-ex-icon">${ex.icon}</span>
+          <span class="mob-ex-name">${ex.nome}</span>
+        </div>
+        <span class="mob-ex-time">${ex.tempo}</span>
+      </div>
+      <div class="mob-ex-body" id="${eid}">
+        <div class="mob-ex-how">${ex.como}</div>
+        ${ex.dica ? `<div class="mob-ex-tip">&#128161; ${ex.dica}</div>` : ''}
+        ${ex.lpo ? `<div class="mob-ex-lpo">&#127947; LPO/Gin: ${ex.lpo}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('mob-protocol').innerHTML = exHtml;
+
+  // Why box
+  let whyHtml = `<div class="mob-why">
+    <div class="mob-why-title">Por que hoje?</div>`;
+  proto.porques.forEach(p => {
+    whyHtml += `<div class="mob-why-row"><span style="color:${proto.cor};flex-shrink:0">&#9679;</span><span><strong>${p.area}</strong> — ${p.motivo}</span></div>`;
+  });
+  whyHtml += '</div>';
+  document.getElementById('mob-why-box').innerHTML = whyHtml;
+}
+
+let mobDay = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+
+function setMobDay(d){
+  mobDay = d;
+  renderMobilidade();
+}
+
+function toggleMobEx(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.className = el.className.includes('open') ? 'mob-ex-body' : 'mob-ex-body open';
+}
+
+// Mobilidade renders via nav onclick
+
+</script>
+</body>
+</html>
