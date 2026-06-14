@@ -1930,7 +1930,7 @@ function buildNutritionAlerts(workout){
   }
   const tomorrow = isoDate(addDays(toDate(workout.date), 1));
   if(RUNNING_PLAN[tomorrow]){
-    alerts.push({type:"warn", title:"Amanhã tem corrida", text:"Não faça restrição agressiva de carboidrato hoje."});
+    alerts.push({type:"warn", title:"Dia seguinte no plano tem corrida", text:`${fmtDate(tomorrow)} · ${RUNNING_PLAN[tomorrow].type}. Não faça restrição agressiva de carboidrato neste dia.`});
   }
   const nextSim = CALENDAR_PLAN.find(d => d.isSimulation && d.date >= workout.date);
   if(nextSim && daysBetween(workout.date, nextSim.date) <= 2){
